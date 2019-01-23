@@ -58,7 +58,7 @@ From your root source directory (e.g. `${HOME}/src`), run:
 ```bash
 git clone https://github.com/rapidsai/spark-examples.git
 cd spark-examples
-sbt aseembly
+sbt assembly
 ```
 
 ### Running on Google Cloud Platform (GCP)
@@ -84,6 +84,11 @@ gcloud compute instances create $INSTANCES --source-instance-template $INSTANCE_
 Start the Spark cluster in standalone mode:
 ```bash
 ./deploy/gcp/start_cluster.sh
+```
+
+Copy the jar file to NFS:
+```bash
+gcloud compute scp mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.jar spark-master:/data/spark/jars/
 ```
 
 Run the Spark job:

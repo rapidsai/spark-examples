@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
+if [[ "$1" = "" ]]
+then
+  echo "Usage: $0 <Spark master IP>"
+  exit 1
+fi
 
 set -ex
 
-# External IP of the Spark master node
-SPARK_MASTER_IP=104.197.209.84
+#
+# Comment/uncomment for job parameters.
+#
 
 # The job to run; for a given dataset, ETL needs to be run before MLBenchmark
 JOB=ETL
@@ -16,8 +22,8 @@ PERIOD=2007Q4
 #PERIOD=all
 
 # CPU or GPU
-DEVICE=cpu
-#DEVICE=gpu
+DEVICE=gpu
+#DEVICE=cpu
 
 # Max tree depth
 MAX_DEPTH=8
@@ -35,6 +41,9 @@ ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 #
 # Probably don't need to change anything below.
 #
+
+# External IP of the Spark master node
+SPARK_MASTER_IP=$1
 
 OUTPUT_DIR=/data/spark/pq
 BENCHMARK_DIR=/data/spark/benchmark
