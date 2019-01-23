@@ -1,10 +1,11 @@
 import sbtassembly.AssemblyPlugin.autoImport._
 
 val sparkVersion = "2.4.0"
-val xgBoostVersion = "0.81"
+val xgBoostVersion = "0.81-SNAPSHOT"
 val scalatestVersion = "3.0.5"
 
 lazy val commonSettings = Seq(
+  resolvers += Resolver.mavenLocal,
   organization := "ai.rapids.sparkexamples",
   name := "spark-examples",
   description := "RAPIDS Spark Examples",
