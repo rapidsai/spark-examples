@@ -93,8 +93,9 @@ gcloud compute scp mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.j
 
 Run the Spark job:
 ```bash
+gcloud compute instances list --filter=name=spark-master # Note the external IP address
 # Comment/uncomment lines to run the specific parameter combination:
-./deploy/gcp/run_job.sh
+./deploy/gcp/run_job.sh <Spark master IP>
 ```
 
 While the job is running, access the Spark master at http://${SPARK_MASTER_IP}:8080.
