@@ -148,8 +148,7 @@ object MortgageXgBoost {
       "min_child_weight" -> 30,
       "reg_lambda" -> 1,
       "scale_pos_weight" -> 2,
-      "subsample" -> 1,
-      "verbosity" -> 3
+      "subsample" -> 1
     ).toMap
 
     // train the model

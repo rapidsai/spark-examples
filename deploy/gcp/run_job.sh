@@ -104,6 +104,7 @@ MLBenchmark)
   --driver-memory 2G \
   --executor-memory 98G \
   --conf spark.task.cpus=${TASK_CPUS} \
+  --conf spark.executorEnv.NCCL_DEBUG=INFO \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${OUTPUT_DIR} \
   ${BENCHMARK_DIR}/${PERIOD}-${DEVICE}-depth-${MAX_DEPTH} \

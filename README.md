@@ -81,6 +81,12 @@ export INSTANCE_TEMPLATE=spark-1xt4
 gcloud compute instances create $INSTANCES --source-instance-template $INSTANCE_TEMPLATE --async
 ``` 
 
+If the instances had been previously created but were stopped, start them again:
+```bash
+source deploy/gcp/instances.sh
+gcloud compute instances start $INSTANCES --async
+```
+
 Start the Spark cluster in standalone mode:
 ```bash
 ./deploy/gcp/start_cluster.sh
