@@ -48,4 +48,16 @@ RUN sbt assembly
 # TODO(rongou): move this base image to rapidsai.
 FROM rongou/spark-gpu:a4e48359ac-2.11-kubernetes
 
+# Reset to root to run installation tasks
+USER 0
+
+# Install additional packags for XGBoost.
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils \
+ && apt-get install -y --no-install-recommends python libgomp1 \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /root/spark-examples/mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.jar /opt/spark/examples/jars
+
+# Specify the User that the actual main process will run as
+USER ${spark_uid}
