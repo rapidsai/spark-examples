@@ -78,13 +78,13 @@ Create instances for the Spark cluster:
 ```bash
 source deploy/gcp/instances.sh
 export INSTANCE_TEMPLATE=spark-1xt4
-gcloud compute instances create $INSTANCES --source-instance-template $INSTANCE_TEMPLATE --async
+gcloud compute instances create ${INSTANCES} --source-instance-template ${INSTANCE_TEMPLATE} --async
 ``` 
 
 If the instances had been previously created but were stopped, start them again:
 ```bash
 source deploy/gcp/instances.sh
-gcloud compute instances start $INSTANCES --async
+gcloud compute instances start ${INSTANCES} --async
 ```
 
 Start the Spark cluster in standalone mode:
@@ -121,11 +121,35 @@ cd /data/spark/benchmark
 Finally, after finish running jobs, stop the instances:
 ```bash
 source deploy/gcp/instances.sh
-gcloud compute instances stop $INSTANCES --async
+gcloud compute instances stop ${INSTANCES} --async
 ```
 
 or delete them:
 ```bash
 source deploy/gcp/instances.sh
-gcloud compute instances delete $INSTANCES --async
+gcloud compute instances delete ${INSTANCES} --async
 ```
+
+### Running on Kubernetes (K8S)
+
+Assuming you have a Kubernetes cluster with GPUs configured.
+
+First, build and push the docker image:
+```bash
+docker build -t ${DOCKER_IMAGE} .
+docker push ${DOCKER_IMAGE}
+```
+
+Then run the ETL job:
+```bash
+./deploy/k8s/etl.sh ${K8S_MASTER}
+```
+
+where the ${K8S_MASTER} can be obtained by running `kubectl cluster-info`.
+
+Finally, run the ML job:
+```bash
+./deploy/k8s/ml_benchmark.sh ${K8S_MASTER}
+```
+
+Performance numbers are written under `${OUTPUT_DIR}/benchmark`.
