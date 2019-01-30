@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils \
 # Install cuDF.
 RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
  && bash Miniconda3-latest-Linux-x86_64.sh -b \
- && miniconda3/bin/conda install -y -c nvidia -c rapidsai -c numba -c conda-forge -c defaults cudf
+ && miniconda3/bin/conda install -y -c nvidia/label/cuda10.0 -c rapidsai/label/cuda10.0 -c numba -c conda-forge -c defaults cudf=0.4.0
 
 # Install Maven (`apt install maven` installs JDK 11, but we need to stay with JDK 8).
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
