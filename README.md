@@ -45,11 +45,24 @@ sudo apt-get install sbt
 ```
 ### Building XGBoost
 
+This step requires version 0.4.0 of cuDF, which can only be installed through Anaconda:
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+
+Follow the instructions to update your `.bashrc`, then open a new shell:
+```bash
+conda create -n cudf
+conda activate cudf
+conda install -c nvidia/label/cuda10.0 -c rapidsai/label/cuda10.0 -c numba -c conda-forge -c defaults cudf=0.4.0
+```
+
 From your root source directory (e.g. `${HOME}/src`), run:
 ```bash
 git clone -b spark-gpu-example --recurse-submodules https://github.com/rongou/xgboost.git
 cd xgboost/jvm-packages
-mvn -DskipTests install
+GDF_ROOT=${HOME}/miniconda3/envs/cudf mvn -DskipTests install
 ```
 
 ### Building the mortgage example
