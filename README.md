@@ -55,7 +55,7 @@ Follow the instructions to update your `.bashrc`, then open a new shell:
 ```bash
 conda create -n cudf
 conda activate cudf
-conda install -c rapidsai/label/cf201901 -c nvidia/label/cuda10.0 -c rapidsai/label/cuda10.0 -c numba -c conda-forge -c defaults cudf=0.4.0
+conda install -c nvidia/label/cf201901 -c rapidsai/label/cf201901 -c numba -c conda-forge/label/cf201901 -c defaults cudf=0.4.0
 ```
 
 From your root source directory (e.g. `${HOME}/src`), run:
