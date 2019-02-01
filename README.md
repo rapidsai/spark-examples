@@ -2,6 +2,20 @@
 
 This repository contains examples for running Spark on GPUs, leveraging [RAPIDS](https://rapids.ai).
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Mortgage](#mortgage)
+  - [Prerequisites](#prerequisites)
+  - [Building XGBoost](#building-xgboost)
+  - [Building the mortgage example](#building-the-mortgage-example)
+  - [Running locally](#running-locally)
+  - [Running on Google Cloud Platform (GCP)](#running-on-google-cloud-platform-gcp)
+  - [Running on Kubernetes (K8S)](#running-on-kubernetes-k8s)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Mortgage
 
 This example shows running XGBoost on the [mortgage data](https://rapidsai.github.io/demos/datasets/mortgage-data).
@@ -72,6 +86,84 @@ From your root source directory (e.g. `${HOME}/src`), run:
 git clone https://github.com/rapidsai/spark-examples.git
 cd spark-examples
 sbt assembly
+```
+
+### Running locally
+
+Download and install Spark:
+```bash
+wget -O spark-2.4.0-bin-hadoop2.7.tgz \
+  "https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz"
+tar xzvf spark-2.4.0-bin-hadoop2.7.tgz -C /opt
+ln -s /opt/spark-2.4.0-bin-hadoop2.7 /opt/spark
+```
+
+Copy the mortgage example jar file:
+```bash
+cp ${HOME}/src/spark-examples/mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.jar /opt/spark/examples/jars/
+``` 
+
+Download one year worth of the mortgage data (this uses 3.9 GB disk space):
+```bash
+wget http://rapidsai-data.s3-website.us-east-2.amazonaws.com/notebook-mortgage-data/mortgage_2000.tgz
+mkdir -p /opt/data/mortgage
+tar xzvf mortgage_2000.tgz -C /opt/data/mortgage
+```
+
+Start a Spark standalone cluster:
+```bash
+/opt/spark/sbin/start-master.sh
+/opt/spark/sbin/start-slave.sh spark://${HOSTNAME}:7077
+```
+the Spark web UI can then be accessed at [http://localhost:8080](http://localhost:8080).
+
+Run the ETL job (`executor-memory` should be adjusted depending on how much memory you have on your machine):
+```bash
+/opt/spark/bin/spark-submit \
+  --class ai.rapids.sparkexamples.mortgage.ETL \
+  --master spark://${HOSTNAME}:7077 \
+  --deploy-mode cluster \
+  --executor-memory 28G \
+  /opt/spark/examples/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
+  /opt/data/mortgage/perf/Performance_2000Q1.txt \
+  /opt/data/mortgage/acq/Acquisition_2000Q1.txt \
+  /opt/models/mortgage/pq
+```
+
+Run the ML job:
+```bash
+WORKERS=1
+SAMPLES=5
+ROUNDS=100
+THREADS=1
+PREDICTOR=gpu_predictor
+TREE_METHOD=gpu_hist
+MAX_DEPTH=8
+GROW_POLICY=depthwise
+/opt/spark/bin/spark-submit \
+  --class ai.rapids.sparkexamples.mortgage.MLBenchmark \
+  --master spark://${HOSTNAME}:7077 \
+  --deploy-mode cluster \
+  --executor-memory 28G \
+  --conf spark.executorEnv.NCCL_DEBUG=INFO \
+  /opt/spark/examples/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
+  /opt/models/mortgage/pq \
+  /opt/models/mortgage/benchmark \
+  ${WORKERS} \
+  ${SAMPLES} \
+  ${ROUNDS} \
+  ${THREADS} \
+  ${PREDICTOR} \
+  ${TREE_METHOD} \
+  ${MAX_DEPTH} \
+  ${GROW_POLICY}
+```
+benchmark results are written to `/opt/models/mortgage/benchmark`.
+
+Finally, clean up Spark:
+```bash
+/opt/spark/sbin/stop-slave.sh
+/opt/spark/sbin/stop-master.sh
 ```
 
 ### Running on Google Cloud Platform (GCP)
