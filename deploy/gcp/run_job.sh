@@ -45,11 +45,11 @@ ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 # External IP of the Spark master node
 SPARK_MASTER_IP=$1
 
-OUTPUT_DIR=/data/spark/pq
+OUTPUT_DIR=/data/spark/pq/${PERIOD}
 BENCHMARK_DIR=/data/spark/benchmark
 
 # Number of runs per benchmark
-SAMPLES=5
+SAMPLES=1
 
 # Number of Rounds
 ROUNDS=100
@@ -61,24 +61,14 @@ PREDICTOR=${DEVICE}_predictor
 WORKERS=20
 
 # Number of threads per worker
+THREADS=15
 
 case "${DEVICE}" in
 cpu)
   TREE_METHOD=auto
-  THREADS=15
   ;;
 gpu)
   TREE_METHOD=gpu_hist
-  THREADS=1
-  ;;
-esac
-
-case "${JOB}" in
-ETL)
-  TASK_CPUS=1
-  ;;
-MLBenchmark)
-  TASK_CPUS=${THREADS}
   ;;
 esac
 
@@ -89,8 +79,7 @@ ETL)
   --master spark://${SPARK_MASTER_IP}:7077 \
   --deploy-mode cluster \
   --driver-memory 2G \
-  --executor-memory 98G \
-  --conf spark.task.cpus=${TASK_CPUS} \
+  --executor-memory 80G \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${PERF_FILES} \
   ${ACQ_FILES} \
@@ -101,9 +90,9 @@ MLBenchmark)
   --class ai.rapids.sparkexamples.mortgage.${JOB} \
   --master spark://${SPARK_MASTER_IP}:7077 \
   --deploy-mode cluster \
-  --driver-memory 2G \
-  --executor-memory 98G \
-  --conf spark.task.cpus=${TASK_CPUS} \
+  --driver-memory 10G \
+  --executor-memory 80G \
+  --conf spark.task.cpus=${THREADS} \
   --conf spark.executorEnv.NCCL_DEBUG=INFO \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${OUTPUT_DIR} \
