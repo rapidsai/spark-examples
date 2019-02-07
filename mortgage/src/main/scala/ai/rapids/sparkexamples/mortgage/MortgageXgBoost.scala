@@ -131,7 +131,7 @@ object MortgageXgBoost {
              nWorkers: Int,
              nThreads: Int = 1,
              predictor: String = "cpu_predictor",
-             treeMethod: String = "exact",
+             treeMethod: String = "auto",
              maxDepth: Int = 8,
              growPolicy: String = "depthwise"): (String, String, String) = {
 
