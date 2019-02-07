@@ -133,7 +133,7 @@ Run the ETL job (`executor-memory` should be adjusted depending on how much memo
 Run the ML job:
 ```bash
 WORKERS=1
-SAMPLES=5
+SAMPLES=1
 ROUNDS=100
 THREADS=1
 PREDICTOR=gpu_predictor
@@ -148,7 +148,7 @@ GROW_POLICY=depthwise
   --conf spark.executorEnv.NCCL_DEBUG=INFO \
   /opt/spark/examples/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   /opt/models/mortgage/pq \
-  /opt/models/mortgage/benchmark \
+  /opt/models/mortgage/benchmark/gpu-depth-8 \
   ${WORKERS} \
   ${SAMPLES} \
   ${ROUNDS} \
