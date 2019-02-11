@@ -17,11 +17,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils \
     wget \
  && rm -rf /var/lib/apt/lists/*
 
-# Install cuDF.
-RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
- && bash Miniconda3-latest-Linux-x86_64.sh -b \
- && miniconda3/bin/conda install -y -c nvidia/label/cf201901 -c rapidsai/label/cf201901 -c numba -c conda-forge/label/cf201901 -c defaults cudf=0.4.0
-
 # Install Maven (`apt install maven` installs JDK 11, but we need to stay with JDK 8).
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV MAVEN_VERSION 3.6.0
@@ -34,7 +29,6 @@ ENV PATH ${M2_HOME}/bin:${PATH}
 
 # Build XGBoost.
 RUN git clone -b spark-gpu-example --recurse-submodules https://github.com/rongou/xgboost.git
-ENV GDF_ROOT /root/miniconda3
 WORKDIR /root/xgboost/jvm-packages
 RUN mvn -DskipTests install
 
