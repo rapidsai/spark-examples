@@ -38,7 +38,6 @@ set -ex
     1 \
     100 \
     1 \
-    gpu_predictor \
     gpu_hist \
     8 \
     depthwise

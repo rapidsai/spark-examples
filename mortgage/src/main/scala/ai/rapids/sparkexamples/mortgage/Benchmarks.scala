@@ -21,7 +21,7 @@ import org.apache.spark.sql.SparkSession
 case class ETLArgs(perfPath: String, acqPath: String, output: String)
 
 case class BenchmarkArgs(input: String, bench: String, workers: Int, samples: Int, rounds: Int, threads: Int,
-                         predictor: String, treeMethod: String, maxDepth: Int, growPolicy: String)
+                         treeMethod: String, maxDepth: Int, growPolicy: String)
 
 object Benchmark {
   def etlArgs(input: Array[String]): ETLArgs =
@@ -29,7 +29,7 @@ object Benchmark {
 
   def args(input: Array[String]): BenchmarkArgs =
     BenchmarkArgs(input(0), input(1), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
-      input(7), input(8).toInt, input(9))
+      input(7).toInt, input(8))
 
   def session: SparkSession = {
     val builder = SparkSession.builder.appName("MortgageJob")
@@ -94,7 +94,7 @@ object MLBenchmark {
     val timings = 0.until(jobArgs.samples).map { _ =>
       val ((acc, tTrain, tTest), time) = Benchmark.time {
         MortgageXgBoost.runXGB(dftrain, dfEval, jobArgs.rounds, jobArgs.workers, jobArgs.threads,
-          jobArgs.predictor, jobArgs.treeMethod, jobArgs.maxDepth, jobArgs.growPolicy)
+          jobArgs.treeMethod, jobArgs.maxDepth, jobArgs.growPolicy)
       }
       s"$acc, $tTrain, $tTest, $time"
     }

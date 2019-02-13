@@ -59,56 +59,14 @@ object MortgageXgBoost {
     "delinquency_12"
   )
 
-  val allCols = catCols ++ numericCols
-
-  def transformIndexer(df: DataFrame): (DataFrame, DataFrame) = {
-    val featureDF = df.select((numericCols ++ catCols).map(v => col(v)): _*)
-
-    val indexers = catCols.map { col =>
-      new StringIndexer().setInputCol(col).setOutputCol(col + "_index")
-    }
-
-    val pipeline = new Pipeline().setStages(indexers.toArray)
-
-    val indexNames = catCols.map(_ + "_index")
-
-    val splits = pipeline
-      .fit(featureDF)
-      .transform(featureDF)
-      .drop(catCols: _*)
-      .select((indexNames ++ numericCols).map(v => col(v).cast("float").alias(v.replace("_index", ""))): _*)
-      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1).otherwise(0))
-      .na.fill(0.0f)
-      .randomSplit(Array(0.8, 0.2))
-
-    (splits(0), splits(1))
-  }
-
-  def transformHashOneHot(df: DataFrame): (DataFrame, DataFrame) = {
-    val featureDF = df.select((numericCols ++ catCols).map(v => col(v)): _*)
-    val splits = new FeatureHasher()
-      .setNumFeatures(100)
-      .setInputCols(catCols.toArray)
-      .setOutputCol("cat_features")
-      .transform(featureDF)
-      .drop(catCols: _*)
-      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1).otherwise(0))
-      .na.fill(0.0f)
-      .randomSplit(Array(0.8, 0.2))
-
-    (splits(0), splits(1))
-  }
+  val allCols: List[String] = catCols ++ numericCols
 
   def transform(df: DataFrame): (DataFrame, DataFrame) = {
-    val featureDF = df.select((numericCols ++ catCols).map(v => col(v)): _*)
-    val splits = featureDF
-      .select(catCols.map(c => (md5(col(c)) % 100).alias(c)) ++ numericCols.map(c => col(c)): _*)
+    val featureDF = df.select(catCols.map(c => (md5(col(c)) % 100).alias(c)) ++ numericCols.map(c => col(c)): _*)
       .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1).otherwise(0))
       .na.fill(0.0f)
-      .randomSplit(Array(0.8, 0.2))
-
-    val dtrain = getDataFrameMatrix(splits(0))
-    val dtest = getDataFrameMatrix(splits(1))
+    val dmatrix = getDataFrameMatrix(featureDF)
+    val Array(dtrain, dtest) = dmatrix.randomSplit(Array(0.8, 0.2))
     (dtrain, dtest)
   }
 
@@ -130,26 +88,26 @@ object MortgageXgBoost {
              numRound: Int,
              nWorkers: Int,
              nThreads: Int = 1,
-             predictor: String = "cpu_predictor",
              treeMethod: String = "auto",
              maxDepth: Int = 8,
              growPolicy: String = "depthwise"): (String, String, String) = {
 
     // define parameters
-    val paramMap = List(
+    val paramMap = Map(
       "eta" -> 0.1,
       "gamma" -> 0.1,
-      "learning_rate" -> 0.1,
-      "predictor" -> predictor,
       "tree_method" -> treeMethod,
       "max_depth" -> maxDepth,
       "max_leaves" -> 256,
       "grow_policy" -> growPolicy,
       "min_child_weight" -> 30,
-      "reg_lambda" -> 1,
+      "lambda" -> 1,
       "scale_pos_weight" -> 2,
-      "subsample" -> 1
-    ).toMap
+      "subsample" -> 1,
+      "num_workers" -> nWorkers,
+      "nthread" -> nThreads,
+      "num_round" -> numRound
+    )
 
     // train the model
     val trainT0 = System.nanoTime()
@@ -157,10 +115,6 @@ object MortgageXgBoost {
     val model = new XGBoostClassifier(paramMap)
       .setFeaturesCol("features")
       .setLabelCol("label")
-      .setUseExternalMemory(false)
-      .setNumWorkers(nWorkers)
-      .setNthread(nThreads)
-      .setNumRound(numRound)
       .fit(trainDF)
 
     val trainT1 = System.nanoTime()

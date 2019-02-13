@@ -123,7 +123,6 @@ WORKERS=1
 SAMPLES=1
 ROUNDS=100
 THREADS=1
-PREDICTOR=gpu_predictor
 TREE_METHOD=gpu_hist
 MAX_DEPTH=8
 GROW_POLICY=depthwise
@@ -140,7 +139,6 @@ GROW_POLICY=depthwise
   ${SAMPLES} \
   ${ROUNDS} \
   ${THREADS} \
-  ${PREDICTOR} \
   ${TREE_METHOD} \
   ${MAX_DEPTH} \
   ${GROW_POLICY}

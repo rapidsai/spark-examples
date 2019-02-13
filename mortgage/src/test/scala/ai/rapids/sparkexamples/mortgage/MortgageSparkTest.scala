@@ -34,16 +34,9 @@ class MortgageSparkTest extends FlatSpec with Matchers {
       "mortgage/src/test/resources/Performance_2007Q3.txt_0",
       "mortgage/src/test/resources/Acquisition_2007Q3.txt"
     ).sort(col("loan_id"), col("monthly_reporting_period"))
-
-    df.count()
-
     assert(df.count() === 10000)
 
-    val cols = df.schema.fields.map(_.name).sorted
-    val sortedDf = df.select(cols.map(n => col(n)):_*)
-
     val (train, eval) = MortgageXgBoost.transform(df)
-
     println(MortgageXgBoost.runXGB(train, eval, 10, 6))
   }
 }

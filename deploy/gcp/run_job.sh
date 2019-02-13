@@ -54,9 +54,6 @@ SAMPLES=1
 # Number of Rounds
 ROUNDS=100
 
-# The predictor to use
-PREDICTOR=${DEVICE}_predictor
-
 # Number of workers
 WORKERS=20
 
@@ -101,7 +98,6 @@ MLBenchmark)
   ${SAMPLES} \
   ${ROUNDS} \
   ${THREADS} \
-  ${PREDICTOR} \
   ${TREE_METHOD} \
   ${MAX_DEPTH} \
   ${GROW_POLICY}
