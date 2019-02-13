@@ -217,10 +217,10 @@ object CreatePerformanceDelinquency {
       .withColumn("current_loan_delinquency_status", col("current_loan_delinquency_status"))
   }
 
-  def apply(spark: SparkSession, df: DataFrame) = {
+  def apply(spark: SparkSession, df: DataFrame): DataFrame = {
     import spark.implicits._
 
-    var aggDF = df
+    val aggDF = df
       .select(
         col("quarter"),
         col("loan_id"),
@@ -247,7 +247,7 @@ object CreatePerformanceDelinquency {
         col("delinquency_180")
       )
 
-    var joinedDf = df
+    val joinedDf = df
       .withColumnRenamed("monthly_reporting_period", "timestamp")
       .withColumnRenamed("monthly_reporting_period_month", "timestamp_month")
       .withColumnRenamed("monthly_reporting_period_year", "timestamp_year")
