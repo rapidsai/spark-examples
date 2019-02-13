@@ -37,6 +37,7 @@ class MortgageSparkTest extends FlatSpec with Matchers {
     assert(df.count() === 10000)
 
     val (train, eval) = MortgageXgBoost.transform(df)
-    println(MortgageXgBoost.runXGB(train, eval, 10, 6))
+    val (auc, _, _) = MortgageXgBoost.runXGB(train, eval, 10, 6)
+    assert(auc > 0.8)
   }
 }

@@ -90,7 +90,7 @@ object MortgageXgBoost {
              nThreads: Int = 1,
              treeMethod: String = "auto",
              maxDepth: Int = 8,
-             growPolicy: String = "depthwise"): (String, String, String) = {
+             growPolicy: String = "depthwise"): (Double, String, String) = {
 
     // define parameters
     val paramMap = Map(
@@ -142,6 +142,6 @@ object MortgageXgBoost {
     val timeToTrain = trainT1 - trainT0
     val timeToTest = testT1 - testT0
 
-    ("" + auc, "" + timeToTrain + "ns", "" + timeToTest + "ns")
+    (auc, timeToTrain + "ns", timeToTest + "ns")
   }
 }
