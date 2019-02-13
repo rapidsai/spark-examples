@@ -51,12 +51,26 @@ sudo apt install libnccl2 libnccl-dev
 Install the Java toolchain:
 ```bash
 sudo apt update
-sudo apt install openjdk-8-jdk maven cmake
+sudo apt install openjdk-8-jdk cmake
 echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
 sudo apt update
 sudo apt install sbt
 ```
+
+Install maven:
+```bash
+export MAVEN_VERSION=3.6.0
+wget -q https://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+tar xzvf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt
+ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven
+```
+and add the following to your `.bashrc`:
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH=/opt/maven/bin:${PATH}
+```
+
 ### Building XGBoost
 
 From your root source directory (e.g. `${HOME}/src`), run:
