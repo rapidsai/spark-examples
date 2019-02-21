@@ -19,7 +19,7 @@ package ai.rapids.sparkexamples.mortgage
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.storage.StorageLevel
 
-case class ETLArgs(perfPath: String, acqPath: String, output: String, bench: String)
+case class ETLArgs(perfPath: String, acqPath: String, output: String)
 
 case class BenchmarkArgs(input: String, bench: String, workers: Int, samples: Int, rounds: Int, threads: Int,
                          treeMethod: String, maxDepth: Int, growPolicy: String)
@@ -40,7 +40,7 @@ case class FullBenchmarkArgs(
 
 object Benchmark {
   def etlArgs(input: Array[String]): ETLArgs =
-    ETLArgs(input(0), input(1), input(2), input(3))
+    ETLArgs(input(0), input(1), input(2))
 
   def args(input: Array[String]): BenchmarkArgs =
     BenchmarkArgs(input(0), input(1), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
@@ -145,7 +145,7 @@ object ETL {
       .coalesce(1)
       .write
       .mode("overwrite")
-      .text(jobArgs.bench + "/etl.csv")
+      .text(jobArgs.output + "/timing/etl.csv")
   }
 }
 
