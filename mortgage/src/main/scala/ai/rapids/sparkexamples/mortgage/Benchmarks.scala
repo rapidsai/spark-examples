@@ -17,11 +17,26 @@
 package ai.rapids.sparkexamples.mortgage
 
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.storage.StorageLevel
 
 case class ETLArgs(perfPath: String, acqPath: String, output: String)
 
 case class BenchmarkArgs(input: String, bench: String, workers: Int, samples: Int, rounds: Int, threads: Int,
                          treeMethod: String, maxDepth: Int, growPolicy: String)
+
+case class FullBenchmarkArgs(
+  perfPath: String,
+  acqPath: String,
+  output: String,
+  bench: String,
+  workers: Int,
+  samples: Int,
+  rounds: Int,
+  threads: Int,
+  treeMethod: String,
+  maxDepth: Int,
+  growPolicy: String
+)
 
 object Benchmark {
   def etlArgs(input: Array[String]): ETLArgs =
@@ -29,6 +44,10 @@ object Benchmark {
 
   def args(input: Array[String]): BenchmarkArgs =
     BenchmarkArgs(input(0), input(1), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
+      input(7).toInt, input(8))
+
+  def argsFull(input: Array[String]): FullBenchmarkArgs =
+    FullBenchmarkArgs(input(0), input(1), input(2), input(3), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
       input(7).toInt, input(8))
 
   def session: SparkSession = {
@@ -103,5 +122,84 @@ object MLBenchmark {
 
     dftrain.unpersist(true)
     dfEval.unpersist(true)
+  }
+}
+
+object FullBenchmark {
+  def main(args: Array[String]): Unit = {
+    val jobArgs = Benchmark.argsFull(args)
+
+    val session = Benchmark.session
+    import session.implicits._
+
+    val storageLevel = StorageLevel.MEMORY_ONLY
+
+    // Load CSV
+    val ((pCsv, aCsv), csvTime) = Benchmark.time {
+      val perfCsv = ReadPerformanceCsv(session, jobArgs.perfPath).persist(storageLevel)
+      val acqCsv = ReadAcquisitionCsv(session, jobArgs.acqPath).persist(storageLevel)
+
+      // Force Execution
+      perfCsv.count()
+      acqCsv.count()
+
+      (perfCsv, acqCsv)
+    }
+
+
+    // Clean/Transform
+    val (cleanDF, transformTime) = Benchmark.time {
+      val perf = CreatePerformanceDelinquency.prepare(pCsv)
+      val cdf = CleanAcquisitionPrime(session, perf, aCsv).persist(storageLevel)
+      cdf.count()
+      cdf
+    }
+
+    pCsv.unpersist(true)
+    aCsv.unpersist(true)
+
+    val ((dfTrain, dfEval), vectorTime) = Benchmark.time {
+      val (t, e) = MortgageXgBoost.transform(cleanDF)
+      t.persist(storageLevel)
+      e.persist(storageLevel)
+      t.count()
+      (t, e)
+    }
+    dfEval.count()
+
+    cleanDF.unpersist(true)
+
+    val ((acc, tTrain, tTest), time) = Benchmark.time {
+      MortgageXgBoost.runXGB(
+        dfTrain,
+        dfEval,
+        jobArgs.rounds,
+        jobArgs.workers,
+        jobArgs.threads,
+        jobArgs.treeMethod,
+        jobArgs.maxDepth,
+        jobArgs.growPolicy
+      )
+    }
+
+    dfTrain.unpersist(true)
+    dfEval.unpersist(true)
+
+    val timings = List(
+      s"accuracy, $acc",
+      s"train_time, $tTrain",
+      s"test_time, $tTest",
+      s"xgboost_time, $time",
+      s"vectorization_time, $vectorTime",
+      s"transform_time, $transformTime",
+      s"load_time, $csvTime"
+    )
+
+    timings
+      .toDF("time")
+      .coalesce(1)
+      .write
+      .mode("overwrite")
+      .text(jobArgs.bench + "/full.csv")
   }
 }
