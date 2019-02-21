@@ -19,7 +19,7 @@ package ai.rapids.sparkexamples.mortgage
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.storage.StorageLevel
 
-case class ETLArgs(perfPath: String, acqPath: String, output: String)
+case class ETLArgs(perfPath: String, acqPath: String, output: String, bench: String)
 
 case class BenchmarkArgs(input: String, bench: String, workers: Int, samples: Int, rounds: Int, threads: Int,
                          treeMethod: String, maxDepth: Int, growPolicy: String)
@@ -40,7 +40,7 @@ case class FullBenchmarkArgs(
 
 object Benchmark {
   def etlArgs(input: Array[String]): ETLArgs =
-    ETLArgs(input(0), input(1), input(2))
+    ETLArgs(input(0), input(1), input(2), input(3))
 
   def args(input: Array[String]): BenchmarkArgs =
     BenchmarkArgs(input(0), input(1), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
@@ -81,19 +81,71 @@ object ETL {
     val jobArgs = Benchmark.etlArgs(args)
 
     val session = Benchmark.session
+    import session.implicits._
+    val storageLevel = StorageLevel.MEMORY_ONLY
 
-    val dfPerf = CreatePerformanceDelinquency.prepare(ReadPerformanceCsv(session, jobArgs.perfPath))
-    val dfAcq = ReadAcquisitionCsv(session, jobArgs.acqPath)
-    val df = CleanAcquisitionPrime(session, dfPerf, dfAcq)
-    val (train, eval) = MortgageXgBoost.transform(df)
-    train
+    // Load CSV
+    val ((pCsv, aCsv), csvTime) = Benchmark.time {
+      val perfCsv = ReadPerformanceCsv(session, jobArgs.perfPath).persist(storageLevel)
+      val acqCsv = ReadAcquisitionCsv(session, jobArgs.acqPath).persist(storageLevel)
+
+      // Force Execution
+      perfCsv.count()
+      acqCsv.count()
+
+      (perfCsv, acqCsv)
+    }
+
+
+    // Clean/Transform
+    val (cleanDF, transformTime) = Benchmark.time {
+      val perf = CreatePerformanceDelinquency.prepare(pCsv)
+      val cdf = CleanAcquisitionPrime(session, perf, aCsv).persist(storageLevel)
+      cdf.count()
+      cdf
+    }
+
+    pCsv.unpersist(true)
+    aCsv.unpersist(true)
+
+    val ((dfTrain, dfEval), vectorTime) = Benchmark.time {
+      val (t, e) = MortgageXgBoost.transform(cleanDF)
+      t.persist(storageLevel)
+      e.persist(storageLevel)
+      t.count()
+      (t, e)
+    }
+    dfEval.count()
+
+    val (_, saveTime) = Benchmark.time{
+      dfTrain
+        .write
+        .mode("overwrite")
+        .parquet(jobArgs.output + "/train")
+
+      dfEval
+        .write
+        .mode("overwrite")
+        .parquet(jobArgs.output + "/eval")
+    }
+
+    cleanDF.unpersist(true)
+    dfTrain.unpersist(true)
+    dfEval.unpersist(true)
+
+    val timings = List(
+      s"vectorization_time, $vectorTime",
+      s"transform_time, $transformTime",
+      s"load_time, $csvTime",
+      s"save_time, $saveTime"
+    )
+
+    timings
+      .toDF("time")
+      .coalesce(1)
       .write
       .mode("overwrite")
-      .parquet(jobArgs.output + "/train")
-    eval
-      .write
-      .mode("overwrite")
-      .parquet(jobArgs.output + "/eval")
+      .text(jobArgs.bench + "/etl.csv")
   }
 }
 
