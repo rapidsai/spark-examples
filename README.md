@@ -12,6 +12,7 @@ This repository contains examples for running Spark on GPUs, leveraging [RAPIDS]
   - [Building the mortgage example](#building-the-mortgage-example)
   - [Running locally](#running-locally)
   - [Running on Google Cloud Platform (GCP)](#running-on-google-cloud-platform-gcp)
+  - [Running on Google Cloud Platform (GCP) with multi-GPU VMs](#running-on-google-cloud-platform-gcp-with-multi-gpu-vms)
   - [Running on Kubernetes (K8S)](#running-on-kubernetes-k8s)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
