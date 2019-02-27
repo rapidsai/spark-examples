@@ -234,6 +234,25 @@ source deploy/gcp/instances.sh
 gcloud compute instances delete ${INSTANCES} --async
 ```
 
+### Running on Google Cloud Platform (GCP) with multi-GPU VMs
+
+To run on GCP using multiple GPUs in each VM, you need `n1-highmem-64` instances with 4 x NVIDIA Tesla T4s. The steps
+are similar.
+
+Create instances for the Spark cluster:
+```bash
+source deploy/gcp/multigpu-instances.sh
+export INSTANCE_TEMPLATE=spark-4xt4
+gcloud compute instances create ${INSTANCES} --source-instance-template ${INSTANCE_TEMPLATE} --async
+``` 
+
+Start the Spark cluster in standalone mode:
+```bash
+./deploy/gcp/start_multigpu_cluster.sh
+```
+
+Then submit jobs as in the previous section.
+
 ### Running on Kubernetes (K8S)
 
 Assuming you have a Kubernetes cluster with GPUs configured.

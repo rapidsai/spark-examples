@@ -62,7 +62,7 @@ THREADS=15
 
 case "${DEVICE}" in
 cpu)
-  TREE_METHOD=auto
+  TREE_METHOD=hist
   ;;
 gpu)
   TREE_METHOD=gpu_hist
