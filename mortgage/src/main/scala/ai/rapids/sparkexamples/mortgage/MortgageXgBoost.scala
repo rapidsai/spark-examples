@@ -88,7 +88,7 @@ object MortgageXgBoost {
              numRound: Int,
              nWorkers: Int,
              nThreads: Int = 1,
-             treeMethod: String = "auto",
+             treeMethod: String = "hist",
              maxDepth: Int = 8,
              growPolicy: String = "depthwise"): (Double, String, String) = {
 

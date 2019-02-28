@@ -12,6 +12,7 @@ This repository contains examples for running Spark on GPUs, leveraging [RAPIDS]
   - [Building the mortgage example](#building-the-mortgage-example)
   - [Running locally](#running-locally)
   - [Running on Google Cloud Platform (GCP)](#running-on-google-cloud-platform-gcp)
+  - [Running on Google Cloud Platform (GCP) with multi-GPU VMs](#running-on-google-cloud-platform-gcp-with-multi-gpu-vms)
   - [Running on Kubernetes (K8S)](#running-on-kubernetes-k8s)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -233,6 +234,25 @@ or delete them:
 source deploy/gcp/instances.sh
 gcloud compute instances delete ${INSTANCES} --async
 ```
+
+### Running on Google Cloud Platform (GCP) with multi-GPU VMs
+
+To run on GCP using multiple GPUs in each VM, you need `n1-highmem-64` instances with 4 x NVIDIA Tesla T4s. The steps
+are similar.
+
+Create instances for the Spark cluster:
+```bash
+source deploy/gcp/multigpu-instances.sh
+export INSTANCE_TEMPLATE=spark-4xt4
+gcloud compute instances create ${INSTANCES} --source-instance-template ${INSTANCE_TEMPLATE} --async
+``` 
+
+Start the Spark cluster in standalone mode:
+```bash
+./deploy/gcp/start_multigpu_cluster.sh
+```
+
+Then submit jobs as in the previous section.
 
 ### Running on Kubernetes (K8S)
 
