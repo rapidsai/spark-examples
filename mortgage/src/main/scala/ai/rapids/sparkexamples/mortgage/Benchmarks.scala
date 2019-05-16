@@ -149,6 +149,28 @@ object ETL {
   }
 }
 
+object ConvertToLibSVM {
+  def main(args: Array[String]): Unit = {
+    val jobArgs = Benchmark.etlArgs(args)
+    val session = Benchmark.session
+
+    val df = Run.csv(session, jobArgs.perfPath, jobArgs.acqPath)
+    val (dfTrain, dfEval) = MortgageXgBoost.transform(df)
+
+    dfTrain
+      .write
+      .mode("overwrite")
+      .format("libsvm")
+      .save(jobArgs.output + "/train")
+
+    dfEval
+      .write
+      .mode("overwrite")
+      .format("libsvm")
+      .save(jobArgs.output + "/eval")
+  }
+}
+
 object MLBenchmark {
   def main(args: Array[String]): Unit = {
     val jobArgs = Benchmark.args(args)

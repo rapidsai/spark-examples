@@ -15,6 +15,7 @@ set -ex
 # The job to run; for a given dataset, ETL needs to be run before MLBenchmark
 JOB=ETL
 #JOB=MLBenchmark
+JOB=ConvertToLibSVM
 
 # The period to benchmark
 PERIOD=2007Q4
@@ -45,7 +46,15 @@ ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 # External IP of the Spark master node
 SPARK_MASTER_IP=$1
 
-OUTPUT_DIR=/data/spark/pq/${PERIOD}
+case "${JOB}" in
+ETL)
+  OUTPUT_DIR=/data/spark/pq/${PERIOD}
+  ;;
+ConvertToLibSVM)
+  OUTPUT_DIR=/data/mortgage/libsvm/${PERIOD}
+  ;;
+esac
+
 BENCHMARK_DIR=/data/spark/benchmark
 
 # Number of runs per benchmark
@@ -70,7 +79,7 @@ gpu)
 esac
 
 case "${JOB}" in
-ETL)
+ETL | ConvertToLibSVM )
   /opt/spark/bin/spark-submit \
   --class ai.rapids.sparkexamples.mortgage.${JOB} \
   --master spark://${SPARK_MASTER_IP}:7077 \
