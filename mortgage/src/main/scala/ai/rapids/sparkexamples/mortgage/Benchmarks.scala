@@ -161,14 +161,12 @@ object ConvertToLibSVM {
       .write
       .mode("overwrite")
       .format("libsvm")
-      .option("numFeatures", "100")
       .save(jobArgs.output + "/train")
 
     dfEval
       .write
       .mode("overwrite")
       .format("libsvm")
-      .option("numFeatures", "100")
       .save(jobArgs.output + "/eval")
   }
 }
