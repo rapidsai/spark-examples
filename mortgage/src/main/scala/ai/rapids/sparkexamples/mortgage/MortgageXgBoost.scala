@@ -62,20 +62,25 @@ object MortgageXgBoost {
   val allCols: List[String] = catCols ++ numericCols
 
   def transform(df: DataFrame): (DataFrame, DataFrame) = {
-    val featureDF = df.select(allCols.map(v => col(v)):_*)
+    val featureDF = df.select(catCols.map(c => (md5(col(c)) % 100).alias(c)) ++ numericCols.map(c => col(c)): _*)
+      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1.0).otherwise(0.0))
+      .na.fill(0.0f)
+    val dmatrix = getDataFrameMatrix(featureDF)
+    val Array(dtrain, dtest) = dmatrix.randomSplit(Array(0.8, 0.2))
+    (dtrain, dtest)
+  }
+
+  def getDataFrameMatrix(df: DataFrame): DataFrame = {
     val colsWithoutLabel = allCols.toArray.filter(_ != "delinquency_12")
-    val hasher = new FeatureHasher()
-      .setNumFeatures(100)
+
+    val assembler = new VectorAssembler()
       .setInputCols(colsWithoutLabel)
       .setOutputCol("features")
 
-    val featurized = hasher.transform(featureDF)
-      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1.0).otherwise(0.0))
+    assembler
+      .transform(df)
       .withColumnRenamed("delinquency_12", "label")
       .drop(colsWithoutLabel: _*)
-
-    val Array(dtrain, dtest) = featurized.randomSplit(Array(0.8, 0.2))
-    (dtrain, dtest)
   }
 
   def runXGB(trainDF: DataFrame,
