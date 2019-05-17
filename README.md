@@ -33,10 +33,10 @@ sudo apt update
 sudo ubuntu-drivers autoinstall
 ```
 
-Install CUDA 10:
+Install CUDA 10.1:
 ```bash
-wget -O cuda_10.0.130_410.48_linux.run https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux
-sudo sh cuda_10.0.130_410.48_linux.run
+wget -q https://developer.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.168_418.67_linux.run
+sudo sh cuda_10.1.168_418.67_linux.run
 # Follow the command-line prompts, but don't install the driver again.
 ```
 
@@ -52,7 +52,7 @@ sudo apt install libnccl2 libnccl-dev
 Install the Java toolchain:
 ```bash
 sudo apt update
-sudo apt install openjdk-8-jdk cmake
+sudo apt install openjdk-8-jdk
 echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
 sudo apt update
@@ -61,7 +61,7 @@ sudo apt install sbt
 
 Install maven:
 ```bash
-export MAVEN_VERSION=3.6.0
+export MAVEN_VERSION=3.6.1
 wget -q https://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 tar xzvf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt
 ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven
@@ -70,6 +70,12 @@ and add the following to your `.bashrc`:
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export PATH=/opt/maven/bin:${PATH}
+```
+
+Install cmake:
+```bash
+wget -q https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-Linux-x86_64.tar.gz
+sudo tar --strip-components=1 -xzvf cmake-3.14.4-Linux-x86_64.tar.gz -C /usr/local
 ```
 
 ### Building XGBoost
@@ -94,10 +100,10 @@ sbt assembly
 
 Download and install Spark:
 ```bash
-wget -O spark-2.4.0-bin-hadoop2.7.tgz \
-  "https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=spark/spark-2.4.0/spark-2.4.0-bin-hadoop2.7.tgz"
-tar xzvf spark-2.4.0-bin-hadoop2.7.tgz -C /opt
-ln -s /opt/spark-2.4.0-bin-hadoop2.7 /opt/spark
+wget -O spark-2.4.3-bin-hadoop2.7.tgz \
+  "https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz"
+tar xzvf spark-2.4.3-bin-hadoop2.7.tgz -C /opt
+ln -s /opt/spark-2.4.3-bin-hadoop2.7 /opt/spark
 ```
 
 Copy the mortgage example jar file:
@@ -171,12 +177,12 @@ Finally, clean up Spark:
 Assuming you have a Google Compute Engine (GCE) template instance satisfying the following requirements:
 *   `n1-highmem-16` with 1 x NVIDIA Tesla T4
 *   Ubuntu 18.04
-*   NVIDIA driver >= 410.48
-*   CUDA 10.0 (10.0.130)
-*   NCCL 2.3.7-1
+*   NVIDIA driver >= 418.67
+*   CUDA 10.1 Update 1 (10.1.168)
+*   NCCL 2.4.7-1
 *   Java 1.8.0
 *   Python 2.7 (for XGBoost tracker)
-*   Spark 2.4.0 (installed under `/opt/spark`)
+*   Spark 2.4.3 (installed under `/opt/spark`)
 *   An NFS volume mounted under `/data`, with the mortgage data under `/data/mortgage`
 
 Create instances for the Spark cluster:
