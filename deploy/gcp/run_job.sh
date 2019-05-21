@@ -15,7 +15,7 @@ set -ex
 # The job to run; for a given dataset, ETL needs to be run before MLBenchmark
 JOB=ETL
 #JOB=MLBenchmark
-JOB=ConvertToLibSVM
+#JOB=ConvertToLibSVM
 
 # The period to benchmark
 PERIOD=2007Q4

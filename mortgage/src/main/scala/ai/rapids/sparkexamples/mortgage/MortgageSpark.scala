@@ -306,7 +306,7 @@ object CleanAcquisitionPrime {
     val perf = CreatePerformanceDelinquency(spark, perfDF)
     val acq = CreateAcquisition(spark, acqDF)
 
-    perf.join(acq, Seq("loan_id", "quarter"), "left_outer").drop("quarter")
+    perf.join(acq, Seq("loan_id", "quarter"), "inner").drop("quarter")
   }
 }
 

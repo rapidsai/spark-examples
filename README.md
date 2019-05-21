@@ -238,7 +238,7 @@ gcloud compute instances stop ${INSTANCES} --async
 or delete them:
 ```bash
 source deploy/gcp/instances.sh
-gcloud compute instances delete ${INSTANCES} --async
+gcloud compute instances delete ${INSTANCES}
 ```
 
 ### Running on Google Cloud Platform (GCP) with multi-GPU VMs
