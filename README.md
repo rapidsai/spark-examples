@@ -78,6 +78,13 @@ wget -q https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-
 sudo tar --strip-components=1 -xzvf cmake-3.14.4-Linux-x86_64.tar.gz -C /usr/local
 ```
 
+Install additional packages for running XGBoost:
+```bash
+sudo apt update
+sudo apt install python libgomp1
+
+```
+
 ### Building XGBoost
 
 From your root source directory (e.g. `${HOME}/src`), run:
