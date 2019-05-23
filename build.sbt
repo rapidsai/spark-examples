@@ -1,7 +1,7 @@
 import sbtassembly.AssemblyPlugin.autoImport._
 
-val sparkVersion = "2.4.0"
-val xgBoostVersion = "0.83-SNAPSHOT"
+val sparkVersion = "2.4.3"
+val xgBoostVersion = "0.90"
 val scalatestVersion = "3.0.5"
 
 lazy val commonSettings = Seq(

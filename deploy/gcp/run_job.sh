@@ -39,6 +39,10 @@ ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 #ACQ_FILES=/data/mortgage/acq/Acquisition_200[0-6]*
 #ACQ_FILES=/data/mortgage/acq/Acquisition_*
 
+# Whether to use external memory
+EXTERNAL_MEMORY=false
+#EXTERNAL_MEMORY=true
+
 #
 # Probably don't need to change anything below.
 #
@@ -47,7 +51,7 @@ ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 SPARK_MASTER_IP=$1
 
 case "${JOB}" in
-ETL)
+ETL | MLBenchmark)
   OUTPUT_DIR=/data/spark/pq/${PERIOD}
   ;;
 ConvertToLibSVM)
@@ -72,6 +76,9 @@ THREADS=15
 case "${DEVICE}" in
 cpu)
   TREE_METHOD=hist
+  if [[ ${EXTERNAL_MEMORY} == "true" ]]; then
+    TREE_METHOD=approx
+  fi
   ;;
 gpu)
   TREE_METHOD=gpu_hist

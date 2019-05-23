@@ -22,7 +22,7 @@ import org.apache.spark.storage.StorageLevel
 case class ETLArgs(perfPath: String, acqPath: String, output: String)
 
 case class BenchmarkArgs(input: String, bench: String, workers: Int, samples: Int, rounds: Int, threads: Int,
-                         treeMethod: String, maxDepth: Int, growPolicy: String)
+                         treeMethod: String, maxDepth: Int, growPolicy: String, useExternalMemory: Boolean)
 
 case class FullBenchmarkArgs(
   perfPath: String,
@@ -35,7 +35,8 @@ case class FullBenchmarkArgs(
   threads: Int,
   treeMethod: String,
   maxDepth: Int,
-  growPolicy: String
+  growPolicy: String,
+  useExternalMemory: Boolean
 )
 
 object Benchmark {
@@ -44,11 +45,11 @@ object Benchmark {
 
   def args(input: Array[String]): BenchmarkArgs =
     BenchmarkArgs(input(0), input(1), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
-      input(7).toInt, input(8))
+      input(7).toInt, input(8), input(9).toBoolean)
 
   def argsFull(input: Array[String]): FullBenchmarkArgs =
-    FullBenchmarkArgs(input(0), input(1), input(2), input(3), input(2).toInt, input(3).toInt, input(4).toInt, input(5).toInt, input(6),
-      input(7).toInt, input(8))
+    FullBenchmarkArgs(input(0), input(1), input(2), input(3), input(2).toInt, input(3).toInt, input(4).toInt,
+      input(5).toInt, input(6), input(7).toInt, input(8), input(9).toBoolean)
 
   def session: SparkSession = {
     val builder = SparkSession.builder.appName("MortgageJob")
@@ -187,7 +188,7 @@ object MLBenchmark {
     val timings = 0.until(jobArgs.samples).map { _ =>
       val ((acc, tTrain, tTest), time) = Benchmark.time {
         MortgageXgBoost.runXGB(dftrain, dfEval, jobArgs.rounds, jobArgs.workers, jobArgs.threads,
-          jobArgs.treeMethod, jobArgs.maxDepth, jobArgs.growPolicy)
+          jobArgs.treeMethod, jobArgs.maxDepth, jobArgs.growPolicy, jobArgs.useExternalMemory)
       }
       s"$acc, $tTrain, $tTest, $time"
     }
@@ -252,7 +253,8 @@ object FullBenchmark {
         jobArgs.threads,
         jobArgs.treeMethod,
         jobArgs.maxDepth,
-        jobArgs.growPolicy
+        jobArgs.growPolicy,
+        jobArgs.useExternalMemory
       )
     }
 

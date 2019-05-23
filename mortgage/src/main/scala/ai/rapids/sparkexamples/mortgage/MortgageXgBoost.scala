@@ -90,7 +90,8 @@ object MortgageXgBoost {
              nThreads: Int = 1,
              treeMethod: String = "hist",
              maxDepth: Int = 8,
-             growPolicy: String = "depthwise"): (Double, String, String) = {
+             growPolicy: String = "depthwise",
+             useExternalMemory: Boolean = false): (Double, String, String) = {
 
     // define parameters
     val paramMap = Map(
@@ -106,7 +107,9 @@ object MortgageXgBoost {
       "subsample" -> 1,
       "num_workers" -> nWorkers,
       "nthread" -> nThreads,
-      "num_round" -> numRound
+      "num_round" -> numRound,
+      "use_external_memory" -> useExternalMemory,
+      "missing" -> 0.0f
     )
 
     // train the model
