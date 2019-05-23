@@ -147,6 +147,7 @@ THREADS=1
 TREE_METHOD=gpu_hist
 MAX_DEPTH=8
 GROW_POLICY=depthwise
+EXTERNAL_MEMORY=false
 /opt/spark/bin/spark-submit \
   --class ai.rapids.sparkexamples.mortgage.MLBenchmark \
   --master spark://${HOSTNAME}:7077 \
@@ -162,7 +163,8 @@ GROW_POLICY=depthwise
   ${THREADS} \
   ${TREE_METHOD} \
   ${MAX_DEPTH} \
-  ${GROW_POLICY}
+  ${GROW_POLICY} \
+  ${EXTERNAL_MEMORY}
 ```
 benchmark results are written to `/opt/models/mortgage/benchmark`.
 

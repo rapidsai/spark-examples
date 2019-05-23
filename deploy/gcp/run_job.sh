@@ -116,6 +116,7 @@ MLBenchmark)
   ${THREADS} \
   ${TREE_METHOD} \
   ${MAX_DEPTH} \
-  ${GROW_POLICY}
+  ${GROW_POLICY} \
+  ${EXTERNAL_MEMORY}
   ;;
 esac
