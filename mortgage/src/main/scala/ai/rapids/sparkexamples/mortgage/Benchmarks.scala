@@ -180,7 +180,7 @@ object MLBenchmark {
     import session.implicits._
 
     val dftrain = session.sqlContext.read.parquet(jobArgs.input + "/train").repartition(jobArgs.workers).cache()
-    val dfEval = session.sqlContext.read.parquet(jobArgs.input + "/eval").cache()
+    val dfEval = session.sqlContext.read.parquet(jobArgs.input + "/eval").repartition(jobArgs.workers).cache()
 
     dftrain.count()
     dfEval.count()
