@@ -66,7 +66,7 @@ object MortgageXgBoost {
       .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1.0).otherwise(0.0))
       .na.fill(0.0f)
     val dmatrix = getDataFrameMatrix(featureDF)
-    val Array(dtrain, dtest) = dmatrix.randomSplit(Array(0.8, 0.2))
+    val Array(dtrain, dtest) = dmatrix.randomSplit(Array(0.99, 0.01))
     (dtrain, dtest)
   }
 
@@ -109,7 +109,8 @@ object MortgageXgBoost {
       "nthread" -> nThreads,
       "num_round" -> numRound,
       "use_external_memory" -> useExternalMemory,
-      "missing" -> 0.0f
+      "missing" -> 0.0f,
+      "verbosity" -> 3
     )
 
     // train the model
@@ -124,7 +125,7 @@ object MortgageXgBoost {
 
     // run prediction
     val testT0 = System.nanoTime()
-    val predictions = model.transform(testDF)
+    val predictions = model.setInferBatchSize(10 << 20).transform(testDF)
     val testT1 = System.nanoTime()
 
     // evaluate
