@@ -12,8 +12,8 @@ set -ex
 # Comment/uncomment for job parameters.
 #
 
-# The job to run; for a given dataset, ETL needs to be run before MLBenchmark
-JOB=ETL
+# The job to run; for a given dataset, ConvertToParquet needs to be run before MLBenchmark
+JOB=ConvertToParquet
 #JOB=MLBenchmark
 #JOB=ConvertToLibSVM
 
@@ -51,7 +51,7 @@ EXTERNAL_MEMORY=false
 SPARK_MASTER_IP=$1
 
 case "${JOB}" in
-ETL | MLBenchmark)
+ConvertToParquet | MLBenchmark)
   OUTPUT_DIR=/data/spark/pq/${PERIOD}
   ;;
 ConvertToLibSVM)
@@ -86,13 +86,15 @@ gpu)
 esac
 
 case "${JOB}" in
-ETL | ConvertToLibSVM )
+ConvertToParquet | ConvertToLibSVM )
   /opt/spark/bin/spark-submit \
   --class ai.rapids.sparkexamples.mortgage.${JOB} \
   --master spark://${SPARK_MASTER_IP}:7077 \
   --deploy-mode cluster \
   --driver-memory 2G \
-  --executor-memory 80G \
+  --executor-memory 130G \
+  --conf spark.sql.shuffle.partitions=960 \
+  --conf spark.default.parallelism=960 \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${PERF_FILES} \
   ${ACQ_FILES} \
@@ -104,7 +106,7 @@ MLBenchmark)
   --master spark://${SPARK_MASTER_IP}:7077 \
   --deploy-mode cluster \
   --driver-memory 10G \
-  --executor-memory 80G \
+  --executor-memory 130G \
   --conf spark.task.cpus=${THREADS} \
   --conf spark.executorEnv.NCCL_DEBUG=INFO \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \

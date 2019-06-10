@@ -150,6 +150,28 @@ object ETL {
   }
 }
 
+object ConvertToParquet {
+  def main(args: Array[String]): Unit = {
+    val jobArgs = Benchmark.etlArgs(args)
+    val session = Benchmark.session
+
+    val df = Run.csv(session, jobArgs.perfPath, jobArgs.acqPath)
+    val (dfTrain, dfEval) = MortgageXgBoost.transform(df)
+
+    dfTrain
+      .repartition(20)
+      .write
+      .mode("overwrite")
+      .parquet(jobArgs.output + "/train")
+
+    dfEval
+      .repartition(20)
+      .write
+      .mode("overwrite")
+      .parquet(jobArgs.output + "/eval")
+  }
+}
+
 object ConvertToLibSVM {
   def main(args: Array[String]): Unit = {
     val jobArgs = Benchmark.etlArgs(args)
