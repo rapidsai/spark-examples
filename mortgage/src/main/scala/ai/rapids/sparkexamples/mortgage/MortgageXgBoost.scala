@@ -79,7 +79,6 @@ object MortgageXgBoost {
 
     assembler
       .transform(df)
-      .withColumnRenamed("delinquency_12", "label")
       .drop(colsWithoutLabel: _*)
   }
 
@@ -118,7 +117,7 @@ object MortgageXgBoost {
 
     val model = new XGBoostClassifier(paramMap)
       .setFeaturesCol("features")
-      .setLabelCol("label")
+      .setLabelCol("delinquency_12")
       .fit(trainDF)
 
     val trainT1 = System.nanoTime()
@@ -130,7 +129,7 @@ object MortgageXgBoost {
 
     // evaluate
     val evaluator = new BinaryClassificationEvaluator()
-      .setLabelCol("label")
+      .setLabelCol("delinquency_12")
       .setRawPredictionCol("prediction")
       .setMetricName("areaUnderROC")
 
