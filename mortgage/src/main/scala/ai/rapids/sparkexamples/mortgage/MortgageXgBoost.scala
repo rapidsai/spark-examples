@@ -63,7 +63,7 @@ object MortgageXgBoost {
 
   def transformUnassembled(df: DataFrame): (DataFrame, DataFrame) = {
     val featureDF = df.select(catCols.map(c => (md5(col(c)) % 100).alias(c)) ++ numericCols.map(c => col(c)): _*)
-      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1.0).otherwise(0.0))
+      .withColumn("delinquency_12", when(col("delinquency_12") > 0, 1).otherwise(0))
       .na.fill(0.0f)
     val Array(dtrain, dtest) = featureDF.randomSplit(Array(0.99, 0.01))
     (dtrain, dtest)

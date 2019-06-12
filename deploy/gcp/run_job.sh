@@ -21,7 +21,8 @@ JOB=ConvertToCsv
 # The period to benchmark
 #PERIOD=2007Q4
 #PERIOD=2000-2006
-PERIOD=all
+PERIOD=2000-2009
+#PERIOD=all
 
 # CPU or GPU
 DEVICE=gpu
@@ -35,10 +36,12 @@ GROW_POLICY=depthwise
 
 #PERF_FILES=/data/mortgage/perf/Performance_2007Q4*
 #PERF_FILES=/data/mortgage/perf/Performance_200[0-6]*
-PERF_FILES=/data/mortgage/perf/Performance_*
+PERF_FILES=/data/mortgage/perf/Performance_200[0-9]*
+#PERF_FILES=/data/mortgage/perf/Performance_*
 #ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 #ACQ_FILES=/data/mortgage/acq/Acquisition_200[0-6]*
-ACQ_FILES=/data/mortgage/acq/Acquisition_*
+ACQ_FILES=/data/mortgage/acq/Acquisition_200[0-9]*
+#ACQ_FILES=/data/mortgage/acq/Acquisition_*
 
 # Whether to use external memory
 EXTERNAL_MEMORY=false
@@ -97,8 +100,8 @@ ConvertToCsv | ConvertToParquet | ConvertToLibSVM )
   --deploy-mode cluster \
   --driver-memory 2G \
   --executor-memory 130G \
-  --conf spark.sql.shuffle.partitions=960 \
-  --conf spark.default.parallelism=960 \
+  --conf spark.sql.shuffle.partitions=1440 \
+  --conf spark.default.parallelism=1440 \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${PERF_FILES} \
   ${ACQ_FILES} \

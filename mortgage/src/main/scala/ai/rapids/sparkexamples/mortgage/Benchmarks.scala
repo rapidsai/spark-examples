@@ -159,13 +159,13 @@ object ConvertToParquet {
     val (dfTrain, dfEval) = MortgageXgBoost.transform(df)
 
     dfTrain
-      .repartition(20)
+      .repartition(200)
       .write
       .mode("overwrite")
       .parquet(jobArgs.output + "/train")
 
     dfEval
-      .repartition(20)
+      .repartition(200)
       .write
       .mode("overwrite")
       .parquet(jobArgs.output + "/eval")
@@ -181,14 +181,14 @@ object ConvertToCsv {
     val (dfTrain, dfEval) = MortgageXgBoost.transformUnassembled(df)
 
     dfTrain
-      .repartition(20)
+      .repartition(180)
       .write
       .mode("overwrite")
       .option("header", true)
       .csv(jobArgs.output + "/train")
 
     dfEval
-      .repartition(20)
+      .repartition(180)
       .write
       .mode("overwrite")
       .option("header", true)
