@@ -100,8 +100,8 @@ ConvertToCsv | ConvertToParquet | ConvertToLibSVM )
   --deploy-mode cluster \
   --driver-memory 2G \
   --executor-memory 130G \
-  --conf spark.sql.shuffle.partitions=1440 \
-  --conf spark.default.parallelism=1440 \
+  --conf spark.sql.shuffle.partitions=1439 \
+  --conf spark.default.parallelism=1439 \
   /data/spark/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
   ${PERF_FILES} \
   ${ACQ_FILES} \
