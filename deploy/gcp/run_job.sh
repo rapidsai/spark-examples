@@ -13,14 +13,15 @@ set -ex
 #
 
 # The job to run; for a given dataset, ConvertToParquet needs to be run before MLBenchmark
-JOB=ConvertToParquet
+JOB=ConvertToCsv
+#JOB=ConvertToParquet
 #JOB=MLBenchmark
 #JOB=ConvertToLibSVM
 
 # The period to benchmark
-PERIOD=2007Q4
+#PERIOD=2007Q4
 #PERIOD=2000-2006
-#PERIOD=all
+PERIOD=all
 
 # CPU or GPU
 DEVICE=gpu
@@ -32,12 +33,12 @@ MAX_DEPTH=8
 GROW_POLICY=depthwise
 #GROW_POLICY=lossguide
 
-PERF_FILES=/data/mortgage/perf/Performance_2007Q4*
+#PERF_FILES=/data/mortgage/perf/Performance_2007Q4*
 #PERF_FILES=/data/mortgage/perf/Performance_200[0-6]*
-#PERF_FILES=/data/mortgage/perf/Performance_*
-ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
+PERF_FILES=/data/mortgage/perf/Performance_*
+#ACQ_FILES=/data/mortgage/acq/Acquisition_2007Q4*
 #ACQ_FILES=/data/mortgage/acq/Acquisition_200[0-6]*
-#ACQ_FILES=/data/mortgage/acq/Acquisition_*
+ACQ_FILES=/data/mortgage/acq/Acquisition_*
 
 # Whether to use external memory
 EXTERNAL_MEMORY=false
@@ -51,6 +52,9 @@ EXTERNAL_MEMORY=false
 SPARK_MASTER_IP=$1
 
 case "${JOB}" in
+ConvertToCsv)
+  OUTPUT_DIR=/data/spark/csv/${PERIOD}
+  ;;
 ConvertToParquet | MLBenchmark)
   OUTPUT_DIR=/data/spark/pq/${PERIOD}
   ;;
@@ -71,7 +75,7 @@ ROUNDS=100
 WORKERS=20
 
 # Number of threads per worker
-THREADS=15
+THREADS=23
 
 case "${DEVICE}" in
 cpu)
@@ -86,7 +90,7 @@ gpu)
 esac
 
 case "${JOB}" in
-ConvertToParquet | ConvertToLibSVM )
+ConvertToCsv | ConvertToParquet | ConvertToLibSVM )
   /opt/spark/bin/spark-submit \
   --class ai.rapids.sparkexamples.mortgage.${JOB} \
   --master spark://${SPARK_MASTER_IP}:7077 \

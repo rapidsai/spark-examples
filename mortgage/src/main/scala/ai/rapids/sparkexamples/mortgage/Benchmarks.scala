@@ -172,6 +172,30 @@ object ConvertToParquet {
   }
 }
 
+object ConvertToCsv {
+  def main(args: Array[String]): Unit = {
+    val jobArgs = Benchmark.etlArgs(args)
+    val session = Benchmark.session
+
+    val df = Run.csv(session, jobArgs.perfPath, jobArgs.acqPath)
+    val (dfTrain, dfEval) = MortgageXgBoost.transformUnassembled(df)
+
+    dfTrain
+      .repartition(20)
+      .write
+      .mode("overwrite")
+      .option("header", true)
+      .csv(jobArgs.output + "/train")
+
+    dfEval
+      .repartition(20)
+      .write
+      .mode("overwrite")
+      .option("header", true)
+      .csv(jobArgs.output + "/eval")
+  }
+}
+
 object ConvertToLibSVM {
   def main(args: Array[String]): Unit = {
     val jobArgs = Benchmark.etlArgs(args)
