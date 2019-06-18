@@ -74,8 +74,9 @@ export PATH=/opt/maven/bin:${PATH}
 
 Install cmake:
 ```bash
-wget -q https://github.com/Kitware/CMake/releases/download/v3.14.4/cmake-3.14.4-Linux-x86_64.tar.gz
-sudo tar --strip-components=1 -xzvf cmake-3.14.4-Linux-x86_64.tar.gz -C /usr/local
+export CMAKE_VERSION=3.14.5
+wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
+sudo tar --strip-components=1 -xzvf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz -C /usr/local
 ```
 
 Install additional packages for running XGBoost:
