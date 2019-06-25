@@ -1,295 +1,200 @@
-# Spark Examples
+# Prepare Jar Packages
 
-This repository contains examples for running Spark on GPUs, leveraging [RAPIDS](https://rapids.ai).
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+Since our jars haven't been deployed to publick jar repo (maven central), we need to build and install our dependencies by ourselves. The following jars should be built:
 
-- [Mortgage](#mortgage)
-  - [Prerequisites](#prerequisites)
-  - [Building XGBoost](#building-xgboost)
-  - [Building the mortgage example](#building-the-mortgage-example)
-  - [Running locally](#running-locally)
-  - [Running on Google Cloud Platform (GCP)](#running-on-google-cloud-platform-gcp)
-  - [Running on Google Cloud Platform (GCP) with multi-GPU VMs](#running-on-google-cloud-platform-gcp-with-multi-gpu-vms)
-  - [Running on Kubernetes (K8S)](#running-on-kubernetes-k8s)
+1. Cudf dependency jar (provided)
+2. XGBoost denpendency jar (provided)
+3. Example app jar
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+We also provide a full-dependency jar package that contains both "1. Cudf dependency jar" and "2. XGBoost dependency jar". You can download it directly from: TODO: a link to full-dependency-jar
 
-## Mortgage
+Note: building jar packages requires [maven](https://maven.apache.org/)
 
-This example shows running XGBoost on the [mortgage data](https://rapidsai.github.io/demos/datasets/mortgage-data).
+## cudf
+Git repo: https://github.com/rapidsai/cudf
 
-### Prerequisites
+Follow [instructions](https://github.com/rapidsai/cudf/blob/branch-0.8/CONTRIBUTING.md#setting-up-your-build-environment) to set up your cudf build environment. 
 
-For now XGBoost needs to be built from source. Assuming you have access to a computer with an NVIDIA GPU running Ubuntu
-18.04.
+You can download cudf jar from: [cudf dependency jar](TODO:https://todo.com/todo)
+## XGBoost dependency jars
+Git repo: https://gitlab-master.nvidia.com/nvspark/xgboost (TODO: replace with github after release)
 
-Install NVIDIA drivers:
+You can download those jars from: [xgboost dependency jars](TODO:https://todo.com/todo)
+
+## Example App jars
+Git repo (current one): https://gitlab-master.nvidia.com/nvspark/examples (TODO: replace with github after release)
+Suppose $EXAMPLE_HOME points to the directory where you place example repo.
+
 ```bash
-sudo add-apt-repository ppa:graphics-drivers/ppa
-sudo apt update
-sudo ubuntu-drivers autoinstall
+cd $EXAMPLE_HOME/xgboost
+mvn package
 ```
 
-Install CUDA 10.1:
+Then you will find `sample_xgboost_apps-0.1.2.jar` in your `target` folder
+
+
+
+Then we put all jars above to a folder e.g. `/data/spark/libs`
+
+# Prepare Dataset
+
+We have 3 example apps, you can choose to download transformed trainable dataset directly or download raw data, and run transformation jobs on your own.
+
+## download trainable dataset
+
+You can download all transformed dataset from: (TODO: add source link to public storage, not enough space on my machine)
+
+1. [Mortgage Dataset(csv)](TODO:https://todo.com/todo)
+2. [Mortgage Dataset(parquet)](TODO:https://todo.com/todo)
+3. [Taxi Dataset(csv)](TODO:https://todo.com/todo)
+4. [Taxi Dataset(parquet)](TODO:https://todo.com/todo)
+5. [Agaricus(csv)](TODO:https://todo.com/todo)
+
+
+Let's take Mortgage app for example, we need to extract dataset from tar.gz file and put it in `/data/mortgage`:
+
 ```bash
-wget -q https://developer.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.168_418.67_linux.run
-sudo sh cuda_10.1.168_418.67_linux.run
-# Follow the command-line prompts, but don't install the driver again.
+tar -xvzf mortgage_csv.tar.gz -C /data/mortgage
 ```
 
-Install NCCL:
+## run ETL job on your own
+Or you could download raw dataset and run ETL(data transformation) jobs since raw data are not trainable.
+
+### for Mortgage
+1. download raw data: https://rapidsai.github.io/demos/datasets/mortgage-data
+2. install [jupyter notebook with Toree](#jupyternotebook)
+3. run [Mortgage ETL job](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/ETL/MortgageETL.ipynb)
+
+### for Taxi
+1. download raw data:
 ```bash
-sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
-wget https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
-sudo dpkg -i nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
-sudo apt update
-sudo apt install libnccl2 libnccl-dev
+wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_20{09..16}-{01..12}.csv
+```
+2. install cudatoolkit and numba:
+```bash
+conda install numba
+conda install cudatoolkit
+```
+we use `conda` to install pacakges here, you can also use `pip`.
+
+3. run [Taxi ETL job](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/ETL/Taxi_ETL.ipynb)
+
+
+# Run Example App
+
+We have two ways to demonstrate our apps: Run our apps with `spark-submit` in a console or set up a jupyter notebook with [`Toree`](https://toree.apache.org/)
+
+## spark-submit
+here we only use a small part in Mortgage dataset to demo, e.g. dataset of 2000Q1:
+
+Run GPU version:
+```bash
+spark-submit --class ai.rapids.spark.examples.mortgage.GPUMain --master spark://$HOSTNAME:7077 \
+ --executor-memory 32G \
+ --jars  /data/spark/libs/cudf-0.8-SNAPSHOT-cuda10.jar,/data/spark/libs/xgboost4j-0.90-SNAPSHOT.jar,/data/spark/libs/xgboost4j-spark-0.90-SNAPSHOT.jar \
+/data/spark/libs/sample_xgboost_apps-0.1.3.jar \
+-format=csv \
+-num_round=100 \
+-trainDataPath=/data/mortgage/csv/2009Q1/train/ \
+-evalDataPath=/data/mortgage/csv/2009Q1/test \
+-modelPath=/tmp/models/mortgage \
+-overwrite=true
 ```
 
-Install the Java toolchain:
-```bash
-sudo apt update
-sudo apt install openjdk-8-jdk
-echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
-sudo apt update
-sudo apt install sbt
+then you will see its logs like:
+
+```console
+19/06/13 17:00:39 WARN Utils: Your hostname, pc resolves to a loopback address: 127.0.1.1; using 10.19.183.124 instead (on interface eno1)
+19/06/13 17:00:39 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+19/06/13 17:00:39 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+19/06/13 17:00:40 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+
+------ Training ------
+19/06/13 17:00:46 WARN XGBoostSpark: Missing weight column!
+Tracker started, with env={DMLC_NUM_SERVER=0, DMLC_TRACKER_URI=10.19.183.124, DMLC_TRACKER_PORT=9091, DMLC_NUM_WORKER=1}
+Elapsed time [train]: 23.251s
+
+------ Transforming ------
+Elapsed time [transform]: 0.914s
+...
+...
 ```
 
-Install maven:
-```bash
-export MAVEN_VERSION=3.6.1
-wget -q https://www-us.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-tar xzvf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt
-ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven
-```
-and add the following to your `.bashrc`:
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-export PATH=/opt/maven/bin:${PATH}
-```
+Run CPU version:
 
-Install cmake:
 ```bash
-export CMAKE_VERSION=3.14.5
-wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
-sudo tar --strip-components=1 -xzvf cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz -C /usr/local
-```
-
-Install additional packages for running XGBoost:
-```bash
-sudo apt update
-sudo apt install python libgomp1
+spark-submit --class ai.rapids.spark.examples.mortgage.CPUMain --master spark://$HOSTNAME:7077 \
+ --executor-memory 32G \
+ --conf spark.task.cpus=2 \
+ --jars  /data/spark/libs/cudf-0.8-SNAPSHOT-cuda10.jar,/data/spark/libs/xgboost4j-0.90-SNAPSHOT.jar,/data/spark/libs/xgboost4j-spark-0.90-SNAPSHOT.jar \
+/data/spark/libs/sample_xgboost_apps-0.1.3.jar \
+-format=csv \
+-num_round=100 \
+-trainDataPath=/data/mortgage/csv/2009Q1/train/ \
+-evalDataPath=/data/mortgage/csv/2009Q1/test \
+-modelPath=/tmp/models/mortgage \
+-overwrite=true \
+-num_workers=6 \
+-nthreads=2
 
 ```
 
-### Building XGBoost
+logs like:
 
-From your root source directory (e.g. `${HOME}/src`), run:
-```bash
-git clone -b spark-gpu-example --recurse-submodules https://github.com/rongou/xgboost.git
-cd xgboost/jvm-packages
-mvn -DskipTests install
+```console
+19/06/13 17:39:43 WARN Utils: Your hostname, pc resolves to a loopback address: 127.0.1.1; using 10.19.183.124 instead (on interface eno1)
+19/06/13 17:39:43 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+19/06/13 17:39:43 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+19/06/13 17:39:43 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+
+------ Training ------
+19/06/13 17:39:45 WARN Utils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.debug.maxToStringFields' in SparkEnv.conf.
+Tracker started, with env={DMLC_NUM_SERVER=0, DMLC_TRACKER_URI=10.19.183.124, DMLC_TRACKER_PORT=9091, DMLC_NUM_WORKER=6}
+Elapsed time [train]: 152.021s
+
+------ Transforming ------
+Elapsed time [transform]: 0.209s
+...
+...
 ```
 
-### Building the mortgage example
+You can try other apps by modifying the `--class` and `--trainDataPath`/ `--evalDataPath` parameters
 
-From your root source directory (e.g. `${HOME}/src`), run:
+
+### supported parameters
+1. all [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html) are supported
+2. -format=csv/parquet : The format of the data for training/transforming, now supports 'csv' and 'parquet' only. Required.
+3. -mode=all/train/transform. To control the behavior of the sample app, default is 'all' if not specified.
+   * all: Do both training and transforming, will save model to 'modelPath' if specified
+   * train: Do training only, will save model to 'modelPath' if specified.
+   * transform: Do transforming only, 'modelPath' is required to locate the model data to be loaded.
+4. -trainDataPath=path : Path to your training data file(s), required when mode is NOT 'transform'.
+5. -trainEvalDataPath=path : Path to your data file(s) for training with evaluation. Optional.
+6. -evalDataPath=path : Path to your test(evaluation) data file(s), required when mode is NOT 'train'.
+7. -modelPath=path : Path to save model after training, or where to load model for transforming only. Required only when mode is 'transform'.
+8. -overwrite=true/false : Whether to overwrite the current model data under 'modelPath'. Default is false. You may need to set to true to avoid IOException when saving the model to a path already exists.
+9. -hasHeader=true/false : Indicate if your csv file has header.
+
+
+## <a name="jupyternotebook"></a> jupyter notebook
+
+Make sure you have jupyter notebook installed.
+
+Install Toree:
 ```bash
-git clone https://github.com/rapidsai/spark-examples.git
-cd spark-examples
-sbt assembly
+pip install toree
 ```
 
-### Running locally
-
-Download and install Spark:
+install scala kernel with Toree:
 ```bash
-wget -O spark-2.4.3-bin-hadoop2.7.tgz \
-  "https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz"
-tar xzvf spark-2.4.3-bin-hadoop2.7.tgz -C /opt
-ln -s /opt/spark-2.4.3-bin-hadoop2.7 /opt/spark
+jupyter toree install --spark_home=$SPARK_HOME --spark_opts='--master=spark://<YOUR_IP:PORT> \
+--executor-memory 32G \
+--jars /data/spark/libs/cudf-0.8-SNAPSHOT-cuda10.jar,/data/spark/libs/xgboost4j-0.90-SNAPSHOT.jar,/data/spark/libs/xgboost4j-spark-0.90-SNAPSHOT.jar' \
+--user \
+--kernel_name=<YOUR_KERNEL_NAME>
+
 ```
 
-Copy the mortgage example jar file:
-```bash
-cp ${HOME}/src/spark-examples/mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.jar /opt/spark/examples/jars/
-``` 
-
-Download one year worth of the mortgage data (this uses 3.9 GB disk space):
-```bash
-wget http://rapidsai-data.s3-website.us-east-2.amazonaws.com/notebook-mortgage-data/mortgage_2000.tgz
-mkdir -p /opt/data/mortgage
-tar xzvf mortgage_2000.tgz -C /opt/data/mortgage
-```
-
-Start a Spark standalone cluster:
-```bash
-/opt/spark/sbin/start-master.sh
-/opt/spark/sbin/start-slave.sh spark://${HOSTNAME}:7077
-```
-the Spark web UI can then be accessed at [http://localhost:8080](http://localhost:8080).
-
-Run the ETL job (`executor-memory` should be adjusted depending on how much memory you have on your machine):
-```bash
-/opt/spark/bin/spark-submit \
-  --class ai.rapids.sparkexamples.mortgage.ETL \
-  --master spark://${HOSTNAME}:7077 \
-  --deploy-mode cluster \
-  --executor-memory 28G \
-  /opt/spark/examples/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
-  /opt/data/mortgage/perf/Performance_2000Q1.txt \
-  /opt/data/mortgage/acq/Acquisition_2000Q1.txt \
-  /opt/models/mortgage/pq
-```
-
-Run the ML job:
-```bash
-WORKERS=1
-SAMPLES=1
-ROUNDS=100
-THREADS=1
-TREE_METHOD=gpu_hist
-MAX_DEPTH=8
-GROW_POLICY=depthwise
-EXTERNAL_MEMORY=false
-/opt/spark/bin/spark-submit \
-  --class ai.rapids.sparkexamples.mortgage.MLBenchmark \
-  --master spark://${HOSTNAME}:7077 \
-  --deploy-mode cluster \
-  --executor-memory 28G \
-  --conf spark.executorEnv.NCCL_DEBUG=INFO \
-  /opt/spark/examples/jars/mortgage-assembly-0.1.0-SNAPSHOT.jar \
-  /opt/models/mortgage/pq \
-  /opt/models/mortgage/benchmark/gpu-depth-8 \
-  ${WORKERS} \
-  ${SAMPLES} \
-  ${ROUNDS} \
-  ${THREADS} \
-  ${TREE_METHOD} \
-  ${MAX_DEPTH} \
-  ${GROW_POLICY} \
-  ${EXTERNAL_MEMORY}
-```
-benchmark results are written to `/opt/models/mortgage/benchmark`.
-
-Finally, clean up Spark:
-```bash
-/opt/spark/sbin/stop-slave.sh
-/opt/spark/sbin/stop-master.sh
-```
-
-### Running on Google Cloud Platform (GCP)
-
-Assuming you have a Google Compute Engine (GCE) template instance satisfying the following requirements:
-*   `n1-highmem-16` with 1 x NVIDIA Tesla T4
-*   Ubuntu 18.04
-*   NVIDIA driver >= 418.67
-*   CUDA 10.1 Update 1 (10.1.168)
-*   NCCL 2.4.7-1
-*   Java 1.8.0
-*   Python 2.7 (for XGBoost tracker)
-*   Spark 2.4.3 (installed under `/opt/spark`)
-*   An NFS volume mounted under `/data`, with the mortgage data under `/data/mortgage`
-
-Create instances for the Spark cluster:
-```bash
-source deploy/gcp/instances.sh
-export INSTANCE_TEMPLATE=spark-1xt4
-gcloud compute instances create ${INSTANCES} --source-instance-template ${INSTANCE_TEMPLATE} --async
-``` 
-
-If the instances had been previously created but were stopped, start them again:
-```bash
-source deploy/gcp/instances.sh
-gcloud compute instances start ${INSTANCES} --async
-```
-
-Start the Spark cluster in standalone mode:
-```bash
-./deploy/gcp/start_cluster.sh
-```
-
-Copy the jar file to NFS:
-```bash
-gcloud compute scp mortgage/target/scala-2.11/mortgage-assembly-0.1.0-SNAPSHOT.jar spark-master:/data/spark/jars/
-```
-
-Run the Spark job:
-```bash
-gcloud compute instances list --filter=name=spark-master # Note the external IP address
-# Comment/uncomment lines to run the specific parameter combination:
-./deploy/gcp/run_job.sh <Spark master IP>
-```
-
-While the job is running, access the Spark master at http://${SPARK_MASTER_IP}:8080.
-
-To see the job details, set up an SSH tunnel:
-```bash
-gcloud compute ssh spark-master -- -N -p 22 -D localhost:5000
-```
-then set the `Network Proxy` to use `Socks Host` as `localhost` and port `5000`.
-
-Performance numbers are written to NFS under `/data/spark/benchmark`:
-```bash
-gcloud compute ssh spark-master
-cd /data/spark/benchmark
-``` 
-
-Finally, after finish running jobs, stop the instances:
-```bash
-source deploy/gcp/instances.sh
-gcloud compute instances stop ${INSTANCES} --async
-```
-
-or delete them:
-```bash
-source deploy/gcp/instances.sh
-gcloud compute instances delete ${INSTANCES}
-```
-
-### Running on Google Cloud Platform (GCP) with multi-GPU VMs
-
-To run on GCP using multiple GPUs in each VM, you need `n1-highmem-64` instances with 4 x NVIDIA Tesla T4s. The steps
-are similar.
-
-Create instances for the Spark cluster:
-```bash
-source deploy/gcp/multigpu-instances.sh
-export INSTANCE_TEMPLATE=spark-4xt4
-gcloud compute instances create ${INSTANCES} --source-instance-template ${INSTANCE_TEMPLATE} --async
-``` 
-
-Start the Spark cluster in standalone mode:
-```bash
-./deploy/gcp/start_multigpu_cluster.sh
-```
-
-Then submit jobs as in the previous section.
-
-### Running on Kubernetes (K8S)
-
-Assuming you have a Kubernetes cluster with GPUs configured.
-
-First, build and push the docker image:
-```bash
-docker build -t ${DOCKER_IMAGE} .
-docker push ${DOCKER_IMAGE}
-```
-
-Then run the ETL job:
-```bash
-./deploy/k8s/etl.sh ${K8S_MASTER}
-```
-
-where the ${K8S_MASTER} can be obtained by running `kubectl cluster-info`.
-
-Finally, run the ML job:
-```bash
-./deploy/k8s/ml_benchmark.sh ${K8S_MASTER}
-```
-
-Performance numbers are written under `${OUTPUT_DIR}/benchmark`.
+Then you start your notebook and open [`mortgage-gpu.ipynb`](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/mortgage-gpu.ipynb) to explore.
+(TODO: switch to github url after release)
