@@ -2,25 +2,24 @@ This repo provides examples about how to use GPU powered XGBoost-Spark to train 
 
 Then content mainly contains：
 
-  * [Prepare Jar packages](#Prepare-Jar-Packages)
+  * [Prepare Example Jar](#Prepare-Example-Jar)
   * [Prepare Dataset](#Prepare-Dataset)
   * [Run Example App](#Run-Example-App)
 
 
-# Build Example Jar
+# Prepare Example Jar
 We use [maven](https://maven.apache.org/) to build jar package.
 
-Our example relies on [Cudf](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost)
+Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost)
 
 
-
-## Example App jars
+## Example App Jars
 You should build the jar from current repo.
 
 Suppose $EXAMPLE_HOME points to the directory where you place example repo.
 
 ```bash
-cd $EXAMPLE_HOME/xgboost
+cd $EXAMPLE_HOME/spark-examples
 mvn package 
 ```
 The command above will build a jar package with default cuda version `9.2`. If your cuda version is 10.0, you should do:
@@ -33,14 +32,13 @@ Then you will find both `sample_xgboost_apps-0.1.4.jar` and `sample_xgboost_apps
 
 `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` contains `cudf`, `xgboost4j` and `xgboost4j-spark` dependency jars while `sample_xgboost_apps-0.1.4.jar` doesn't. When we use `spark-submit` to run our example apps, we need to add `--jars` to attach all dependency jars if we submit `sample_xgboost_app-0.1.4.jar`. Details are in [spark-submit](#spark-submit). On the other hand, if we submit `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`, we don't have to add `--jar` parameter.
 
-## Cudf
-You can download Cudf jar from：(TODO: maven repo url)
+## cuDF
+You can download cuDF jar from：(TODO: maven repo url)
 
-## XGBoost dependency jars
+## XGBoost Dependency Jars
 xgboost4j:(TODO: maven repo url)
 
 xgboost4j-spark:(TODO: maven repo url)
-
 
 Then we put all jars above to a folder e.g. `/data/spark/libs`
 
@@ -48,7 +46,7 @@ Then we put all jars above to a folder e.g. `/data/spark/libs`
 
 We have 3 example apps, you can choose to download transformed trainable dataset directly or download raw data, and run transformation jobs on your own.
 
-## download trainable dataset
+## Download Trainable Dataset
 
 You can get a small size transformed dataset for each example in `datasets` folder in this repo: 
 
@@ -57,21 +55,21 @@ You can get a small size transformed dataset for each example in `datasets` fold
 3. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/agaricus.tar.gz)
 
 
-Let's take Mortgage app for example, we need to extract dataset from tar.gz file and put it in `/data/mortgage`:
+Let's take the Mortgage app for example, we need to extract the dataset from tar.gz file and put it in `/data/mortgage`:
 
 ```bash
 tar -xvzf mortgage-small.tar.gz -C /data/mortgage
 ```
 
-## run ETL job on your own
-Or you could download raw dataset and run ETL(data transformation) jobs since raw data are not trainable.
+## Run an ETL job on your own
+Or you could download raw dataset and run ETL(data transformation) jobs since the raw data is not trainable.
 
-### for Mortgage
+### For Mortgage
 1. download raw data: https://rapidsai.github.io/demos/datasets/mortgage-data
 2. install [jupyter notebook with Toree](#jupyternotebook)
 3. run [Mortgage ETL job](https://github.com/rapidsai/spark-examples/xgboost/notebook/ETL/MortgageETL.ipynb)
 
-### for Taxi
+### For Taxi
 1. download raw data:
 ```bash
 wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_20{09..16}-{01..12}.csv
@@ -91,7 +89,7 @@ we use `conda` to install pacakges here, you can also use `pip`.
 We have two ways to demonstrate our apps: Run our apps with `spark-submit` in a console or set up a jupyter notebook with [`Toree`](https://toree.apache.org/)
 
 ## spark-submit
-here we only use a small part in Mortgage dataset to demo, e.g. dataset of 2000Q1:
+Here we only use a small part of the Mortgage dataset to demo, e.g. dataset of 2000Q1:
 
 Run GPU version:
 ```bash
