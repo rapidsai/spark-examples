@@ -1,12 +1,12 @@
-Get Started with XGBoost4J-Spark on an Apache Spark Standalone Cluster
-======================================================================
-This is a getting started guide to XGBoost4J-Spark on an Apache Spark Standalone Cluster. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs.
+Get Started with XGBoost4J-Spark on Apache Hadoop YARN
+======================================================
+This is a getting started guide to XGBoost4J-Spark on Apache Hadoop YARN. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs.
 
 Prerequisites
 -------------
-* Apache Spark 2.3+ Standalone Cluster
+* Apache Spark 2.3+ running on YARN.
 * Please see [RAPIDS.ai requirements] for GPU hardware required.
-* `EXCLUSIVE_PROCESS` must be set for all GPUs in each host. This can be accomplished using the `nvidia-smi` utility:
+* `EXCLUSIVE_PROCESS` must be set for all GPUs in each NodeManager. This can be accomplished using the `nvidia-smi` utility:
 
   ```
   nvidia-smi -i [gpu index] -c EXCLUSIVE_PROCESS
@@ -19,7 +19,7 @@ Prerequisites
   ```
   
   Sets `EXCLUSIVE_PROCESS` for GPU _0_.
-* The number of GPUs in each host dictates the number of Spark executors that can run there. Additionally, cores per Spark executor and cores per Spark task must match, such that each executor can run 1 task at any given time. For example: if each host has 4 GPUs, there should be 4 executors running on each host, and each executor should run 1 task (for a total of 4 tasks running on 4 GPUs). In Spark Standalone mode, the default configuration is for an executor to take up all the cores assigned to each Spark Worker. In this example, we will limit the number of cores to 1, to match our dataset. Please see https://spark.apache.org/docs/latest/spark-standalone.html for more documentation regarding Standalone configuration.
+* The number of GPUs per NodeManager dictates the number of Spark executors that can run in that NodeManager. Additionally, cores per Spark executor and cores per Spark task must match, such that each executor can run 1 task at any given time. For example: if each NodeManager has 4 GPUs, there should be 4 executors running on each NodeManager, and each executor should run 1 task (for a total of 4 tasks running on 4 GPUs). In order to achieve this, you may need to adjust `spark.task.cpus` and `spark.executor.cores` to match (both set to 1 by default). Additionally, we recommend adjusting `executor-memory` to divide host memory evenly amongst the number of GPUs in each NodeManager, such that Spark will schedule as many executors as there are GPUs in each NodeManager.
 * The `SPARK_HOME` environment variable is assumed to point to the cluster's Apache Spark installation.
 
 Download Jars and Dataset
@@ -27,7 +27,7 @@ Download Jars and Dataset
 1. Jars: [Required Jars Download Instructions](required_jars.md)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
-Fetch the required jars and dataset to a local directory. In this example the jars are in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
+First fetch the required jars and dataset to a local directory. In this example the jars are in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
 
 ```
 [xgboost4j_spark]$ find . -type f -print|sort
@@ -39,53 +39,42 @@ Fetch the required jars and dataset to a local directory. In this example the ja
 ./jars/xgboost4j-spark-0.90-SNAPSHOT.jar
 ``` 
 
-Launch a Standalone Spark Cluster
----------------------------------
-1. Start the Spark Master process:
+Create a directory in HDFS, and copy:
 
 ```
-${SPARK_HOME}/sbin/start-master.sh
+[xgboost4j_spark]$ hadoop fs -mkdir /tmp/xgboost4j_spark
+[xgboost4j_spark]$ hadoop fs -copyFromLocal * /tmp/xgboost4j_spark
 ```
 
-Note the hostname or ip address of the Master host, so that it can be given to each Worker process, in this example the Master and Worker will run on the same host.
-
-2. Start a Spark slave process:
+Verify that the jars and dataset are in HDFS:
 
 ```
-export SPARK_MASTER=spark://`hostname -f`:7077
-export SPARK_CORES_PER_WORKER=1
-
-${SPARK_HOME}/sbin/start-slave.sh ${SPARK_MASTER} -c ${SPARK_CORES_PER_WORKER} 
+[xgboost4j_spark]$ hadoop fs -find /tmp/xgboost4j_spark -print|grep "\."|sort
+/tmp/xgboost4j_spark/data/mortgage/csv/test/mortgage_eval_merged.csv
+/tmp/xgboost4j_spark/data/mortgage/csv/train/mortgage_train_merged.csv
+/tmp/xgboost4j_spark/jars/cudf-0.8-SNAPSHOT-cuda10.jar
+/tmp/xgboost4j_spark/jars/sample_xgboost_apps-0.1.4.jar
+/tmp/xgboost4j_spark/jars/xgboost4j-0.90-SNAPSHOT.jar
+/tmp/xgboost4j_spark/jars/xgboost4j-spark-0.90-SNAPSHOT.jar
 ```
-
-Note that in this example the Master and Worker processes are both running on the same host. This is not a requirement, as long as all hosts that are used to run the Spark app have access to the dataset.
 
 Launch GPU Mortgage Example
 ---------------------------
 Variables required to run spark-submit command:
 
 ```
-# this is the same master host we defined while launching the cluster
-export SPARK_MASTER=spark://`hostname -f`:7077
-
 # location where data was downloaded 
-export DATA_PATH=./xgboost4j_spark/data
+export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 
 # location where required jars were downloaded
-export JARS_PATH=./xgboost4j_spark/jars
+export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
 
-# Currently the number of tasks and executors must match the number of input files.
-# For this example, we will set these such that we have 1 executor, with 1 core per executor
+# spark deploy mode (see Apache Spark documentation for more information) 
+export SPARK_DEPLOY_MODE=cluster
 
-## take up the the whole worker
-export SPARK_CORES_PER_EXECUTOR=${SPARK_CORES_PER_WORKER}
-
-## run 1 executor
+# run a single executor for this example to limit the number of spark tasks and
+# partitions to 1 as currently this number must match the number of input files
 export SPARK_NUM_EXECUTORS=1
-
-## cores/executor * num_executors, which in this case is also 1, limits
-## the number of cores given to the application
-export TOTAL_CORES=$((SPARK_CORES_PER_EXECUTOR * SPARK_NUM_EXECUTORS))
 
 # spark driver memory
 export SPARK_DRIVER_MEMORY=4g
@@ -116,10 +105,11 @@ Run spark-submit:
 
 ```
 ${SPARK_HOME}/bin/spark-submit                                                  \
- --master ${SPARK_MASTER}                                                       \
+ --master yarn                                                                  \
+ --deploy-mode ${SPARK_DEPLOY_MODE}                                             \
+ --num-executors ${SPARK_NUM_EXECUTORS}                                         \
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
- --conf spark.cores.max=${TOTAL_CORES}                                          \
  --jars ${JARS_LIBRARY}                                                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
@@ -136,15 +126,15 @@ In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and
 
 ```
 --------------
-==> Benchmark: Elapsed time for [train]: 28.005s
+==> Benchmark: Elapsed time for [train]: 29.642s
 --------------
 
 --------------
-==> Benchmark: Elapsed time for [transform]: 21.287s
+==> Benchmark: Elapsed time for [transform]: 21.272s
 --------------
 
 ------Accuracy of Evaluation------
-0.9874260661801348
+0.9874184013493451
 ```
 
 Launch CPU Mortgage Example
@@ -162,27 +152,18 @@ export TREE_METHOD=hist
 This is the full variable listing, if you are running the CPU example from scratch:
 
 ```
-# this is the same master host we defined while launching the cluster
-export SPARK_MASTER=spark://`hostname -f`:7077
-
 # location where data was downloaded 
-export DATA_PATH=./xgboost4j_spark/data
+export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 
 # location where required jars were downloaded
-export JARS_PATH=./xgboost4j_spark/jars
+export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
 
-# Currently the number of tasks and executors must match the number of input files.
-# For this example, we will set these such that we have 1 executor, with 1 core per executor
+# spark deploy mode (see Apache Spark documentation for more information) 
+export SPARK_DEPLOY_MODE=cluster
 
-## take up the the whole worker
-export SPARK_CORES_PER_EXECUTOR=${SPARK_CORES_PER_WORKER}
-
-## run 1 executor
+# run a single executor for this example to limit the number of spark tasks and
+# partitions to 1 as currently this number must match the number of input files
 export SPARK_NUM_EXECUTORS=1
-
-## cores/executor * num_executors, which in this case is also 1, limits
-## the number of cores given to the application
-export TOTAL_CORES=$((SPARK_CORES_PER_EXECUTOR * SPARK_NUM_EXECUTORS))
 
 # spark driver memory
 export SPARK_DRIVER_MEMORY=4g
@@ -213,10 +194,11 @@ This is the same command as for the GPU example, repeated for convenience:
 
 ```
 ${SPARK_HOME}/bin/spark-submit                                                  \
- --master ${SPARK_MASTER}                                                       \
+ --master yarn                                                                  \
+ --deploy-mode ${SPARK_DEPLOY_MODE}                                             \
+ --num-executors ${SPARK_NUM_EXECUTORS}                                         \
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
- --conf spark.cores.max=${TOTAL_CORES}                                          \
  --jars ${JARS_LIBRARY}                                                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
@@ -233,15 +215,15 @@ In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and
 
 ```
 --------------
-==> Benchmark: Elapsed time for [train]: 306.936s
+==> Benchmark: Elapsed time for [train]: 286.398s
 --------------
 
 --------------
-==> Benchmark: Elapsed time for [transform]: 52.867s
+==> Benchmark: Elapsed time for [transform]: 49.836s
 --------------
 
 ------Accuracy of Evaluation------
-0.9873709530950067
+0.9873709530950067 
 ```
 
 <sup>*</sup> The timings in this Getting Started guide are only illustrative. Please see [link to benchmarks] for official benchmarks.
