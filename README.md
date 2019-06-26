@@ -32,16 +32,6 @@ Then you will find both `sample_xgboost_apps-0.1.4.jar` and `sample_xgboost_apps
 
 `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` contains `cudf`, `xgboost4j` and `xgboost4j-spark` dependency jars while `sample_xgboost_apps-0.1.4.jar` doesn't. When we use `spark-submit` to run our example apps, we need to add `--jars` to attach all dependency jars if we submit `sample_xgboost_app-0.1.4.jar`. Details are in [spark-submit](#spark-submit). On the other hand, if we submit `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`, we don't have to add `--jar` parameter.
 
-## cuDF
-You can download cuDF jar from：(TODO: maven repo url)
-
-## XGBoost Dependency Jars
-xgboost4j:(TODO: maven repo url)
-
-xgboost4j-spark:(TODO: maven repo url)
-
-Then we put all jars above to a folder e.g. `/data/spark/libs`
-
 # Prepare Dataset
 
 We have 3 example apps, you can choose to download transformed trainable dataset directly or download raw data, and run transformation jobs on your own.
