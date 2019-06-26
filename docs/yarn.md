@@ -31,10 +31,10 @@ Prerequisites
 
 Get Application Jar and Dataset
 -------------------------------
-1. Jars: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
+1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
-First fetch the required jars and dataset to a local directory. In this example the jars are in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
+First place the required jar and dataset in a local directory. In this example the jar is in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
 
 ```
 [xgboost4j_spark]$ find . -type f -print|sort
@@ -50,7 +50,7 @@ Create a directory in HDFS, and copy:
 [xgboost4j_spark]$ hadoop fs -copyFromLocal * /tmp/xgboost4j_spark
 ```
 
-Verify that the jars and dataset are in HDFS:
+Verify that the jar and dataset are in HDFS:
 
 ```
 [xgboost4j_spark]$ hadoop fs -find /tmp/xgboost4j_spark -print|grep "\."|sort
@@ -67,7 +67,7 @@ Variables required to run spark-submit command:
 # location where data was downloaded 
 export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 
-# location where required jars were downloaded
+# location for the required jar
 export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
 
 # spark deploy mode (see Apache Spark documentation for more information) 
@@ -146,7 +146,7 @@ This is the full variable listing, if you are running the CPU example from scrat
 # location where data was downloaded 
 export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 
-# location where required jars were downloaded
+# location where required jar were downloaded
 export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
 
 # spark deploy mode (see Apache Spark documentation for more information) 

@@ -31,10 +31,10 @@ Prerequisites
 
 Get Application Jar and Dataset
 -------------------------------
-1. Jars: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
+1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
-Fetch the required jars and dataset to a local directory. In this example the jars are in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
+Place the required jar and dataset in a local directory. In this example the jar is in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
 
 ```
 [xgboost4j_spark]$ find . -type f -print|sort
@@ -75,7 +75,7 @@ export SPARK_MASTER=spark://`hostname -f`:7077
 # location where data was downloaded 
 export DATA_PATH=./xgboost4j_spark/data
 
-# location where required jars were downloaded
+# location for the required jar
 export JARS_PATH=./xgboost4j_spark/jars
 
 # Currently the number of tasks and executors must match the number of input files.
@@ -162,7 +162,7 @@ export SPARK_MASTER=spark://`hostname -f`:7077
 # location where data was downloaded 
 export DATA_PATH=./xgboost4j_spark/data
 
-# location where required jars were downloaded
+# location where the required jar was downloaded
 export JARS_PATH=./xgboost4j_spark/jars
 
 # Currently the number of tasks and executors must match the number of input files.
