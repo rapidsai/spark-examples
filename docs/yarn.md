@@ -182,7 +182,6 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --num-executors ${SPARK_NUM_EXECUTORS}                                         \
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
- --jars ${JARS_LIBRARY}                                                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
  -trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv       \
