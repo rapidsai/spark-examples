@@ -52,9 +52,9 @@ We have 3 example apps, you can choose to download transformed trainable dataset
 
 You can get a small size transformed dataset for each example in `datasets` folder in this repo: 
 
-1. [Mortgage Dataset(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/mortgage-small.tar.gz)
-2. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/taxi-small.tar.gz)
-3. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/agaricus.tar.gz)
+1. [Mortgage Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/mortgage-small.tar.gz?raw=true)
+2. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/taxi-small.tar.gz?raw=true)
+3. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/agaricus.tar.gz?raw=true)
 
 
 Let's take Mortgage app for example, we need to extract dataset from tar.gz file and put it in `/data/mortgage`:
