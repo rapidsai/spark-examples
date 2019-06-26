@@ -9,11 +9,10 @@ Prerequisites
   * NVIDIA Pascal™ GPU architecture or better
   * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
-	* Ubuntu 16.04/CentOS
+  * Ubuntu 16.04/CentOS
   * NVIDIA driver 410.48+
   * CUDA V10.0/9.2
   * NCCL 2.4.7
-  * Spark 2.3.x/2.4.x
 * `EXCLUSIVE_PROCESS` must be set for all GPUs in each host. This can be accomplished using the `nvidia-smi` utility:
 
   ```
@@ -30,8 +29,8 @@ Prerequisites
 * The number of GPUs in each host dictates the number of Spark executors that can run there. Additionally, cores per Spark executor and cores per Spark task must match, such that each executor can run 1 task at any given time. For example: if each host has 4 GPUs, there should be 4 executors running on each host, and each executor should run 1 task (for a total of 4 tasks running on 4 GPUs). In Spark Standalone mode, the default configuration is for an executor to take up all the cores assigned to each Spark Worker. In this example, we will limit the number of cores to 1, to match our dataset. Please see https://spark.apache.org/docs/latest/spark-standalone.html for more documentation regarding Standalone configuration.
 * The `SPARK_HOME` environment variable is assumed to point to the cluster's Apache Spark installation.
 
-Download Jars and Dataset
--------------------------
+Get Application Jar and Dataset
+-------------------------------
 1. Jars: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
