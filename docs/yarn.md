@@ -31,7 +31,7 @@ Prerequisites
 
 Get Application Jar and Dataset
 -------------------------------
-1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
+1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [README](https://github.com/rapidsai/spark-examples)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 First place the required jar and dataset in a local directory. In this example the jar is in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
@@ -86,7 +86,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
-# XGBoost4J example jar (holds example classes):
+# XGBoost4J example jar
 export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 
 # tree construction algorithm
@@ -146,7 +146,7 @@ This is the full variable listing, if you are running the CPU example from scrat
 # location where data was downloaded 
 export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 
-# location where required jar were downloaded
+# location where required jar was downloaded
 export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
 
 # spark deploy mode (see Apache Spark documentation for more information) 
@@ -165,7 +165,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
 
-# XGBoost4J example jar (holds example classes):
+# XGBoost4J example jar
 export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 
 # tree construction algorithm
