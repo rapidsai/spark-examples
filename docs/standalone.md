@@ -5,7 +5,15 @@ This is a getting started guide to XGBoost4J-Spark on an Apache Spark Standalone
 Prerequisites
 -------------
 * Apache Spark 2.3+ Standalone Cluster
-* Please see [RAPIDS.ai requirements] for GPU hardware required.
+* Hardware Requirements
+  * NVIDIA Pascal™ GPU architecture or better
+  * Multi-node clusters with homogenous GPU configuration
+* Software Requirements
+	* Ubuntu 16.04/CentOS
+  * NVIDIA driver 410.48+
+  * CUDA V10.0/9.2
+  * NCCL 2.4.7
+  * Spark 2.3.x/2.4.x
 * `EXCLUSIVE_PROCESS` must be set for all GPUs in each host. This can be accomplished using the `nvidia-smi` utility:
 
   ```
@@ -24,7 +32,7 @@ Prerequisites
 
 Download Jars and Dataset
 -------------------------
-1. Jars: [Required Jars Download Instructions](required_jars.md)
+1. Jars: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Fetch the required jars and dataset to a local directory. In this example the jars are in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
@@ -33,10 +41,7 @@ Fetch the required jars and dataset to a local directory. In this example the ja
 [xgboost4j_spark]$ find . -type f -print|sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./jars/cudf-0.8-SNAPSHOT-cuda10.jar
-./jars/sample_xgboost_apps-0.1.4.jar
-./jars/xgboost4j-0.90-SNAPSHOT.jar
-./jars/xgboost4j-spark-0.90-SNAPSHOT.jar
+./jars/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 ``` 
 
 Launch a Standalone Spark Cluster
@@ -93,20 +98,11 @@ export SPARK_DRIVER_MEMORY=4g
 # spark executor memory
 export SPARK_EXECUTOR_MEMORY=8g
 
-# Library jars: 
-#     - cudf-0.8-SNAPSHOT-cuda10.jar
-#     - xgboost4j-0.90-SNAPSHOT.jar 
-#     - xgboost4j-spark-0.90-SNAPSHOT.jar
-export JARS_LIBRARY="\
-${JARS_PATH}/cudf-0.8-SNAPSHOT-cuda10.jar,\
-${JARS_PATH}/xgboost4j-0.90-SNAPSHOT.jar,\
-${JARS_PATH}/xgboost4j-spark-0.90-SNAPSHOT.jar"
-
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
 # XGBoost4J example jar (holds example classes):
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -120,7 +116,6 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
  --conf spark.cores.max=${TOTAL_CORES}                                          \
- --jars ${JARS_LIBRARY}                                                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
  -trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv       \
@@ -190,20 +185,11 @@ export SPARK_DRIVER_MEMORY=4g
 # spark executor memory
 export SPARK_EXECUTOR_MEMORY=8g
 
-# Library jars: 
-#     - cudf-0.8-SNAPSHOT-cuda10.jar
-#     - xgboost4j-0.90-SNAPSHOT.jar 
-#     - xgboost4j-spark-0.90-SNAPSHOT.jar
-export JARS_LIBRARY="\
-${JARS_PATH}/cudf-0.8-SNAPSHOT-cuda10.jar,\
-${JARS_PATH}/xgboost4j-0.90-SNAPSHOT.jar,\
-${JARS_PATH}/xgboost4j-spark-0.90-SNAPSHOT.jar"
-
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
 
 # XGBoost4J example jar (holds example classes):
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 
 # tree construction algorithm
 export TREE_METHOD=hist
@@ -217,7 +203,6 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
  --conf spark.cores.max=${TOTAL_CORES}                                          \
- --jars ${JARS_LIBRARY}                                                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
  -trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv       \
@@ -244,4 +229,4 @@ In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and
 0.9873709530950067
 ```
 
-<sup>*</sup> The timings in this Getting Started guide are only illustrative. Please see [link to benchmarks] for official benchmarks.
+<sup>*</sup> The timings in this Getting Started guide are only illustrative. 
