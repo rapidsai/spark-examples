@@ -1,38 +1,45 @@
-# Prepare Jar Packages
+This repo provides examples about how to use GPU powered XGBoost-Spark to train XGBoost model and use it to do predictions. 
+
+Then content mainly contains：
+
+  * [Prepare Jar packages](#Prepare-Jar-Packages)
+  * [Prepare Dataset](#Prepare-Dataset)
+  * [Run Example App](#Run-Example-App)
 
 
-Since our jars haven't been deployed to publick jar repo (maven central), we need to build and install our dependencies by ourselves. The following jars should be built:
+# Build Example Jar
+We use [maven](https://maven.apache.org/) to build jar package.
 
-1. Cudf dependency jar (provided)
-2. XGBoost denpendency jar (provided)
-3. Example app jar
+Our example relies on [Cudf](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost)
 
-We also provide a full-dependency jar package that contains both "1. Cudf dependency jar" and "2. XGBoost dependency jar". You can download it directly from: TODO: a link to full-dependency-jar
 
-Note: building jar packages requires [maven](https://maven.apache.org/)
-
-## cudf
-Git repo: https://github.com/rapidsai/cudf
-
-Follow [instructions](https://github.com/rapidsai/cudf/blob/branch-0.8/CONTRIBUTING.md#setting-up-your-build-environment) to set up your cudf build environment. 
-
-You can download cudf jar from: [cudf dependency jar](TODO:https://todo.com/todo)
-## XGBoost dependency jars
-Git repo: https://gitlab-master.nvidia.com/nvspark/xgboost (TODO: replace with github after release)
-
-You can download those jars from: [xgboost dependency jars](TODO:https://todo.com/todo)
 
 ## Example App jars
-Git repo (current one): https://gitlab-master.nvidia.com/nvspark/examples (TODO: replace with github after release)
+You should build the jar from current repo.
+
 Suppose $EXAMPLE_HOME points to the directory where you place example repo.
 
 ```bash
 cd $EXAMPLE_HOME/xgboost
-mvn package
+mvn package 
+```
+The command above will build a jar package with default cuda version `9.2`. If your cuda version is 10.0, you should do:
+
+```bash
+mvn package -DxgbClassifier=cuda10
 ```
 
-Then you will find `sample_xgboost_apps-0.1.2.jar` in your `target` folder
+Then you will find both `sample_xgboost_apps-0.1.4.jar` and `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` in your `target` folder.
 
+`sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` contains `cudf`, `xgboost4j` and `xgboost4j-spark` dependency jars while `sample_xgboost_apps-0.1.4.jar` doesn't. When we use `spark-submit` to run our example apps, we need to add `--jars` to attach all dependency jars if we submit `sample_xgboost_app-0.1.4.jar`. Details are in [spark-submit](#spark-submit). On the other hand, if we submit `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`, we don't have to add `--jar` parameter.
+
+## Cudf
+You can download Cudf jar from：(TODO: maven repo url)
+
+## XGBoost dependency jars
+xgboost4j:(TODO: maven repo url)
+
+xgboost4j-spark:(TODO: maven repo url)
 
 
 Then we put all jars above to a folder e.g. `/data/spark/libs`
@@ -43,19 +50,17 @@ We have 3 example apps, you can choose to download transformed trainable dataset
 
 ## download trainable dataset
 
-You can download all transformed dataset from: (TODO: add source link to public storage, not enough space on my machine)
+You can get a small size transformed dataset for each example in `datasets` folder in this repo: 
 
-1. [Mortgage Dataset(csv)](TODO:https://todo.com/todo)
-2. [Mortgage Dataset(parquet)](TODO:https://todo.com/todo)
-3. [Taxi Dataset(csv)](TODO:https://todo.com/todo)
-4. [Taxi Dataset(parquet)](TODO:https://todo.com/todo)
-5. [Agaricus(csv)](TODO:https://todo.com/todo)
+1. [Mortgage Dataset(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/mortgage-small.tar.gz)
+2. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/taxi-small.tar.gz)
+3. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/xgboost/datasets/agaricus.tar.gz)
 
 
 Let's take Mortgage app for example, we need to extract dataset from tar.gz file and put it in `/data/mortgage`:
 
 ```bash
-tar -xvzf mortgage_csv.tar.gz -C /data/mortgage
+tar -xvzf mortgage-small.tar.gz -C /data/mortgage
 ```
 
 ## run ETL job on your own
@@ -64,7 +69,7 @@ Or you could download raw dataset and run ETL(data transformation) jobs since ra
 ### for Mortgage
 1. download raw data: https://rapidsai.github.io/demos/datasets/mortgage-data
 2. install [jupyter notebook with Toree](#jupyternotebook)
-3. run [Mortgage ETL job](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/ETL/MortgageETL.ipynb)
+3. run [Mortgage ETL job](https://github.com/rapidsai/spark-examples/xgboost/notebook/ETL/MortgageETL.ipynb)
 
 ### for Taxi
 1. download raw data:
@@ -78,7 +83,7 @@ conda install cudatoolkit
 ```
 we use `conda` to install pacakges here, you can also use `pip`.
 
-3. run [Taxi ETL job](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/ETL/Taxi_ETL.ipynb)
+1. run [Taxi ETL job](https://github.com/rapidsai/spark-examples/xgboost/notebook/ETL/Taxi_ETL.ipynb)
 
 
 # Run Example App
@@ -92,7 +97,7 @@ Run GPU version:
 ```bash
 spark-submit --class ai.rapids.spark.examples.mortgage.GPUMain --master spark://$HOSTNAME:7077 \
  --executor-memory 32G \
- --jars  /data/spark/libs/cudf-0.8-SNAPSHOT-cuda10.jar,/data/spark/libs/xgboost4j-0.90-SNAPSHOT.jar,/data/spark/libs/xgboost4j-spark-0.90-SNAPSHOT.jar \
+ --jars /data/spark/libs/cudf-0.8-SNAPSHOT-cuda10.jar,/data/spark/libs/xgboost4j-0.90-SNAPSHOT.jar,/data/spark/libs/xgboost4j-spark-0.90-SNAPSHOT.jar \
 /data/spark/libs/sample_xgboost_apps-0.1.3.jar \
 -format=csv \
 -num_round=100 \
@@ -196,5 +201,4 @@ jupyter toree install --spark_home=$SPARK_HOME --spark_opts='--master=spark://<Y
 
 ```
 
-Then you start your notebook and open [`mortgage-gpu.ipynb`](https://gitlab-master.nvidia.com/nvspark/examples/blob/support-gpu/xgboost/notebook/mortgage-gpu.ipynb) to explore.
-(TODO: switch to github url after release)
+Then you start your notebook and open [`mortgage-gpu.ipynb`](https://github.com/rapidsai/spark-examples/xgboost/notebook/mortgage-gpu.ipynb) to explore.
