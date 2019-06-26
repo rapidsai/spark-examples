@@ -50,7 +50,7 @@ popd
 
 Get Application Jar and Dataset
 -------------------------------
-1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified the [README](https://github.com/rapidsai/spark-examples#example-app-jars)
+1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [README](https://github.com/rapidsai/spark-examples#example-app-jars)
 2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place the required jar and dataset in a local directory. In this example the jar is in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
@@ -126,7 +126,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
-# XGBoost4J example jar (holds example classes):
+# XGBoost4J example jar
 export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
 
 # tree construction algorithm
