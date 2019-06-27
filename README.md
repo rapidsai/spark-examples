@@ -19,8 +19,6 @@ cd spark-examples
 mvn package -DxgbClassifier=cuda10 # omit xgbClassifier for cuda 9.2
 ```
 
-Then you will find both `sample_xgboost_apps-0.1.4.jar` and `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` in your `target` folder. Use the "jar-with-dependencies" (assembly jar) for all the examples in these pages. The plain jar can be used, but other dependencies need to be added manually: `cudf`, `xgboost4j`, and `xgboost4j-spark`.
-
 # Getting Started Guides
 
 You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
