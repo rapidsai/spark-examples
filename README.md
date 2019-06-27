@@ -61,4 +61,4 @@ Follow one of our Getting Started guides to run the sample mortgage dataset:
 - [Kubernetes](docs/kubernetes.md)
 - [Apache Toree Notebook](docs/toree.md)
 
-These examples uses default parameters for demo purposes. For a full list please see [Supported Application Parameters](/docs/supported_parameters.md).
+These examples uses default parameters for demo purposes. For a full list please see [Supported XGBoost Parameters](/docs/supported_xgboost_parameters.md).

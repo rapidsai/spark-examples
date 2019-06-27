@@ -1,5 +1,5 @@
-Supported Application Parameters
-================================
+Supported XGBoost Parameters
+============================
 
 This is a decription of all the parameters available when you are running examples in this repo:
 
