@@ -18,13 +18,13 @@ Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](htt
 1. Clone this repo.
 2. Use maven to build the code:
 
-   ```bash
+   ```
    cd spark-examples
    mvn package 
    ```
    The command above will build a jar package with default cuda version `9.2`. If your cuda version is 10.0, you should do:
 
-   ```bash
+   ```
    mvn package -DxgbClassifier=cuda10
    ```
 
