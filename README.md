@@ -57,7 +57,7 @@ Or you could download raw dataset and run ETL(data transformation) jobs since th
 ### For Mortgage
 1. download raw data: https://rapidsai.github.io/demos/datasets/mortgage-data
 2. install [jupyter notebook with Toree](#jupyternotebook)
-3. run [Mortgage ETL job](https://github.com/rapidsai/spark-examples/xgboost/notebook/ETL/MortgageETL.ipynb)
+3. run [Mortgage ETL job](https://github.com/rapidsai/spark-examples/blob/master/notebook/ETL/MortgageETL.ipynb)
 
 ### For Taxi
 1. download raw data:
@@ -71,7 +71,7 @@ conda install cudatoolkit
 ```
 we use `conda` to install pacakges here, you can also use `pip`.
 
-1. run [Taxi ETL job](https://github.com/rapidsai/spark-examples/xgboost/notebook/ETL/Taxi_ETL.ipynb)
+1. run [Taxi ETL job](https://github.com/rapidsai/spark-examples/blob/master/notebook/ETL/Taxi_ETL.ipynb)
 
 
 # Run Example App
@@ -189,4 +189,4 @@ jupyter toree install --spark_home=$SPARK_HOME --spark_opts='--master=spark://<Y
 
 ```
 
-Then you start your notebook and open [`mortgage-gpu.ipynb`](https://github.com/rapidsai/spark-examples/xgboost/notebook/mortgage-gpu.ipynb) to explore.
+Then you start your notebook and open [`mortgage-gpu.ipynb`](https://github.com/rapidsai/spark-examples/blob/master/notebook/mortgage-gpu.ipynb) to explore.
