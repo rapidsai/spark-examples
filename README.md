@@ -3,11 +3,6 @@ RAPIDS.ai XGBoost-Spark Apache Spark Examples
 
 This repo provides example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
 
-Table of contents:
-
-  * [Example Applications](#Example-Applications)
-  * [Getting Started](#Getting-Started)
-
 # Example Applications
 There are three example apps included in this repo.
 
