@@ -42,7 +42,7 @@ Follow one of our Getting Started guides to run the sample mortgage dataset:
 For reference, the following parameters are supported:
 
 1. All [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html) are supported.
-2. `-format=csv/parquet`: The format of the data for training/transforming, now supports 'csv' and 'parquet' only. *Required*.
+2. `-format=[csv|parquet]`: The format of the data for training/transforming, now supports 'csv' and 'parquet' only. *Required*.
 3. `-mode=[all|train|transform]`. To control the behavior of the sample app, default is 'all' if not specified.
    * all: Do both training and transforming, will save model to 'modelPath' if specified
    * train: Do training only, will save model to 'modelPath' if specified.
