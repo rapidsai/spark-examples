@@ -17,17 +17,6 @@ There are three example apps included in this repo.
 
 Each example requires a different dataset. If you would like to produce your own dataset, the code used to prepare each sample is included in this repo (please see [Preparing Datasets](docs/preparing_datasets.md)).
 
-## Download Trainable Dataset
-
-You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
-
-1. [Mortgage Dataset(csv)](/datasets/mortgage-small.tar.gz?raw=true)
-2. [Mortgage Dataset(csv) (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip)
-3. [Taxi Dataset(csv)](/datasets/taxi-small.tar.gz?raw=true)
-4. [Agaricus(csv)](/datasets/agaricus.tar.gz?raw=true)
-
-Please note that the data above is only provided for convenience to get started with each example. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md).
-
 # Getting Started
 
 To begin using the examples in this repo, please build the example jar, and follow one of our Getting Started guides below.
@@ -52,9 +41,20 @@ Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](htt
 
    Then you will find both `sample_xgboost_apps-0.1.4.jar` and `sample_xgboost_apps-0.1.4-jar-with-dependencies.jar` in your `target` folder. To make it simple, we'll choose the "jar-with-dependencies" (assembly jar) for all the examples in these pages. The plain jar can be used, but other dependencies need to be added manually: `cudf`, `xgboost4j`, and `xgboost4j-spark`.
 
+## Trainable Datasets
+
+You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
+
+1. [Mortgage Dataset(csv)](/datasets/mortgage-small.tar.gz?raw=true)
+2. [Mortgage Dataset(csv) (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip)
+3. [Taxi Dataset(csv)](/datasets/taxi-small.tar.gz?raw=true)
+4. [Agaricus(csv)](/datasets/agaricus.tar.gz?raw=true)
+
+Please note that the data above is only provided for convenience to get started with each example. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md).
+
 ## Getting Started Guides
 
-Follow one of our Getting Started guides to run the sample mortgage dataset:
+Try one of the Getting Started guides below. Please note that they target the Mortage dataset as written, but with a few changes to `EXAMPLE_CLASS`, `trainDataPath`, and `evalDataPath`, they can be easily adapted to the Taxi or Agaricus datasets.
 
 - [Standalone](docs/standalone.md)
 - [YARN](docs/yarn.md)
