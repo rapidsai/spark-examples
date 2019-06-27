@@ -180,5 +180,5 @@ In the driver log, you should see timings* (in seconds), and the RMSE accuracy m
 
 \* Kubernetes logs may not be nicely formatted since `stdout` and `stderr` are not kept separately
 
-\* The timings in this Getting Started guide are only illustrative.
+\* The timings in this Getting Started guide are only illustrative. Please see our [release announcement](https://medium.com/rapids-ai/nvidia-gpus-and-apache-spark-one-step-closer-2d99e37ac8fd) for official benchmarks.
 

@@ -228,4 +228,5 @@ In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and
 0.9873709530950067
 ```
 
-<sup>*</sup> The timings in this Getting Started guide are only illustrative. 
+<sup>*</sup> The timings in this Getting Started guide are only illustrative. Please see our [release announcement](https://medium.com/rapids-ai/nvidia-gpus-and-apache-spark-one-step-closer-2d99e37ac8fd) for official benchmarks.
+
