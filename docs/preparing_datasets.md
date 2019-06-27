@@ -4,7 +4,7 @@ Preparing Datasets
 ## Mortgage Example
 1. Setup [Apache Toree Jupyter notebook](/docs/toree.md).
 2. Download raw data from: https://rapidsai.github.io/demos/datasets/mortgage-data
-3. Run [Mortgage ETL job](https://github.com/rapidsai/spark-examples/blob/master/notebook/ETL/MortgageETL.ipynb).
+3. Run [Mortgage ETL job](/notebook/ETL/MortgageETL.ipynb).
 
 ## Taxi Example
 1. Setup [Apache Toree Jupyter notebook](/docs/toree.md).
@@ -17,4 +17,4 @@ conda install cudatoolkit
 ```
 wget https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_20{09..16}-{01..12}.csv
 ```
-4. Run [Taxi ETL job](https://github.com/rapidsai/spark-examples/blob/master/notebook/ETL/Taxi_ETL.ipynb).
+4. Run [Taxi ETL job](/notebook/ETL/Taxi_ETL.ipynb).
