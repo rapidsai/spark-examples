@@ -7,13 +7,13 @@ Table of contents:
 
   * [Build Examples Jar](#Build-Examples-Jar)
   * [Getting Started Guides](#Getting-Started-Guides)
-  * [Other Examples](#Other-Examples)
+  * [Example Applications](#Example-Applications)
   * [Preparing Datasets](#Preparing-Datasets)
 
 # Build Examples Jar
 We use [maven](https://maven.apache.org/) to build jar package.
 
-Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost)
+Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost/tree/rapids-spark)
 
 1. Clone this repo.
 2. Use maven to build the code:
@@ -54,7 +54,7 @@ For reference, the following parameters are supported:
 8. `-overwrite=[true|false]`: Whether to overwrite the current model data under 'modelPath'. Default is false. You may need to set to true to avoid IOException when saving the model to a path already exists.
 9. `-hasHeader=[true|false]`: Indicate if your csv file has header.
 
-# Other Examples
+# Example Applications
 There are three example apps included in this repo.
 
 - [Mortgage](/src/main/scala/ai/rapids/spark/examples/mortgage) 
@@ -68,7 +68,8 @@ Each example requires a different dataset. If you would like to produce your own
 You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
 
 1. [Mortgage Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/mortgage-small.tar.gz?raw=true)
-2. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/taxi-small.tar.gz?raw=true)
-3. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/agaricus.tar.gz?raw=true)
+2. [Mortgage Dataset(csv) (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip)
+3. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/taxi-small.tar.gz?raw=true)
+4. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/agaricus.tar.gz?raw=true)
 
 Please note that the data above is only provided for convenience to get started with each example. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md).
