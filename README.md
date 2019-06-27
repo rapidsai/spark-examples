@@ -61,4 +61,4 @@ Try one of the Getting Started guides below. Please note that they target the Mo
 - [Kubernetes](docs/kubernetes.md)
 - [Apache Toree Notebook](docs/toree.md)
 
-These examples uses default parameters for demo purposes. For a full list please see [Supported XGBoost Parameters](/docs/supported_xgboost_parameters.md).
+These examples use default parameters for demo purposes. For a full list please see [Supported XGBoost Parameters](/docs/supported_xgboost_parameters.md).
