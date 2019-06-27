@@ -1,12 +1,6 @@
-RAPIDS.ai XGBoost-Spark Apache Spark Examples
-=============================================
-
 This repo provides example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
 
-# Example Applications
 There are three example apps included in this repo: [Mortgage](/src/main/scala/ai/rapids/spark/examples/mortgage), [Taxi](/src/main/scala/ai/rapids/spark/examples/taxi), and [Agaricus](/src/main/scala/ai/rapids/spark/examples/agaricus).
-
-Each example requires a different dataset. If you would like to produce your own dataset, the code used to prepare each sample is included in this repo (please see [Preparing Datasets](docs/preparing_datasets.md)).
 
 # Build Examples Jar
 Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost/tree/rapids-spark)
@@ -21,16 +15,9 @@ mvn package -DxgbClassifier=cuda10 # omit xgbClassifier for cuda 9.2
 
 # Getting Started Guides
 
-You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
-
-1. [Mortgage Dataset(csv)](/datasets/mortgage-small.tar.gz?raw=true)
-2. [Mortgage Dataset(csv) (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip)
-3. [Taxi Dataset(csv)](/datasets/taxi-small.tar.gz?raw=true)
-4. [Agaricus(csv)](/datasets/agaricus.tar.gz?raw=true)
-
-Please note that the data above is only provided for convenience to get started with each example. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md).
-
 Try one of the Getting Started guides below. Please note that they target the Mortage dataset as written, but with a few changes to `EXAMPLE_CLASS`, `trainDataPath`, and `evalDataPath`, they can be easily adapted to the Taxi or Agaricus datasets.
+
+You can get a small size datasets for each example in the `datasets` folder. Please note that these datasets are only provided for convenience. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md). We also provide a larger dataset: [Morgage Dataset (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip), which is used in the guides below.
 
 - [Standalone](docs/standalone.md)
 - [YARN](docs/yarn.md)
