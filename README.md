@@ -6,7 +6,7 @@ This repo provides example applications that demonstrate the RAPIDS.ai GPU-accel
 Table of contents:
 
   * [Example Applications](#Example-Applications)
-  * [Getting Started](#Getting Started)
+  * [Getting Started](#Getting-Started)
 
 # Example Applications
 There are three example apps included in this repo.
