@@ -67,9 +67,9 @@ Each example requires a different dataset. If you would like to produce your own
 
 You can get a small size transformed dataset for each example class in `datasets` folder in this repo: 
 
-1. [Mortgage Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/mortgage-small.tar.gz?raw=true)
+1. [Mortgage Dataset(csv)](/datasets/mortgage-small.tar.gz?raw=true)
 2. [Mortgage Dataset(csv) (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip)
-3. [Taxi Dataset(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/taxi-small.tar.gz?raw=true)
-4. [Agaricus(csv)](https://github.com/rapidsai/spark-examples/blob/master/datasets/agaricus.tar.gz?raw=true)
+3. [Taxi Dataset(csv)](/datasets/taxi-small.tar.gz?raw=true)
+4. [Agaricus(csv)](/datasets/agaricus.tar.gz?raw=true)
 
 Please note that the data above is only provided for convenience to get started with each example. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md).
