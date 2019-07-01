@@ -58,9 +58,9 @@ In a terminal create an init script that has commands to copy the jars you impor
 
 ```
 $ cat /dbfs/databricks/scripts/init.sh
-sudo cp /dbfs/FileStore/jars/2958ae11_357c_4f5d_b9ee_3212e3c0ec5c-xgboost4j_0_90_SNAPSHOT_cuda92-567a4.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
-sudo cp /dbfs/FileStore/jars/492544bd_53eb_42b7_a9f3_ba682c991839-cudf_0_9_SNAPSHOT-64b01.jar /databricks/jars/
-sudo cp /dbfs/FileStore/jars/7b5344c1_38b1_4f9c_a951_f1bce67eb20b-xgboost4j_spark_0_90_SNAPSHOT_cuda92_tom9-c8c97.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
+sudo cp /dbfs/FileStore/jars/2958ae11_357c_4f5d_b9ee_3212e3c0ec5c-xgboost4j_0_90_BETA-567a4.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
+sudo cp /dbfs/FileStore/jars/492544bd_53eb_42b7_a9f3_ba682c991839-cudf_0_8_BETA-64b01.jar /databricks/jars/
+sudo cp /dbfs/FileStore/jars/7b5344c1_38b1_4f9c_a951_f1bce67eb20b-xgboost4j_spark_0_90_BETA-c8c97.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
 
 Upload the init.sh script into /databricks/scripts/init.sh.  See https://docs.databricks.com/user-guide/clusters/init-scripts.html for more details about configuring cluster-scoped init script.
 ```
