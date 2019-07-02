@@ -76,7 +76,7 @@ Import the GPU Mortgage Example Notebook
 2. Import the notebook: [XGBoost4j-Spark mortgage notebook](../notebook/databricks/mortgage-gpu.scala)
 
 The example notebook comes with the following configuration, you can adjust this according to your setup.
-See supported configuration options here: [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html)
+See supported configuration options here: [xgboost parameters](supported_xgboost_parameters.md)
 ```
 val commParamMap = Map(
   "eta" -> 0.1,
