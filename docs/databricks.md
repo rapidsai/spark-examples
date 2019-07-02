@@ -18,7 +18,7 @@ Prerequisites
 
 Get Application Jar and Dataset
 -------------------------------
-* Jars: Please download the Rapids XGBoost4j Spark jars.  There are 3 jars.  
+* Jars: Please download the Rapids XGBoost4j Spark jars.  
 Download the required jars into a local directory. Databricks ML Runtime supports cuda 9.2 so download the correct jars. If the below commands don't work then you can go to Maven Central and search for the 3 jars: ai.rapids.cudf version 0.8-Beta ,ai.rapids.xgboost4j - version 0.90-Beta, and ai.rapids.xgboost4j-spark 0.90-Beta.  
 
 ```
@@ -49,7 +49,7 @@ $ find . -type f -print|sort
   * Select "Upload" and then "Jar"
   * Select the 3 XGBoost Spark jars and upload them. Save the file names and locations for the step below.
 
-* Add a Startup Init script
+* Add a Startup Init script  
 In a terminal create an init script that has commands to copy the jars you imported above over the existing Databricks provided XGBoost jars. Note you will have to change the jar names below to the ones you uploaded.  If you didn't save the names go to the Databricks file browser and look in /FileStore/jars/. If you are using a runtime other then Databricks 5.3 or 5.4 you will have to check the versions of the databricks provided jars in /databricks/jars and update the script accordingly.
 
 ```
