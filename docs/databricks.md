@@ -39,22 +39,18 @@ $ find . -type f -print|sort
 
 * Copy the data into Databricks DBFS:
 
-```
-Go to "Import and Explore Data" 
-Create New Table - default location is /FileStore/tables
-Select mortgage_eval_merged.csv and mortgage_train_merged.csv to upload.
-```
+  * Go to "Import and Explore Data"
+  * Create New Table - default location is /FileStore/tables
+  * Select mortgage_eval_merged.csv and mortgage_train_merged.csv to upload.
 
 * Upload the XGBoost-4j Spark jars
 
-```
-Go to "Import Library"
-Select "Upload" and then "Jar"
-Select the 3 XGBoost Spark jars and upload them. Save the file names and locations for the step below.
-```
+  * Go to "Import Library"
+  * Select "Upload" and then "Jar"
+  * Select the 3 XGBoost Spark jars and upload them. Save the file names and locations for the step below.
 
-* Add a Startup init script  
-In a terminal create an init script that has commands to copy the jars you imported above over the existing Databricks provided XGBoost jars. Note you will have to change the jar names below to the ones you uploaded.  If you didn't save the names go to the Databricks file browser and look in /FileStore/jars/ If you are using a runtime other then Databricks 5.3 or 5.4 you will have to check the versions of the databricks provided jars in /databricks/jars and update the script accordingly.  
+* Add a Startup Init script
+In a terminal create an init script that has commands to copy the jars you imported above over the existing Databricks provided XGBoost jars. Note you will have to change the jar names below to the ones you uploaded.  If you didn't save the names go to the Databricks file browser and look in /FileStore/jars/. If you are using a runtime other then Databricks 5.3 or 5.4 you will have to check the versions of the databricks provided jars in /databricks/jars and update the script accordingly.
 
 ```
 $ cat /dbfs/databricks/scripts/init.sh
@@ -71,31 +67,32 @@ Start A Databricks Cluster
 2. Disable autoscaling.
 3. Choose the number of workers that matches the number of GPUs you want to use.
 4. Select a worker type that has a GPU for the worker.
-5. Update the cluster Configuration "Advanced Options" to include an "Init Scripts". Add your init.sh script you uploaded above: "dbfs:/databricks/scripts/init.sh"
+5. Update the cluster configuration "Advanced Options" to include an "Init Scripts". Add your init.sh script you uploaded above: "dbfs:/databricks/scripts/init.sh".
 6. Optionally add other configurations.
 
 Import the GPU Mortgage Example Notebook
 ---------------------------
-1. See https://docs.databricks.com/user-guide/notebooks/notebook-manage.html on how to import a notebook.
-2. Import the notebook: https://github.com/rapidsai/spark-examples/tree/master/notebook/databricks/xgboost_notebook_mortgage-gpu_scala.scala
+1. See [Managing Notebooks](https://docs.databricks.com/user-guide/notebooks/notebook-manage.html) on how to import a notebook.
+2. Import the notebook: [XGBoost4j-Spark mortgage notebook](https://github.com/rapidsai/spark-examples/tree/master/notebook/databricks/mortgage-gpu.scala)
 
 The example notebook comes with the following configuration, you can adjust this according to your setup.
+See supported configuration options here: [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html)
 ```
 val commParamMap = Map(
-    "eta" -> 0.1,
-    "gamma" -> 0.1,
-    "missing" -> 0.0,
-    "max_depth" -> 10,
-    "max_leaves" -> 256,
-    "grow_policy" -> "depthwise",
-    "min_child_weight" -> 30,
-    "lambda" -> 1,
-    "scale_pos_weight" -> 2,
-    "subsample" -> 1,
-    "nthread" -> 1,
-    "num_round" -> 100,
-    "num_workers" -> 1,
-    "tree_method" -> "gpu_hist")
+  "eta" -> 0.1,
+  "gamma" -> 0.1,
+  "missing" -> 0.0,
+  "max_depth" -> 10,
+  "max_leaves" -> 256,
+  "grow_policy" -> "depthwise",
+  "min_child_weight" -> 30,
+  "lambda" -> 1,
+  "scale_pos_weight" -> 2,
+  "subsample" -> 1,
+  "nthread" -> 1,
+  "num_round" -> 100)
+
+val xgbParamFinal = commParamMap ++ Map("tree_method" -> "gpu_hist", "num_workers" -> 1)
 ```
 
 3. Run all the cells in the notebook. 
