@@ -73,7 +73,7 @@ Start A Databricks Cluster
 Import the GPU Mortgage Example Notebook
 ---------------------------
 1. See [Managing Notebooks](https://docs.databricks.com/user-guide/notebooks/notebook-manage.html) on how to import a notebook.
-2. Import the notebook: [XGBoost4j-Spark mortgage notebook](notebook/databricks/mortgage-gpu.scala)
+2. Import the notebook: [XGBoost4j-Spark mortgage notebook](../notebook/databricks/mortgage-gpu.scala)
 
 The example notebook comes with the following configuration, you can adjust this according to your setup.
 See supported configuration options here: [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html)
