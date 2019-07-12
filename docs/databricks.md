@@ -4,7 +4,7 @@ This is a getting started guide to XGBoost4J-Spark on Databricks. At the end of 
 
 Prerequisites
 -------------
-* Apache Spark 2.4+ running in DataBricks Runtime 5.3 or 5.4 ML with GPU hardware. Make sure it matches requirements below. Use nodes with 1 GPU each.
+* Apache Spark 2.4+ running in DataBricks Runtime 5.3 or 5.4 ML with GPU hardware. Make sure it matches requirements below. Use nodes with 1 GPU each. We currently don't support nodes with multiple GPUs.
 * Hardware Requirements
   * NVIDIA Pascal™ GPU architecture or better
   * Multi-node clusters with homogenous GPU configuration
@@ -19,12 +19,12 @@ Prerequisites
 Get Application Jar and Dataset
 -------------------------------
 * Jars: Please download the Rapids XGBoost4j Spark jars.  
-Download the required jars into a local directory. Databricks ML Runtime supports cuda 9.2 so download the correct jars. If the below commands don't work then you can go to Maven Central and search for the 3 jars: ai.rapids.cudf version 0.8-Beta ,ai.rapids.xgboost4j - version 0.90-Beta, and ai.rapids.xgboost4j-spark 0.90-Beta.  
+Download the required jars into a local directory. Databricks ML Runtime supports cuda 9.2 so download the correct jars. If the below commands don't work then you can go to Maven Central and search for the 3 jars: ai.rapids.cudf version 0.8, ai.rapids.xgboost4j - version 0.90.1-Beta, and ai.rapids.xgboost4j-spark 0.90.1-Beta.
 
 ```
-$ wget https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.8-Beta/cudf-0.8-Beta.jar
-$ wget https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j/0.90-Beta/xgboost4j-0.90-Beta.jar
-$ wget https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark/0.90-Beta/xgboost4j-spark-0.90-Beta.jar
+$ wget -O cudf-0.8.jar https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.8/cudf-0.8.jar
+$ wget -O xgboost4j-0.90.1-Beta.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j/0.90.1-Beta/xgboost4j-0.90.1-Beta.jar
+$ wget -O xgboost4j-spark-0.90.1-Beta.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark/0.90.1-Beta/xgboost4j-spark-0.90.1-Beta.jar
 ``` 
 
 * Download Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
@@ -39,12 +39,14 @@ $ find . -type f -print|sort
 
 * Copy the data into Databricks DBFS:
 
+  * Go to "databricks" menu in top left bar
   * Go to "Import and Explore Data"
   * Create New Table - default location is /FileStore/tables
   * Select mortgage_eval_merged.csv and mortgage_train_merged.csv to upload.
 
 * Upload the XGBoost-4j Spark jars
 
+  * Go to "databricks" menu in top left bar
   * Go to "Import Library"
   * Select "Upload" and then "Jar"
   * Select the 3 XGBoost Spark jars and upload them. Save the file names and locations for the step below.
@@ -66,7 +68,7 @@ Start A Databricks Cluster
 1. Create a Databricks cluster that meets the above prerequisites. Make sure to use one of the ML Databricks runtimes.
 2. Disable autoscaling.
 3. Choose the number of workers that matches the number of GPUs you want to use.
-4. Select a worker type that has a GPU for the worker.
+4. Select a worker type that has 1 GPU for the worker.
 5. Update the cluster configuration "Advanced Options" to include an "Init Scripts". Add your init.sh script you uploaded above: "dbfs:/databricks/scripts/init.sh".
 6. Optionally add other configurations.
 
