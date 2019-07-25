@@ -68,7 +68,7 @@ Start A Databricks Cluster
 1. Create a Databricks cluster that meets the above prerequisites. Make sure to use one of the 5.3 ML with GPU or 5.4 ML with GPU Databricks runtimes.
 2. Disable autoscaling.
 3. Choose the number of workers that matches the number of GPUs you want to use.
-4. Select a worker type that has 1 GPU for the worker. Such as p3.xlarge.
+4. Select a worker type that has 1 GPU for the worker like p3.xlarge, for example.
 5. Update the cluster configuration "Advanced Options" to include an "Init Scripts". Add your init.sh script you uploaded above: "dbfs:/databricks/scripts/init.sh".
 6. Optionally add other configurations.
 
