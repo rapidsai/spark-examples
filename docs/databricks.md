@@ -4,7 +4,7 @@ This is a getting started guide to XGBoost4J-Spark on Databricks. At the end of 
 
 Prerequisites
 -------------
-* Apache Spark 2.4+ running in DataBricks Runtime 5.3 or 5.4 ML with GPU hardware. Make sure it matches requirements below. Use nodes with 1 GPU each. We currently don't support nodes with multiple GPUs.
+* Apache Spark 2.4+ running in DataBricks Runtime 5.3 ML with GPU or 5.4 ML with GPU hardware. Make sure it matches requirements below. Use nodes with 1 GPU each - such as p3.xlarge. We currently don't support nodes with multiple GPUs.
 * Hardware Requirements
   * NVIDIA Pascal™ GPU architecture or better
   * Multi-node clusters with homogenous GPU configuration
@@ -52,23 +52,23 @@ $ find . -type f -print|sort
   * Select the 3 XGBoost Spark jars and upload them. Save the file names and locations for the step below.
 
 * Add a Startup Init script  
-In a terminal create an init script that has commands to copy the jars you imported above over the existing Databricks provided XGBoost jars. Note you will have to change the jar names below to the ones you uploaded.  If you didn't save the names go to the Databricks file browser and look in /FileStore/jars/. If you are using a runtime other then Databricks 5.3 or 5.4 you will have to check the versions of the databricks provided jars in /databricks/jars and update the script accordingly.
+In a terminal create an init script that has commands to copy the jars you imported above over the existing Databricks provided XGBoost jars. Note you will have to change the jar names below to the ones you uploaded.  If you didn't save the names go to the Databricks file browser and look in /FileStore/jars/. If you are using a runtime other then Databricks 5.3 ML with GPU or 5.4 ML with GPU you will have to check the versions of the databricks provided jars in /databricks/jars and update the script accordingly.
 
 ```
 $ cat /dbfs/databricks/scripts/init.sh
-sudo cp /dbfs/FileStore/jars/2958ae11_357c_4f5d_b9ee_3212e3c0ec5c-xgboost4j_0_90.1_BETA-567a4.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
-sudo cp /dbfs/FileStore/jars/492544bd_53eb_42b7_a9f3_ba682c991839-cudf_0_8-64b01.jar /databricks/jars/
-sudo cp /dbfs/FileStore/jars/7b5344c1_38b1_4f9c_a951_f1bce67eb20b-xgboost4j_spark_0_90.1_BETA-c8c97.jar /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j 0_90.1_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_8 jar] /databricks/jars/
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark 0_90.1_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
 
 Upload the init.sh script into /databricks/scripts/init.sh.  See https://docs.databricks.com/user-guide/clusters/init-scripts.html for more details about configuring cluster-scoped init script.
 ```
 
 Start A Databricks Cluster
 --------------------------
-1. Create a Databricks cluster that meets the above prerequisites. Make sure to use one of the ML Databricks runtimes.
+1. Create a Databricks cluster that meets the above prerequisites. Make sure to use one of the 5.3 ML with GPU or 5.4 ML with GPU Databricks runtimes.
 2. Disable autoscaling.
 3. Choose the number of workers that matches the number of GPUs you want to use.
-4. Select a worker type that has 1 GPU for the worker.
+4. Select a worker type that has 1 GPU for the worker like p3.xlarge, for example.
 5. Update the cluster configuration "Advanced Options" to include an "Init Scripts". Add your init.sh script you uploaded above: "dbfs:/databricks/scripts/init.sh".
 6. Optionally add other configurations.
 
