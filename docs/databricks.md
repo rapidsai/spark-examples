@@ -58,7 +58,7 @@ In a terminal create an init script that has commands to copy the jars you impor
 $ cat /dbfs/databricks/scripts/init.sh
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j 0_90.1_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_8 jar] /databricks/jars/
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded gboost4j_spark 0_90.1_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark 0_90.1_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
 
 Upload the init.sh script into /databricks/scripts/init.sh.  See https://docs.databricks.com/user-guide/clusters/init-scripts.html for more details about configuring cluster-scoped init script.
 ```
