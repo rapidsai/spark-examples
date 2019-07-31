@@ -1,7 +1,7 @@
 Supported XGBoost Parameters
 ============================
 
-This is a decription of all the parameters available when you are running examples in this repo:
+This is a description of all the parameters available when you are running examples in this repo:
 
 1. All [xgboost parameters](https://xgboost.readthedocs.io/en/latest/parameter.html) are supported.
 2. `-format=[csv|parquet]`: The format of the data for training/transforming, now supports 'csv' and 'parquet' only. *Required*.
