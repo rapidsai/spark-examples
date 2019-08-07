@@ -13,7 +13,7 @@
 
     <properties>
         <encoding>UTF-8</encoding>
-        <xgboost.version>0.90-Beta</xgboost.version>
+        <xgboost.version>0.90.1-Beta</xgboost.version>
         <spark.version>2.4.0</spark.version>
         <scala.version>2.11.6</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>ai.rapids</groupId>
             <artifactId>cudf</artifactId>
-            <version>0.8-Beta</version>
+            <version>0.8</version>
             <classifier>${xgbClassifier}</classifier>
         </dependency>
         <dependency>
