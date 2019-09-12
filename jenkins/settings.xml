@@ -1,0 +1,14 @@
+<settings>
+    <profiles>
+        <profile>
+            <id>apt-sh04-repo</id>
+            <repositories>
+                <repository>
+                    <id>apt-sh04-release-repo</id>
+                    <name>apt-sh04 release repo</name>
+                    <url>http://apt-sh04:8081/repository/xgboost-spark-release</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+</settings>

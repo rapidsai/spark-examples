@@ -27,7 +27,7 @@ private case class XGBoostArg(
 
 object XGBoostArgs {
   private val modes = Seq("all", "train", "transform")
-  private val dataFormats = Seq("csv", "parquet")
+  private val dataFormats = Seq("csv", "parquet", "orc")
   private val stringToBool = Map(
     "true"  -> true,
     "false" -> false,
@@ -53,17 +53,22 @@ object XGBoostArgs {
     "trainEvalDataPath"  -> XGBoostArg(),
     "numRows" -> XGBoostArg(
       isValid = value => Try(value.toInt).isSuccess,
-      message = "Require an Int."
-    ),
+      message = "Require an Int."),
     "showFeatures"  -> XGBoostArg(
       isValid = value => stringToBool.contains(value),
-      message = "Expect 'true' or '1' for true, 'false' or '0' for false.")
+      message = "Expect 'true' or '1' for true, 'false' or '0' for false."),
+    "asFloats" -> XGBoostArg(
+      isValid = value => stringToBool.contains(value),
+      message = "Expect 'true' or '1' for true, 'false' or '0' for false."),
+    "maxRowsPerChunk" -> XGBoostArg(
+      isValid = value => Try(value.toInt).isSuccess,
+      message = "Require an Int.")
   )
 
   private def help: Unit = {
     println("\n\nSupported arguments:")
-    println("    -format=<csv/parquet>: String\n" +
-      "        Required. The format of the data, now only supports 'csv' and 'parquet'.\n")
+    println("    -format=<csv/parquet/orc>: String\n" +
+      "        Required. The format of the data, now only supports 'csv', 'parquet' and 'orc'.\n")
     println("    -mode=<all/train/transform>: String\n" +
       "        To control the behavior of apps. Default is 'all'. \n" +
       "        * all: Do training and transformation.\n" +
@@ -85,6 +90,10 @@ object XGBoostArgs {
       "        Number of the rows to show after transformation. Default is 5.\n")
     println("    -showFeatures=value: Boolean\n" +
       "        Whether to include the features columns when showing results of transformation. Default is true.\n")
+    println("    -asFloats=value: Boolean\n" +
+      "        Whether to cast numerical schema to float schema. Default is true.\n")
+    println("    -maxRowsPerChunk=value: Int\n" +
+      "        Lines of row to be read per chunk. Default is Integer.MAX_VALUE.\n")
     println("For XGBoost arguments:")
     println("    Now we pass all XGBoost parameters transparently to XGBoost, no longer to verify them.")
     println("    Both of the formats are supported, such as 'numWorkers'. You can pass as either one below:")
@@ -175,6 +184,12 @@ class XGBoostArgs private[utility] (
 
   def isShowFeatures: Boolean = appArgsMap.get("showFeatures")
     .forall(value => XGBoostArgs.stringToBool(value.toString))
+
+  def asFloats: Boolean = appArgsMap.get("asFloats")
+    .forall(value => XGBoostArgs.stringToBool(value.toString))
+
+  def maxRowsPerChunk: Int = appArgsMap.get("maxRowsPerChunk")
+    .map(_.toInt).getOrElse(Integer.MAX_VALUE)
 
   def xgboostParams(
       otherParams: Map[String, Any] = Map.empty): Map[String, Any] = {

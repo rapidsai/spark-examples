@@ -1,0 +1,42 @@
+###
+#
+# Build the image for xgboost development environment
+# on Centos7 with lower version of GLIBC.
+#
+# Arguments: CUDA_VER=9.2 or 10.0
+#
+###
+ARG CUDA_VER=10.0
+
+FROM nvidia/cuda:${CUDA_VER}-runtime-centos7
+
+#Install maven for sample app build
+#install java 8, libgomp, python, on ubuntu16.04_cuda10.0 docker image
+RUN yum update -y && \
+    yum install -y maven \
+    openjdk-8-jdk \
+    libgomp \
+    python \
+    wget
+
+RUN wget https://archive.apache.org/dist/spark/spark-2.3.3/spark-2.3.3-bin-hadoop2.7.tgz -P /usr/local && \
+        tar zxf /usr/local/spark-2.3.3-bin-hadoop2.7.tgz -C /usr/local && \
+        rm -f /usr/local/spark-2.3.3-bin-hadoop2.7.tgz && \
+        wget https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz -P /usr/local && \
+        tar zxf /usr/local/spark-2.4.3-bin-hadoop2.7.tgz -C /usr/local && \
+        rm -f /usr/local/spark-2.4.3-bin-hadoop2.7.tgz && \
+        mv /usr/local/spark-2.4.3-bin-hadoop2.7/conf/log4j.properties.template /usr/local/spark-2.4.3-bin-hadoop2.7/conf/log4j.properties && \
+        mv /usr/local/spark-2.3.3-bin-hadoop2.7/conf/log4j.properties.template /usr/local/spark-2.3.3-bin-hadoop2.7/conf/log4j.properties && \
+        sed -i "s/INFO, console/WARN, console/g" /usr/local/spark-2.4.3-bin-hadoop2.7/conf/log4j.properties && \
+        sed -i "s/INFO, console/WARN, console/g" /usr/local/spark-2.3.3-bin-hadoop2.7/conf/log4j.properties && \
+        mkdir /usr/local/spark-2.3.3-bin-hadoop2.7/logs && \
+        chmod 777 /usr/local/spark-2.3.3-bin-hadoop2.7/logs && \
+        mkdir /usr/local/spark-2.4.3-bin-hadoop2.7/logs && \
+        chmod 777 /usr/local/spark-2.4.3-bin-hadoop2.7/logs && \
+        mkdir /usr/local/spark-2.4.3-bin-hadoop2.7/work && \
+        chmod 777 /usr/local/spark-2.4.3-bin-hadoop2.7/work && \
+        mkdir /usr/local/spark-2.3.3-bin-hadoop2.7/work && \
+        chmod 777 /usr/local/spark-2.3.3-bin-hadoop2.7/work
+
+COPY start-spark.sh /usr/local/bin/start-spark.sh
+COPY stop-spark.sh /usr/local/bin/stop-spark.sh

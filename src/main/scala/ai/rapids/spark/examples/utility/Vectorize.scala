@@ -40,4 +40,13 @@ object Vectorize {
       .transform(df.select(toFloat:_*))
       .select(col("features"), col(labelName))
   }
+
+  def apply(featureNames: Seq[String], df: DataFrame, otherNames: String*): DataFrame = {
+    val resultCols = (otherNames :+ "features").map(col(_))
+    new VectorAssembler()
+      .setInputCols(featureNames.toArray)
+      .setOutputCol("features")
+      .transform(df)
+      .select(resultCols: _*)
+  }
 }

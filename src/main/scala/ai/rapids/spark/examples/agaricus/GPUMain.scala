@@ -48,8 +48,20 @@ object GPUMain {
     var datasets = xgboostArgs.dataPaths.map(_.map{
       path =>
         xgboostArgs.format match {
-          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(dataSchema).csv(path)
-          case "parquet" => dataReader.parquet(path)
+          case "csv" => dataReader
+            .option("header", xgboostArgs.hasHeader)
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .schema(dataSchema)
+            .csv(path)
+          case "parquet" => dataReader
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .parquet(path)
+          case "orc" => dataReader
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -73,7 +85,7 @@ object GPUMain {
         .setFeaturesCols(featureCols)
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time("train") {
+      val (model, _) = Benchmark.time(s"Agaricus GPU train ${xgboostArgs.format}") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -87,7 +99,7 @@ object GPUMain {
     if (xgboostArgs.isToTransform) {
       // start transform
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time("transform") {
+      var (results, _) = Benchmark.time(s"Agaricus GPU transform ${xgboostArgs.format}") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret

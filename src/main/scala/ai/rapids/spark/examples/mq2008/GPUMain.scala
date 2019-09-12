@@ -1,19 +1,19 @@
-/* 
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved. 
+/*
+ * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software 
+ *
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.rapids.spark.examples.taxi
+package ai.rapids.spark.examples.mq2008
 
 import ai.rapids.spark.examples.utility.{Benchmark, Vectorize, XGBoostArgs}
 import ml.dmlc.xgboost4j.scala.spark.{XGBoostRegressionModel, XGBoostRegressor}
@@ -22,15 +22,19 @@ import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.sql.SparkSession
 
 // Only 3 differences between CPU and GPU. Please refer to '=== diff ==='
-object GPUMain extends Taxi {
+object GPUMain extends MQ2008 {
 
   def main(args: Array[String]): Unit = {
     val xgboostArgs = XGBoostArgs.parse(args)
 
+    def logTitle(phase: String = ""): String = {
+      val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+      val format = xgboostArgs.format
+      s"MQ2008 $processor $phase $format"
+    }
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
     val spark = SparkSession.builder()
-      .appName(s"Taxi-$objName-${xgboostArgs.format}")
+      .appName(logTitle().split(" ").filter(_.nonEmpty).mkString("-"))
       .getOrCreate()
 
     // === diff ===
@@ -51,32 +55,27 @@ object GPUMain extends Taxi {
             .option("asFloats", xgboostArgs.asFloats)
             .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
             .parquet(path)
-          case "orc" => dataReader
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
-
-    val featureNames = schema.filter(_.name != labelColName).map(_.name)
 
     // === diff ===
     // No need to vectorize data since GPU support multiple feature columns via API 'setFeaturesCols'
 
     val xgbRegressionModel = if (xgboostArgs.isToTrain) {
       // build XGBoost XGBoostRegressor
-      val xgbParamFinal = xgboostArgs.xgboostParams(commParamMap +
+      val xgbParamFinal = xgboostArgs.xgboostParams(paramMap +
         // Add train-eval dataset if specified
         ("eval_sets" -> datasets(1).map(ds => Map("test" -> ds)).getOrElse(Map.empty))
       )
       val xgbRegressor = new XGBoostRegressor(xgbParamFinal)
         .setLabelCol(labelColName)
+        .setGroupCol(groupColName)
         // === diff ===
         .setFeaturesCols(featureNames)
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Taxi GPU train ${xgboostArgs.format}") {
+      val (model, _) = Benchmark.time(logTitle("train")) {
         xgbRegressor.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -89,7 +88,7 @@ object GPUMain extends Taxi {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (prediction, _) = Benchmark.time(s"Taxi GPU transform ${xgboostArgs.format}") {
+      var (prediction, _) = Benchmark.time(logTitle("transform")) {
         val ret = xgbRegressionModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -97,13 +96,13 @@ object GPUMain extends Taxi {
       prediction = if (xgboostArgs.isShowFeatures) {
         prediction
       } else {
-        prediction.select(labelColName, "prediction")
+        prediction.select(labelColName, groupColName, "prediction")
       }
       prediction.show(xgboostArgs.numRows)
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new RegressionEvaluator().setLabelCol(labelColName)
-      val (rmse, _) = Benchmark.time(s"Taxi GPU evaluation ${xgboostArgs.format}") {
+      val (rmse, _) = Benchmark.time(logTitle("evaluation")) {
         evaluator.evaluate(prediction)
       }
       println(s"RMSE == $rmse")

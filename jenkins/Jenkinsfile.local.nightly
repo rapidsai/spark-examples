@@ -1,0 +1,170 @@
+
+/**
+*
+* Jenkins file for xgboost with multi versions
+*
+*/
+
+pipeline {
+    agent none
+
+    options {
+        skipDefaultCheckout()
+        ansiColor('xterm')
+        timestamps()
+        timeout(time: 240, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    parameters {
+        string(name: 'CUDF_VER', defaultValue: '0.9-SNAPSHOT',
+            description: '-Dcudf.version=0.9-SNAPSHOT\n\n Defautl for cudf version')
+        string(name: 'XGB_VER', defaultValue: '1.0.0-SNAPSHOT',
+            description: '-Dxgboost.version=1.0.0-SNAPSHOT\n\n Defautl for xgboost version')
+        booleanParam(name: 'BUILD_CENTOS7', defaultValue: true,
+            description: 'Whether to enable build for Centos7')
+        booleanParam(name: 'FULL_TEST_SPARK', defaultValue: false,
+            description: 'Whether to test on spark2.3.3 & spark2.4.3, default to run cuda9 on spark 2.3.3, cuda10 on spark 2.4.3')
+        booleanParam(name: 'SIMPLE_DATA', defaultValue: false,
+            description: 'simple datasets')
+    }
+
+    environment {
+        JENKINS_ROOT  = 'xgboost/jenkins'
+        BUILD_SCRIPT = '$JENKINS_ROOT/build-sample.sh'
+        TEST_SCRIPT = '$JENKINS_ROOT/test-sample.sh'
+        BUILD_ARG="-Dcudf.version=$CUDF_VER -Dxgboost.version=$XGB_VER"
+        TEST_ARG_CUDA9_SPARK233="9.2 $CUDF_VER $XGB_VER ${params.SIMPLE_DATA} 2.3.3"
+        TEST_ARG_CUDA9_SPARK243="9.2 $CUDF_VER $XGB_VER ${params.SIMPLE_DATA} 2.4.3"
+        TEST_ARG_CUDA10_SPARK233="10.0 $CUDF_VER $XGB_VER ${params.SIMPLE_DATA} 2.3.3"
+        TEST_ARG_CUDA10_SPARK243="10.0 $CUDF_VER $XGB_VER ${params.SIMPLE_DATA} 2.4.3"
+    }
+
+    // After xgboost nightly CI finished at 0 am.,
+    // trigger this nightly CI 3 am.
+    triggers {
+        cron('H 3 * * *')
+    }
+
+    stages {
+        stage('Checkout source code') {
+            agent { node { label 'docker-gpu' } }
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build and Test on Ubuntu16 CUDA9.2') {
+            agent {
+                dockerfile {
+                    // TODO remove the line below before MR
+                    label 'docker-gpu'
+                    filename 'Dockerfile.ubuntu16'
+                    dir "$JENKINS_ROOT"
+                    args '--runtime=nvidia -v /data:/data:rw -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group'
+                    additionalBuildArgs  '--build-arg CUDA_VER=9.2 -t nvidia/cuda:ubuntu16-cuda9.2'
+                }
+            }
+            steps {
+                script {
+                    echo 'buiding ubuntu16 cuda9.2 ...'
+                    sh "bash $BUILD_SCRIPT '$BUILD_ARG'"
+                    echo 'testing sample app on ubuntu16 cuda9.2 ...'
+                    sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA9_SPARK233"
+                    if (params.FULL_TEST_SPARK) {
+                        sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA9_SPARK243"
+                    }
+                }
+            }
+        }
+
+        stage('Build and Test on Ubuntu16 CUDA10.0') {
+            agent {
+                dockerfile {
+                    // TODO remove the line below before MR
+                    label 'docker-gpu'
+                    filename 'Dockerfile.ubuntu16'
+                    dir "$JENKINS_ROOT"
+                    args '--runtime=nvidia -v /data:/data:rw -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group'
+                    additionalBuildArgs  '--build-arg CUDA_VER=10.0 -t nvidia/cuda:ubuntu16-cuda10.0'
+                }
+            }
+            steps {
+                script {
+                    echo 'buiding ubuntu16 cuda10.0 ...'
+                    sh "bash $BUILD_SCRIPT '$BUILD_ARG'"
+                    echo 'testing sample app on ubuntu16 cuda10.0 ...'
+                    sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA10_SPARK243"
+                    if (params.FULL_TEST_SPARK) {
+                        sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA10_SPARK233"
+                    }
+                }
+            }
+        }
+
+        stage('Build and Test on Centos7 CUDA9.2') {
+            when {
+                beforeAgent true
+                environment name: 'BUILD_CENTOS7', value: 'true'
+           }
+            agent {
+                dockerfile {
+                    // TODO remove the line below before MR
+                    label 'docker-gpu'
+                    filename 'Dockerfile.centos7'
+                    dir "$JENKINS_ROOT"
+                    args '--runtime=nvidia -v /data:/data:rw -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group'
+                    additionalBuildArgs  '--build-arg CUDA_VER=9.2 -t nvidia/cuda:centos7-cuda9.2'
+                }
+            }
+            steps {
+                script {
+                    echo 'buiding centos7 cuda9.2 ...'
+                    sh "bash $BUILD_SCRIPT '$BUILD_ARG'"
+                    echo 'testing sample app on centos7 cuda9.2 ...'
+                    sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA9_SPARK233"
+                    if (params.FULL_TEST_SPARK) {
+                        sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA9_SPARK243"
+                    }
+                }
+            }
+        }
+        stage('Build and Test on Centos7 CUDA10.0') {
+            when {
+                beforeAgent true
+                environment name: 'BUILD_CENTOS7', value: 'true'
+           }
+            agent {
+                dockerfile {
+                    // TODO remove the line below before MR
+                    label 'docker-gpu'
+                    filename 'Dockerfile.centos7'
+                    dir "$JENKINS_ROOT"
+                    args '--runtime=nvidia -v /data:/data:rw -v /etc/passwd:/etc/passwd -v /etc/group:/etc/group'
+                    additionalBuildArgs  '--build-arg CUDA_VER=10.0 -t nvidia/cuda:centos7-cuda10.0'
+                }
+            }
+            steps {
+                script {
+                    echo 'buiding centos7 cuda10.0 ...'
+                    sh "bash $BUILD_SCRIPT '$BUILD_ARG'"
+                    echo 'testing sample app on centos7 cuda10.0 ...'
+                    sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA10_SPARK243"
+                    if (params.FULL_TEST_SPARK) {
+                        sh "bash -i $TEST_SCRIPT $TEST_ARG_CUDA10_SPARK233"
+                    }
+                }
+            }
+        }
+    } // end of stages
+    post {
+        always {
+            script {
+                def status = "failed"
+                if (currentBuild.currentResult == "SUCCESS")
+                    status = "success"
+            }
+
+            echo 'Pipeline finished!'
+        }
+    }
+} // end of pipeline

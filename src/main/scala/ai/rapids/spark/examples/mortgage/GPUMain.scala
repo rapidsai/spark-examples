@@ -41,8 +41,20 @@ object GPUMain extends Mortgage {
     var datasets = xgboostArgs.dataPaths.map(_.map{
       path =>
         xgboostArgs.format match {
-          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(schema).csv(path)
-          case "parquet" => dataReader.parquet(path)
+          case "csv" => dataReader
+            .option("header", xgboostArgs.hasHeader)
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .schema(schema)
+            .csv(path)
+          case "parquet" => dataReader
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .parquet(path)
+          case "orc" => dataReader
+            .option("asFloats", xgboostArgs.asFloats)
+            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
+            .orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -65,7 +77,7 @@ object GPUMain extends Mortgage {
 
       // Start training
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time("train") {
+      val (model, _) = Benchmark.time(s"Mortgage GPU train ${xgboostArgs.format}") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -78,7 +90,7 @@ object GPUMain extends Mortgage {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time("transform") {
+      var (results, _) = Benchmark.time(s"Mortgage GPU transform ${xgboostArgs.format}") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         // Trigger the transformation
         ret.foreachPartition(_ => ())
@@ -94,7 +106,7 @@ object GPUMain extends Mortgage {
       println("\n------Accuracy of Evaluation------")
       val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelColName)
       val accuracy = evaluator.evaluate(results)
-      println(accuracy)
+      println("Accuracy: " + accuracy)
     }
 
     spark.close()

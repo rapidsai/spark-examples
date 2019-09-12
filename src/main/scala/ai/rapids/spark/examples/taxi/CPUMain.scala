@@ -43,6 +43,7 @@ object CPUMain extends Taxi {
         xgboostArgs.format match {
           case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(schema).csv(path)
           case "parquet" => dataReader.parquet(path)
+          case "orc" => dataReader.orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -64,7 +65,7 @@ object CPUMain extends Taxi {
         .setFeaturesCol("features")
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time("train") {
+      val (model, _) = Benchmark.time(s"Taxi CPU train ${xgboostArgs.format}") {
         xgbRegressor.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -77,7 +78,7 @@ object CPUMain extends Taxi {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (prediction, _) = Benchmark.time("transform") {
+      var (prediction, _) = Benchmark.time(s"Taxi CPU transform ${xgboostArgs.format}") {
         val ret = xgbRegressionModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -91,7 +92,7 @@ object CPUMain extends Taxi {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new RegressionEvaluator().setLabelCol(labelColName)
-      val (rmse, _) = Benchmark.time("evaluation") {
+      val (rmse, _) = Benchmark.time(s"Taxi CPU evaluation ${xgboostArgs.format}") {
         evaluator.evaluate(prediction)
       }
       println(s"RMSE == $rmse")

@@ -15,14 +15,36 @@
  */
 package ai.rapids.spark.examples.utility
 
+import ml.dmlc.xgboost4j.java.EnvironmentDetector
+import sys.process._
+
 object Benchmark {
   def time[R](phase: String)(block: => R): (R, Float) = {
+
+    val env = getRunEnvironment()
     val t0 = System.currentTimeMillis
     val result = block // call-by-name
     val t1 = System.currentTimeMillis
     println("\n--------------")
-    println("==> Benchmark: Elapsed time for [" + phase + "]: " + ((t1 - t0).toFloat / 1000) + "s")
+    println("==> Benchmark: Elapsed time for [" + phase + " " + env + "]: " + ((t1 - t0).toFloat / 1000) + "s")
     println("--------------\n")
     (result, (t1 - t0).toFloat / 1000)
+  }
+
+  def getRunEnvironment(): String = {
+    val cudaVersion = EnvironmentDetector.getCudaVersion().orElse("9.2.0")
+    val cuda = if (cudaVersion.startsWith("9.")) {
+      "cuda9"
+    } else {
+      "cuda10"
+    }
+    try {
+      val os = "apt -v".!
+      "benchmark " + cuda + " ubuntu16"
+    } catch {
+      case x : java.io.IOException => {
+        "benchmark " + cuda + " centos7"
+      }
+    }
   }
 }

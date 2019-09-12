@@ -50,6 +50,7 @@ object CPUMain {
         xgboostArgs.format match {
           case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(dataSchema).csv(path)
           case "parquet" => dataReader.parquet(path)
+          case "orc" => dataReader.orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -73,7 +74,7 @@ object CPUMain {
         .setFeaturesCol("features")
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time("train") {
+      val (model, _) = Benchmark.time(s"Agaricus CPU train ${xgboostArgs.format}") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -87,7 +88,7 @@ object CPUMain {
     if (xgboostArgs.isToTransform) {
       // start transform
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time("transform") {
+      var (results, _) = Benchmark.time(s"Agaricus CPU transform ${xgboostArgs.format}") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
