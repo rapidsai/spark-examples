@@ -4,7 +4,7 @@ This is a getting started guide to XGBoost4J-Spark on Databricks. At the end of 
 
 Prerequisites
 -------------
-* Apache Spark 2.4+ running in DataBricks Runtime 5.3 ML with GPU, 5.4 ML with GPU , or 5.5 ML with GPU hardware. Make sure it matches requirements below. Use nodes with 1 GPU each - such as p3.xlarge. We currently don't support nodes with multiple GPUs.
+* Apache Spark 2.4+ running in DataBricks Runtime 5.3 ML with GPU, 5.4 ML with GPU, or 5.5 ML with GPU. Make sure it matches requirements below. Use nodes with 1 GPU each - such as p3.xlarge. We currently don't support nodes with multiple GPUs.
 * Hardware Requirements
   * NVIDIA Pascal™ GPU architecture or better
   * Multi-node clusters with homogenous GPU configuration
