@@ -1,30 +1,48 @@
-This repo provides example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
+This repo provides docs and example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
 
-There are three example apps included in this repo: [Mortgage](/src/main/scala/ai/rapids/spark/examples/mortgage), [Taxi](/src/main/scala/ai/rapids/spark/examples/taxi), and [Agaricus](/src/main/scala/ai/rapids/spark/examples/agaricus).
+### Examples
 
-### Build Examples Jar
-Our example relies on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](https://github.com/rapidsai/xgboost/tree/rapids-spark)
-
-Follow these steps to build the jar:
-
-```
-git clone https://github.com/rapidsai/spark-examples.git
-cd spark-examples
-mvn package -DxgbClassifier=cuda10 # omit xgbClassifier for cuda 9.2
-```
+- Mortgage: [Scala](/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/mortgage), [Python](/examples/apps/python/ai/rapids/spark/examples/mortgage)
+- Taxi: [Scala](/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/taxi), [Python](/examples/apps/python/ai/rapids/spark/examples/taxi)
+- Agaricus: [Scala](/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/agaricus), [Python](/examples/apps/python/ai/rapids/spark/examples/agaricus)
 
 ### Getting Started Guides
 
-Try one of the Getting Started guides below. Please note that they target the Mortage dataset as written, but with a few changes to `EXAMPLE_CLASS`, `trainDataPath`, and `evalDataPath`, they can be easily adapted to the Taxi or Agaricus datasets.
+Try one of the Getting Started guides below. Please note that they target the Mortgage dataset as written, but with a few changes to `EXAMPLE_CLASS`, `trainDataPath`, and `evalDataPath`, they can be easily adapted to the Taxi or Agaricus datasets.
 
-You can get a small size datasets for each example in the [datasets](/datasets) folder. These datasets are only provided for convenience. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](docs/preparing_datasets.md). We also provide a larger dataset: [Morgage Dataset (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip), which is used in the guides below.
+You can get a small size datasets for each example in the [datasets](/datasets) folder. These datasets are only provided for convenience. In order to test for performance, please prepare a larger dataset by following [Preparing Datasets](/datasets/preparing_datasets.md). We also provide a larger dataset: [Morgage Dataset (1 GB uncompressed)](https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip), which is used in the guides below.
 
-- [Standalone](docs/standalone.md)
-- [YARN](docs/yarn.md)
-- [Kubernetes](docs/kubernetes.md)
-- [Apache Toree Notebook](docs/toree.md)
+- Building applications
+    - [Scala](/getting-started-guides/building-sample-apps/scala.md)
+    - [Python](/getting-started-guides/building-sample-apps/python.md)
+- Getting started on on-primises clusters
+    - [Standalone cluster for Scala](/getting-started-guides/on-premises-cluster/standalone-scala.md)
+    - [Standalone cluster for Python](/getting-started-guides/on-premises-cluster/standalone-python.md)
+    - [YARN for Scala](/getting-started-guides/on-premises-cluster/yarn-scala.md)
+    - [YARN for Python](/getting-started-guides/on-premises-cluster/yarn-python.md)
+    - [Kubernetes](/getting-started-guides/on-premises-cluster/kubernetes.md)
+- Getting started on cloud service providers
+    - Amazon AWS
+        - [EMR](/getting-started-guides/csp/aws/emr.md)
+        - [SageMaker](/getting-started-guides/csp/aws/sagemaker.md)
+    - [Databricks](/getting-started-guides/csp/databricks/databricks.md)
+    - [Azure Databricks](/getting-started-guides/csp/azure-databricks/azure-databricks.md)
+    - [Google Cloud Platform](/getting-started-guides/csp/gcp/gcp.md)
+- Getting started for Jupyter Notebook applications
+    - [Apache Toree Notebook for Scala](/getting-started-guides/notebook/toree.md)
+    - [Jupyter Notebook for Python](/getting-started-guides/notebook/python-notebook.md)
 
-These examples use default parameters for demo purposes. For a full list please see [Supported XGBoost Parameters](/docs/supported_xgboost_parameters.md).
+These examples use default parameters for demo purposes. For a full list please see Supported XGBoost Parameters for [Scala](/examples/app-parameters/supported_xgboost_parameters_scala.md) or [Python](/examples/app-parameters/supported_xgboost_parameters_python.md)
+
+### XGBoost-Spark API
+
+- [Scala API](/api-docs/scala.md)
+- [Python API](/api-docs/python.md)
+
+### Advanced Topics
+
+- [Multi-GPU configuration](/advanced-topics/multi-gpu.md)
+- [Performance tuning](/advanced-topics/performance_tuning.md)
 
 ### Contact Us
 
