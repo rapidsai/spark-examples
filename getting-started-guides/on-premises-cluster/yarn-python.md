@@ -33,8 +33,11 @@ Prerequisites
 
 Get Application Jar and Dataset
 -------------------------------
-1. samples.zip and main.py: Please build the files as specified in the [guide](/getting-started-guides/building-sample-apps/python.md)
-2. Jars: Please download the jars (`cudf`, `xgboost4j_2.11`, `xgboost4j-spark_2.11`) [here](https://repo1.maven.org/maven2/ai/rapids/)
+1. *samples.zip* and *main.py*: Please build the files as specified in the [guide](/getting-started-guides/building-sample-apps/python.md)
+2. Jars: Please download the following jars:
+    * [*cudf-0.9-cuda10.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9/cudf-0.9-cuda10.jar) (For CUDA 9.2, please download [*cudf-0.9.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9/cudf-0.9.jar) instead, and replace *cudf-0.9-cuda10.jar* with *cudf-0.9.jar* throughout this whole guide)
+    * [*xgboost4j_2.11-1.0.0-Beta.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.11/1.0.0-Beta/xgboost4j_2.11-1.0.0-Beta.jar)
+    * [*xgboost4j-spark_2.11-1.0.0-Beta.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta/xgboost4j-spark_2.11-1.0.0-Beta.jar)
 3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place dataset and other files in a local directory. In this example the dataset was unzipped in the `xgboost4j_spark_python/data` directory, and all other files in the `xgboost4j_spark_python/libs` directory.

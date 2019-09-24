@@ -66,17 +66,17 @@ In a terminal create an init script that has commands to copy the jars you impor
 For DataBricks Runtime 5.3 and 5.4:
 ```
 $ cat /dbfs/databricks/scripts/init.sh
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_9 jar] /databricks/jars/
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
 ```
 
 For DataBricks Runtime 5.5:
 ```
 $ cat /dbfs/databricks/scripts/init.sh
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.90.jar
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_9-cuda10 jar] /databricks/jars/
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.90.jar
 ```
 
 Upload the init.sh script into /databricks/scripts/init.sh.  See https://docs.databricks.com/user-guide/clusters/init-scripts.html for more details about configuring cluster-scoped init script.
