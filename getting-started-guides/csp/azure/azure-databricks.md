@@ -70,9 +70,9 @@ $ dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
 
 dbutils.fs.put("/databricks/init_scripts/init.sh","""
 #!/bin/bash
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.81.jar
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_9 jar] /databricks/jars/
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.81.jar
 """, True)
 ```
 
@@ -82,9 +82,9 @@ $ dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
 
 dbutils.fs.put("/databricks/init_scripts/init.sh","""
 #!/bin/bash
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j--ml.dmlc__xgboost4j__0.90.jar
 sudo cp /dbfs/FileStore/jars/[dbfs uploaded cudf_0_9-cuda10 jar] /databricks/jars/
-sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__1.00.jar
+sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar] /databricks/jars/spark--maven-trees--ml--xgboost--ml.dmlc--xgboost4j-spark--ml.dmlc__xgboost4j-spark__0.90.jar
 """, True)
 ```
 

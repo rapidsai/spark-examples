@@ -1,5 +1,7 @@
 This repo provides docs and example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
 
+*Please note: Spark 2.4.4 support is currently in development. Please run the examples with other Spark 2.4 versions, or Spark 2.3.*
+
 ### Examples
 
 - Mortgage: [Scala](/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/mortgage), [Python](/examples/apps/python/ai/rapids/spark/examples/mortgage)
