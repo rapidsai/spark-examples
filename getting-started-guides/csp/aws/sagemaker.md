@@ -87,7 +87,7 @@ Your output should look like the following:
 
 If you get an error, it likely means that your ports have not been opened in the security group, so I would recommend going back and checking those settings!
 
-Let's close the terminal. Type exit and then close the browser tab with the terminal. Open the tab with Jupyter, and choose New and then Sparkmagic (PySpark) to open a PySpark notebook. Just to be sure, let's re-start the kernel by choosing Kernel and then Restart.
+Let's close the terminal. Type exit and then close the browser tab with the terminal. Open the tab with Jupyter, and choose New and then Sparkmagic (Spark) to open a Spark notebook. Just to be sure, let's re-start the kernel by choosing Kernel and then Restart.
 
 ![Kernel Restart](pics/sagemaker-kernel-restart.png)
 
