@@ -51,7 +51,6 @@ $ find . -type f -print|sort
 
   * Go to "databricks" menu in top left bar
   * Go to "Import and Explore Data"
-  * Create New Table - default location is /FileStore/tables
   * Select mortgage_eval_merged.csv and mortgage_train_merged.csv to upload.
 
 * Upload the XGBoost-4j Spark jars
@@ -66,7 +65,7 @@ In a new shell, create a directory and an init script that has commands to copy 
 
 For DataBricks Runtime 5.3 and 5.4:
 ```
-$ dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
+dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
 
 dbutils.fs.put("/databricks/init_scripts/init.sh","""
 #!/bin/bash
@@ -78,7 +77,7 @@ sudo cp /dbfs/FileStore/jars/[dbfs uploaded xgboost4j_spark_2.11 1.0.0_Beta jar]
 
 For DataBricks Runtime 5.5:
 ```
-$ dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
+dbutils.fs.mkdirs("dbfs:/databricks/init_scripts/")
 
 dbutils.fs.put("/databricks/init_scripts/init.sh","""
 #!/bin/bash
@@ -102,10 +101,11 @@ Start A Databricks Cluster
 Import the GPU Mortgage Example Notebook
 ---------------------------
 1. See [Managing Notebooks](https://docs.databricks.com/user-guide/notebooks/notebook-manage.html) on how to import a notebook.
-2. Import the notebook: [XGBoost4j-Spark mortgage notebook](../notebook/databricks/mortgage-gpu.scala)
+2. Import the notebook: [XGBoost4j-Spark mortgage notebook](/examples/notebooks/scala/mortgage-gpu.ipynb)
+3. Change the dataset path like "/data/mortgage/csv/train/" to "dbfs:/FileStore/tables/mortgage_train_merged.csv"
 
 The example notebook comes with the following configuration, you can adjust this according to your setup.
-See supported configuration options here: [xgboost parameters](supported_xgboost_parameters.md)
+See supported configuration options here: [xgboost parameters](/examples/app-parameters/supported_xgboost_parameters_scala.md)
 ```
 val commParamMap = Map(
   "eta" -> 0.1,
