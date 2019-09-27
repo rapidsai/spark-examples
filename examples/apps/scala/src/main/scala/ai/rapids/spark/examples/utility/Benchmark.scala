@@ -15,36 +15,49 @@
  */
 package ai.rapids.spark.examples.utility
 
-import ml.dmlc.xgboost4j.java.EnvironmentDetector
-import sys.process._
+import scala.util.Properties
 
-object Benchmark {
-  def time[R](phase: String)(block: => R): (R, Float) = {
+class Benchmark(
+    appName: String,
+    processor: String,
+    dataFormat: String) {
 
-    val env = getRunEnvironment()
+  def time[R](phase: String, silent: (Any, Float) => Boolean = (_,_) => false)
+             (block: => R): (R, Float) = {
     val t0 = System.currentTimeMillis
     val result = block // call-by-name
-    val t1 = System.currentTimeMillis
-    println("\n--------------")
-    println("==> Benchmark: Elapsed time for [" + phase + " " + env + "]: " + ((t1 - t0).toFloat / 1000) + "s")
-    println("--------------\n")
-    (result, (t1 - t0).toFloat / 1000)
+    val elapsedTimeSec = (System.currentTimeMillis - t0).toFloat / 1000
+    logging(elapsedTimeSec, phase, "Elapsed time for", "s", silent(result, elapsedTimeSec))
+    (result, elapsedTimeSec)
   }
 
-  def getRunEnvironment(): String = {
-    val cudaVersion = EnvironmentDetector.getCudaVersion().orElse("9.2.0")
-    val cuda = if (cudaVersion.startsWith("9.")) {
-      "cuda9"
-    } else {
-      "cuda10"
-    }
-    try {
-      val os = "apt -v".!
-      "benchmark " + cuda + " ubuntu16"
-    } catch {
-      case x : java.io.IOException => {
-        "benchmark " + cuda + " centos7"
-      }
+  def value(value: Any, name: String = "value",  prefix: String="", suffix: String = "") = {
+    logging(value, name, prefix, suffix, false)
+  }
+
+  private def logging(value: Any, name: String , prefix: String, suffix: String, silent: Boolean) = {
+    if (!silent) {
+      val logString = buildLogSimple(value, prefix, suffix, buildRuntimeInfo(name))
+      println("\n--------------")
+      println("==> Benchmark: " + logString)
+      println("--------------\n")
     }
   }
+
+  private def buildRuntimeInfo(name: String): String = {
+    // Get runtime information from Environment
+    val osType = Properties.envOrElse("RAPIDS_XGB_EXAMPLE_OS_TYPE", "Unknown")
+    val cudaVersion = Properties.envOrElse("RAPIDS_XGB_EXAMPLE_CUDA_VERSION", "Unknown")
+    val sparkVersion = Properties.envOrElse("RAPIDS_XGB_EXAMPLE_SPARK_VERSION", "Unknown")
+    Seq(appName, processor, name, dataFormat, "stub", cudaVersion, osType, sparkVersion)
+      .mkString(" ")
+  }
+
+  private def buildLogSimple(value: Any, prefix: String, suffix: String, runtimeInfo: String): String =
+    prefix + " [" + runtimeInfo + "]: " + value + suffix
+}
+
+object Benchmark {
+  def apply(appName: String, processor: String, dataFormat: String) =
+    new Benchmark(appName, processor, dataFormat)
 }

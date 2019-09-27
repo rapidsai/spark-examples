@@ -32,14 +32,14 @@ object CPUMain {
     def schema(length: Int): StructType =
       StructType(featureNames(length).map(n => StructField(n, FloatType)))
 
-    val xgboostArgs = XGBoostArgs.parse(args)
     val dataSchema = schema(126)
+    val xgboostArgs = XGBoostArgs.parse(args)
+    val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+    val appInfo = Seq("Agaricus", processor, xgboostArgs.format)
 
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
-    val spark = SparkSetup(args, "AgaricusAppFor$objName")
-    spark.sparkContext.setLogLevel("WARN")
-
+    val spark = SparkSetup(args, appInfo.mkString("-"))
+    val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
     // === diff ===
     // build data reader
     val dataReader = spark.read
@@ -74,7 +74,7 @@ object CPUMain {
         .setFeaturesCol("features")
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Agaricus CPU train ${xgboostArgs.format}") {
+      val (model, _) = benchmark.time("train") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -88,7 +88,7 @@ object CPUMain {
     if (xgboostArgs.isToTransform) {
       // start transform
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time(s"Agaricus CPU transform ${xgboostArgs.format}") {
+      var (results, _) = benchmark.time("transform") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -102,9 +102,11 @@ object CPUMain {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelName)
-      val accuracy = evaluator.evaluate(results)
-
-      println(s"accuracy == $accuracy")
+      evaluator.evaluate(results) match {
+        case accuracy if !accuracy.isNaN =>
+          benchmark.value(accuracy, "Accuracy", "Accuracy for")
+        // Throw an exception when NaN ?
+      }
     }
 
     spark.close()

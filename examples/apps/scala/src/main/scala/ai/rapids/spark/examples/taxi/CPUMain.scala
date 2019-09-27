@@ -26,13 +26,15 @@ object CPUMain extends Taxi {
 
   def main(args: Array[String]): Unit = {
     val xgboostArgs = XGBoostArgs.parse(args)
+    val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+    val appInfo = Seq(appName, processor, xgboostArgs.format)
 
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
     val spark = SparkSession.builder()
-      .appName(s"Taxi-$objName-${xgboostArgs.format}")
+      .appName(appInfo.mkString("-"))
       .getOrCreate()
 
+    val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
     // === diff ===
     // build data reader
     val dataReader = spark.read
@@ -65,7 +67,8 @@ object CPUMain extends Taxi {
         .setFeaturesCol("features")
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Taxi CPU train ${xgboostArgs.format}") {
+      // Shall we not log the time if it is abnormal, which is usually caused by training failure
+      val (model, _) = benchmark.time("train") {
         xgbRegressor.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -78,7 +81,7 @@ object CPUMain extends Taxi {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (prediction, _) = Benchmark.time(s"Taxi CPU transform ${xgboostArgs.format}") {
+      var (prediction, _) = benchmark.time("transform") {
         val ret = xgbRegressionModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -92,10 +95,10 @@ object CPUMain extends Taxi {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new RegressionEvaluator().setLabelCol(labelColName)
-      val (rmse, _) = Benchmark.time(s"Taxi CPU evaluation ${xgboostArgs.format}") {
-        evaluator.evaluate(prediction)
+      evaluator.evaluate(prediction) match {
+        case rmse if !rmse.isNaN => benchmark.value(rmse, "RMSE", "RMSE for")
+        // Throw an exception when NaN ?
       }
-      println(s"RMSE == $rmse")
     }
 
     spark.close()

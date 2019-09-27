@@ -26,35 +26,27 @@ object GPUMain extends Taxi {
 
   def main(args: Array[String]): Unit = {
     val xgboostArgs = XGBoostArgs.parse(args)
+    val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+    val appInfo = Seq(appName, processor, xgboostArgs.format)
 
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
     val spark = SparkSession.builder()
-      .appName(s"Taxi-$objName-${xgboostArgs.format}")
+      .appName(appInfo.mkString("-"))
       .getOrCreate()
 
+    val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
     // === diff ===
     // build data reader
     val dataReader = new GpuDataReader(spark)
+      .option("asFloats", xgboostArgs.asFloats).option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
 
     // load datasets, the order is (train, train-eval, eval)
     var datasets = xgboostArgs.dataPaths.map(_.map{
       path =>
         xgboostArgs.format match {
-          case "csv" => dataReader
-            .option("header", xgboostArgs.hasHeader)
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .schema(schema)
-            .csv(path)
-          case "parquet" => dataReader
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .parquet(path)
-          case "orc" => dataReader
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .orc(path)
+          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(schema).csv(path)
+          case "parquet" => dataReader.parquet(path)
+          case "orc" => dataReader.orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -76,7 +68,8 @@ object GPUMain extends Taxi {
         .setFeaturesCols(featureNames)
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Taxi GPU train ${xgboostArgs.format}") {
+      // Shall we not log the time if it is abnormal, which is usually caused by training failure
+      val (model, _) = benchmark.time("train") {
         xgbRegressor.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -89,7 +82,7 @@ object GPUMain extends Taxi {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (prediction, _) = Benchmark.time(s"Taxi GPU transform ${xgboostArgs.format}") {
+      var (prediction, _) = benchmark.time("transform") {
         val ret = xgbRegressionModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -103,10 +96,10 @@ object GPUMain extends Taxi {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new RegressionEvaluator().setLabelCol(labelColName)
-      val (rmse, _) = Benchmark.time(s"Taxi GPU evaluation ${xgboostArgs.format}") {
-        evaluator.evaluate(prediction)
+      evaluator.evaluate(prediction) match {
+        case rmse if !rmse.isNaN => benchmark.value(rmse, "RMSE", "RMSE for")
+        // Throw an exception when NaN ?
       }
-      println(s"RMSE == $rmse")
     }
 
     spark.close()

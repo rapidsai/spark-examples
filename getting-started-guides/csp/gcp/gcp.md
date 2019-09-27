@@ -49,7 +49,7 @@ Use the following command to submit spark jobs on this GPU cluster.
 CLUSTER_NAME=raghav-cluster
 ROOT_FOLDER=gs://rapidsai-test-1/spark
 MAIN_CLASS=ai.rapids.spark.examples.agaricus.GPUMain
-RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta.jar
+RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9.1-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta2.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 TRAIN_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/train
 TEST_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/test
 MODEL_PATH=$ROOT_FOLDER/models
@@ -87,7 +87,7 @@ Submitting a CPU job on this cluster is very similar. Below's an example command
 CLUSTER_NAME=raghav-cluster
 ROOT_FOLDER=gs://rapidsai-test-1/spark
 MAIN_CLASS=ai.rapids.spark.examples.agaricus.CPUMain
-RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta.jar
+RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9.1-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta2.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 TRAIN_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/train
 TEST_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/test
 MODEL_PATH=$ROOT_FOLDER/models

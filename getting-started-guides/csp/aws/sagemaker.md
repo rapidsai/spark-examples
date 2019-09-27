@@ -114,9 +114,9 @@ Now Launch the GPU Mortgage Example:
     "driverCores": 2,
     "executorMemory": "16000M",
     "conf" : {"spark.executor.instances":2, "spark.executor.cores":8, "spark.task.cpus": 8, "spark.yarn.maxAppAttempts": 1, "spark.dynamicAllocation.enabled": false},
-    "jars" : ["https://repo1.maven.org/maven2/ai/rapids/cudf/0.9/cudf-0.9.jar",
-      "https://repo1.maven.org/maven2/ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta/xgboost4j-spark_2.11-1.0.0-Beta.jar",
-      "https://repo1.maven.org/maven2/ai/rapids/xgboost4j_2.11/1.0.0-Beta/xgboost4j_2.11-1.0.0-Beta.jar"]
+    "jars" : ["https://repo1.maven.org/maven2/ai/rapids/cudf/0.9.1/cudf-0.9.1.jar",
+      "https://repo1.maven.org/maven2/ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta2/xgboost4j-spark_2.11-1.0.0-Beta2.jar",
+      "https://repo1.maven.org/maven2/ai/rapids/xgboost4j_2.11/1.0.0-Beta2/xgboost4j_2.11-1.0.0-Beta2.jar"]
 }
 
 sc.listJars.foreach(println)
