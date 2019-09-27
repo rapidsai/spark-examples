@@ -12,6 +12,8 @@ Go to AWS Management Console and click EMR service and select a region, e.g. Ore
 
 Select emr-5.23.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.0.
 
+Also add following settings to disable Spark Dynamic Allocation by default.
+
 ![Step 1: Software and Steps](pics/emr-step-one-software-and-steps.png)
 
 ###### Step 2: Hardware
@@ -52,41 +54,65 @@ Click the details of cluster and find the Master public DNS. Use this DNS addres
 
 ![Cluster SSH](pics/emr-cluster-ssh.png)
 
+### Build XGBoost-Spark examples on EMR
+
+Now once the EMR Hadoop/Spark cluster is ready, let’s launch the Nvidia GPU XGboost examples. 
+
+Let’s first install a git and maven package on master node.  And Download [apache-maven-3.6.2-bin.zip](http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip) into master node, unzip and add to $PATH.
+
+
+```
+sudo yum update -y
+sudo yum install git -y
+wget http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip
+unzip apache-maven-3.6.2-bin.zip
+export PATH=/home/hadoop/apache-maven-3.6.2/bin:$PATH
+mvn --version
+```
+
+Now let’s build example Jar by following the steps from [Build XGBoost Scala Examples](/getting-started-guides/building-sample-apps/scala.md). The mvn building option might be different based on the CUDA version on EMR instance images.
+
+```
+git clone https://github.com/rapidsai/spark-examples.git
+cd spark-examples/examples/apps/scala
+mvn package #  omit cuda.classifier for cuda 9.2 (AWS EMR Instance use CUDA 9.2)
+```
+
 ### Launch XGBoost-Spark examples on EMR
 
 Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-premises-cluster/yarn-scala.md) to run the example with data on Spark.
 
-First get application jar and dataset:
+First get mortgage dataset:
 
 ```
-mkdir jars
 mkdir data
-cp target/*.jar jars/
 cd data
 wget https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 unzip mortgage.zip
 cd ..
 ```
 
-Then copy local data and jar to HDFS:
+Then copy local data and jar files to HDFS:
 
 ```
 hadoop fs -mkdir /tmp/xgboost4j_spark
-hadoop fs -copyFromLocal * /tmp/xgboost4j_spark
+hadoop fs -mkdir /tmp/data
+hadoop fs -copyFromLocal ./target/*.jar /tmp/xgboost4j_spark
+hadoop fs -copyFromLocal ./data/* /tmp/data
 ```
 
 Now Launch the GPU Mortgage Example:
 
 ```
 # location where data was downloaded
-export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
+export DATA_PATH=hdfs:/tmp/data
 # location for the required jar
-export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
+export JARS_PATH=hdfs:/tmp/xgboost4j_spark
 # spark deploy mode (see Apache Spark documentation for more information)
 export SPARK_DEPLOY_MODE=cluster
 # run a single executor for this example to limit the number of spark tasks and
 # partitions to 1 as currently this number must match the number of input files
-export SPARK_NUM_EXECUTORS=1
+export SPARK_NUM_EXECUTORS=2
 # spark driver memory
 export SPARK_DRIVER_MEMORY=4g
 # spark executor memory
