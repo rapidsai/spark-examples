@@ -19,11 +19,7 @@ Prerequisites
 
 1.  Using the `gcloud` command to create a new cluster with Rapids Spark GPU initialization
     action. The following command will create a new cluster named
-    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, use need to copy the spark-gpu initialization script into a accessible GCS and into following structure
-
-    The script could be found [here](https://github.com/mengdong/dataproc-initialization-actions/tree/master/spark-gpu).  
-
-    use `install-gpu-driver-ubuntu.sh` for ubuntu18 and `install-gpu-driver-debian.sh` for debian9. In this guide, we use ubuntu18.
+    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, use need to copy the spark-gpu initialization script in `spark-gpu` folder into a accessible GCS with following structure. Ubuntu is recommended as CUDA support ubuntu, debian could be used by modifying `image-version` and `linux-dist` accordingly. 
 
     ```
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
@@ -144,4 +140,4 @@ When you're done working on this cluster, don't forget to delete the cluster, us
     gcloud dataproc clusters delete $CLUSTER_NAME
 ```
 
-<sup>*</sup> Please see our [release announcement](https://medium.com/rapids-ai/nvidia-gpus-and-apache-spark-one-step-closer-2d99e37ac8fd) for official performance benchmarks.
+<sup>*</sup> Please see our release announcement for official performance benchmarks.
