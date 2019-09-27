@@ -19,15 +19,16 @@ Prerequisites
 
 1.  Using the `gcloud` command to create a new cluster with Rapids Spark GPU initialization
     action. The following command will create a new cluster named
-    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, use need to copy the sparkgpu initialization script into a accessible GCS and into following structure
+    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, use need to copy the spark-gpu initialization script into a accessible GCS and into following structure
 
-    The script could be found [here](https://github.com/mengdong/dataproc-initialization-actions/tree/master/sparkgpu).  
+    The script could be found [here](https://github.com/mengdong/dataproc-initialization-actions/tree/master/spark-gpu).  
 
-    use `install-gpu-driver-ubuntu18.sh` for ubuntu18 and `install-gpu-driver-debian9.sh` for debian9. In this guide, we use ubuntu18.
+    use `install-gpu-driver-ubuntu.sh` for ubuntu18 and `install-gpu-driver-debian.sh` for debian9. In this guide, we use ubuntu18.
 
     ```
-    /$STORAGE_BUCKET/sparkgpu/rapids.sh
-    /$STORAGE_BUCKET/sparkgpu/init-actions/install-gpu-driver.sh
+    /$STORAGE_BUCKET/spark-gpu/rapids.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
     ```  
 
     ```bash
@@ -50,11 +51,12 @@ Prerequisites
         --num-workers $NUM_WORKERS \
         --image-version 1.4-ubuntu18 \
         --bucket $STORAGE_BUCKET \
-        --initialization-actions gs://$STORAGE_BUCKET/sparkgpu/rapids.sh \
-        --meta "INIT_ACTIONS_REPO=gs://$STORAGE_BUCKET" \
+        --metadata zeppelin-port=8081,INIT_ACTIONS_REPO="gs://$STORAGE_BUCKET",linux-dist="ubuntu" \
+        --initialization-actions gs://$STORAGE_BUCKET/spark-gpu/rapids.sh \
+        --optional-components=ZEPPELIN \
         --subnet=default \
         --properties 'spark:spark.dynamicAllocation.enabled=false,spark:spark.shuffle.service.enabled=false' \
-        --enable-component-gateway        
+        --enable-component-gateway
     ```
 
 This cluster should now have met prerequisites.
@@ -72,11 +74,11 @@ Use the following command to submit spark jobs on this GPU cluster.
 ```bash
     export STORAGE_BUCKET=dongm-gcp-shared
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
-    export RAPIDS_JARS=gs://$STORAGE_BUCKET/sparkGPU_init/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export RAPIDS_JARS=gs://$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
     export DATA_PATH=hdfs:///tmp/xgboost4j_spark/mortgage/csv
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
-    export CLUSTER_NAME=dongm-sparkgpu1
+    export CLUSTER_NAME=dongm-sparkgpu
     export REGION=us-central1
 
     gcloud beta dataproc jobs submit spark \
@@ -111,7 +113,7 @@ Submitting a CPU job on this cluster is very similar. Below's an example command
 ```bash
     export STORAGE_BUCKET=dongm-gcp-shared
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
-    export RAPIDS_JARS=gs://$STORAGE_BUCKET/sparkGPU_init/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export RAPIDS_JARS=gs://$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
     export DATA_PATH=hdfs:///tmp/xgboost4j_spark/mortgage/csv
     export TREE_METHOD=hist
     export SPARK_NUM_EXECUTORS=4
