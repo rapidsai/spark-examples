@@ -31,7 +31,7 @@ Create a Databricks cluster (`Clusters` -> `+ Create Cluster`) that meets the ab
 ) to setup execution.
 
 The initialization notebooks will perform the following steps:
-Downloading the CUDA and Rapids XGBoost4j Spark jars
+1. Downloading the CUDA and Rapids XGBoost4j Spark jars
 Creating a new directory for initialization script in Databricks file system (DBFS)
 Creating an initialization script inside the new directory to copy jars inside Databricks jar directory
 Download and decompress the Sample Mortgage Notebook dataset 
