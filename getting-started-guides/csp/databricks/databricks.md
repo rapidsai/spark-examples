@@ -30,7 +30,7 @@ Create a Databricks cluster (`Clusters` -> `+ Create Cluster`) that meets the ab
 ) or [5.5 notebook](/getting-started-guides/csp/databricks/init-notebook-for-rapids-spark-xgboost-on-databricks-gpu-5.5.ipynb
 ) to setup execution.<br/>
 
-The initialization notebooks will perform the following steps:
+The initialization notebooks will perform the following steps:<br/>
 1.Downloading the CUDA and Rapids XGBoost4j Spark jars<br/>
 2.Creating a new directory for initialization script in Databricks file system (DBFS)<br/>
 3.Creating an initialization script inside the new directory to copy jars inside Databricks jar directory<br/>
