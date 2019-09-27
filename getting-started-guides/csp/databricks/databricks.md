@@ -28,13 +28,13 @@ Create a Databricks cluster (`Clusters` -> `+ Create Cluster`) that meets the ab
 
 * After you start a Databricks cluster, use the initialization notebooks -- [5.3 & 5.4 notebook](/getting-started-guides/csp/databricks/init-notebook-for-rapids-spark-xgboost-on-databricks-gpu-5.3-5.4.ipynb
 ) or [5.5 notebook](/getting-started-guides/csp/databricks/init-notebook-for-rapids-spark-xgboost-on-databricks-gpu-5.5.ipynb
-) to setup execution.
+) to setup execution.<br/>
 
 The initialization notebooks will perform the following steps:
-Downloading the CUDA and Rapids XGBoost4j Spark jars
-Creating a new directory for initialization script in Databricks file system (DBFS)
-Creating an initialization script inside the new directory to copy jars inside Databricks jar directory
-Download and decompress the Sample Mortgage Notebook dataset 
+1.Downloading the CUDA and Rapids XGBoost4j Spark jars<br/>
+2.Creating a new directory for initialization script in Databricks file system (DBFS)<br/>
+3.Creating an initialization script inside the new directory to copy jars inside Databricks jar directory<br/>
+4.Download and decompress the Sample Mortgage Notebook dataset<br/>
 
 After executing the steps in the initialization notebook, please follow the 1. Cluster initialization script and 2. Install the xgboost4j_spark jar in the cluster to ensure it is ready for XGBoost training.
 
