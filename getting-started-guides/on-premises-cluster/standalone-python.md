@@ -10,8 +10,8 @@ Prerequisites
   * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
   * Ubuntu 16.04/CentOS
-  * NVIDIA driver 410.48+
-  * CUDA V10.0/9.2
+  * CUDA V10.1/10.0/9.2
+  * NVIDIA driver compatible with your CUDA
   * NCCL 2.4.7
   * Python 2.7/3.4/3.5/3.6/3.7
   * NumPy
@@ -35,9 +35,11 @@ Get Application Files and Dataset
 -------------------------------
 1. *samples.zip* and *main.py*: Please build the files as specified in the [guide](/getting-started-guides/building-sample-apps/python.md)
 2. Jars: Please download the following jars:
-    * [*cudf-0.9-cuda10.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9/cudf-0.9-cuda10.jar) (For CUDA 9.2, please download [*cudf-0.9.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9/cudf-0.9.jar) instead, and replace *cudf-0.9-cuda10.jar* with *cudf-0.9.jar* throughout this whole guide)
-    * [*xgboost4j_2.11-1.0.0-Beta.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.11/1.0.0-Beta/xgboost4j_2.11-1.0.0-Beta.jar)
-    * [*xgboost4j-spark_2.11-1.0.0-Beta.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta/xgboost4j-spark_2.11-1.0.0-Beta.jar)
+    * [*cudf-0.9.1-cuda10.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.1/cudf-0.9.1-cuda10.jar) (Here take CUDA 10.0 as an example)
+        * For CUDA 9.2, please download [*cudf-0.9.1.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.1/cudf-0.9.1.jar) instead, and replace *cudf-0.9.1-cuda10.jar* with *cudf-0.9.1.jar* throughout this whole guide
+        * For CUDA 10.1, please download [*cudf-0.9.1-cuda10-1.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.1/cudf-0.9.1-cuda10-1.jar) instead, and replace *cudf-0.9.1-cuda10.jar* with *cudf-0.9.1-cuda10-1.jar* throughout this whole guide
+    * [*xgboost4j_2.11-1.0.0-Beta2.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.11/1.0.0-Beta2/xgboost4j_2.11-1.0.0-Beta2.jar)
+    * [*xgboost4j-spark_2.11-1.0.0-Beta2.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta2/xgboost4j-spark_2.11-1.0.0-Beta2.jar)
 3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place dataset and other files in a local directory. In this example the dataset was unzipped in the `xgboost4j_spark/data` directory, and all other files in the `xgboost4j_spark/libs` directory.
@@ -46,11 +48,11 @@ Place dataset and other files in a local directory. In this example the dataset 
 [xgboost4j_spark]$ find . -type f | sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./libs/cudf-0.9-cuda10.jar
+./libs/cudf-0.9.1-cuda10.jar
 ./libs/main.py
 ./libs/samples.zip
-./libs/xgboost4j_2.11-1.0.0-Beta.jar
-./libs/xgboost4j-spark_2.11-1.0.0-Beta.jar
+./libs/xgboost4j_2.11-1.0.0-Beta2.jar
+./libs/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 ```
 
 Launch a Standalone Spark Cluster
@@ -114,10 +116,10 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.9.1-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -207,10 +209,10 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.cpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.9.1-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=hist

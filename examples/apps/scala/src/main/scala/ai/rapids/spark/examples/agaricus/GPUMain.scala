@@ -32,36 +32,26 @@ object GPUMain {
     def schema(length: Int): StructType =
       StructType(featureNames(length).map(n => StructField(n, FloatType)))
 
-    val xgboostArgs = XGBoostArgs.parse(args)
     val dataSchema = schema(126)
+    val xgboostArgs = XGBoostArgs.parse(args)
+    val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+    val appInfo = Seq("Agaricus", processor, xgboostArgs.format)
 
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
-    val spark = SparkSetup(args, "AgaricusAppFor$objName")
-    spark.sparkContext.setLogLevel("WARN")
-
+    val spark = SparkSetup(args, appInfo.mkString("-"))
+    val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
     // === diff ===
     // build data reader
     val dataReader = new GpuDataReader(spark)
+      .option("asFloats", xgboostArgs.asFloats).option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
 
     // load datasets, the order is (train, train-eval, eval)
     var datasets = xgboostArgs.dataPaths.map(_.map{
       path =>
         xgboostArgs.format match {
-          case "csv" => dataReader
-            .option("header", xgboostArgs.hasHeader)
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .schema(dataSchema)
-            .csv(path)
-          case "parquet" => dataReader
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .parquet(path)
-          case "orc" => dataReader
-            .option("asFloats", xgboostArgs.asFloats)
-            .option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
-            .orc(path)
+          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(dataSchema).csv(path)
+          case "parquet" => dataReader.parquet(path)
+          case "orc" => dataReader.orc(path)
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
     })
@@ -85,7 +75,7 @@ object GPUMain {
         .setFeaturesCols(featureCols)
 
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Agaricus GPU train ${xgboostArgs.format}") {
+      val (model, _) = benchmark.time("train") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -99,7 +89,7 @@ object GPUMain {
     if (xgboostArgs.isToTransform) {
       // start transform
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time(s"Agaricus GPU transform ${xgboostArgs.format}") {
+      var (results, _) = benchmark.time("transform") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         ret.foreachPartition(_ => ())
         ret
@@ -113,9 +103,11 @@ object GPUMain {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelName)
-      val accuracy = evaluator.evaluate(results)
-
-      println(s"accuracy == $accuracy")
+      evaluator.evaluate(results) match {
+        case accuracy if !accuracy.isNaN =>
+          benchmark.value(accuracy, "Accuracy", "Accuracy for")
+        // Throw an exception when NaN ?
+      }
     }
 
     spark.close()

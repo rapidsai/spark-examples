@@ -11,8 +11,8 @@ Prerequisites
     * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
     * Ubuntu 16.04/CentOS
-    * NVIDIA driver 410.48+
-    * CUDA V10.0/9.2
+    * CUDA V10.1/10.0/9.2
+    * NVIDIA driver compatible with your CUDA
     * NCCL 2.4.7
 * [Kubernetes 1.6+ cluster with NVIDIA GPUs](https://docs.nvidia.com/datacenter/kubernetes/index.html)
     * See official [Spark on Kubernetes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#prerequisites) instructions for detailed spark-specific cluster requirements
@@ -26,7 +26,7 @@ Build a GPU Docker image with Spark resources in it, this Docker image must be a
 
 1. Locate your Spark installations. If you don't have one, you can [download](https://spark.apache.org/downloads.html) from Apache and unzip it.
 2. `export SPARK_HOME=<path to spark>`
-3. [Download the Dockerfile](https://github.com/rapidsai/spark-examples/Dockerfile) into `${SPARK_HOME}`
+3. [Download the Dockerfile](https://github.com/rapidsai/spark-examples/Dockerfile) into `${SPARK_HOME}` (Here CUDA 10.0 is used as an example in the Dockerfile, you may need to update it for other CUDA versions.)
 4. __(OPTIONAL)__ install any additional library jars into the `${SPARK_HOME}/jars` directory
     * Most public cloud file systems are not natively supported -- pulling data and jar files from S3, GCS, etc. require installing additional libraries
 5. Build and push the docker image

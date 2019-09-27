@@ -18,6 +18,7 @@ package ai.rapids.spark.examples.taxi
 import org.apache.spark.sql.types.{FloatType, IntegerType, StructField, StructType}
 
 private[taxi] trait Taxi {
+  val appName = "Taxi"
   val labelColName = "fare_amount"
 
   lazy val commParamMap = Map(

@@ -26,13 +26,15 @@ object CPUMain extends Mortgage {
 
   def main(args: Array[String]): Unit = {
     val xgboostArgs = XGBoostArgs.parse(args)
+    val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
+    val appInfo = Seq(appName, processor, xgboostArgs.format)
 
     // build spark session
-    val objName = this.getClass.getSimpleName.stripSuffix("$")
     val spark = SparkSession.builder()
-      .appName(s"Mortgage-$objName-${xgboostArgs.format}")
+      .appName(appInfo.mkString("-"))
       .getOrCreate()
 
+    val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
     // === diff ===
     // build data reader
     val dataReader = spark.read
@@ -66,7 +68,8 @@ object CPUMain extends Mortgage {
 
       // Start training
       println("\n------ Training ------")
-      val (model, _) = Benchmark.time(s"Mortgage CPU train ${xgboostArgs.format}") {
+      // Shall we not log the time if it is abnormal, which is usually caused by training failure
+      val (model, _) = benchmark.time("train") {
         xgbClassifier.fit(datasets(0).get)
       }
       // Save model if modelPath exists
@@ -79,7 +82,7 @@ object CPUMain extends Mortgage {
 
     if (xgboostArgs.isToTransform) {
       println("\n------ Transforming ------")
-      var (results, _) = Benchmark.time(s"Mortgage CPU transform ${xgboostArgs.format}") {
+      var (results, _) = benchmark.time("transform") {
         val ret = xgbClassificationModel.transform(datasets(2).get).cache()
         // Trigger the transformation
         ret.foreachPartition(_ => ())
@@ -94,8 +97,11 @@ object CPUMain extends Mortgage {
 
       println("\n------Accuracy of Evaluation------")
       val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelColName)
-      val accuracy = evaluator.evaluate(results)
-      println("Accuracy: " + accuracy)
+      evaluator.evaluate(results) match {
+        case accuracy if !accuracy.isNaN =>
+          benchmark.value(accuracy, "Accuracy", "Accuracy for")
+        // Throw an exception when NaN ?
+      }
     }
 
     spark.close()

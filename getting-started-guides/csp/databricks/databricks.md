@@ -10,8 +10,8 @@ Prerequisites
   * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
   * Ubuntu 16.04/CentOS
-  * NVIDIA driver 410.48+
-  * CUDA V10.0/9.2
+  * CUDA V10.1/10.0/9.2
+  * NVIDIA driver compatible with your CUDA
   * NCCL 2.4.7
 
 The number of GPUs per node dictates the number of Spark executors that can run in that node. Each executor should only be allowed to run 1 task at any given time.
@@ -48,7 +48,7 @@ Add cluster initialization script
 Install the xgboost4j_spark jar in the cluster
 ---------------------------
 1. See [Libraries](https://docs.databricks.com/user-guide/libraries.html) for how to install jars from DBFS
-2. Go to "Libraries" tab under your cluster and install dbfs:/FileStore/jars/xgboost4j-spark_2.11-1.0.0-Beta.jar in your cluster by selecting the "DBFS" option for installing jars
+2. Go to "Libraries" tab under your cluster and install dbfs:/FileStore/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar in your cluster by selecting the "DBFS" option for installing jars
 
 These steps will ensure you have a GPU Cluster ready for importing XGBoost notebooks or create your own XGBoost Application for training.
 
