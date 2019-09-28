@@ -2,17 +2,17 @@
 
 This is a getting started guide to XGBoost4J-Spark on AWS EMR. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on AWS EMR.
 
-For more details of AWS EMR and get started, please check the [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
+For more details on AWS EMR, please see this [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
 
 ### Configure and Launch AWS EMR with GPU Nodes
 
-Go to AWS Management Console and click EMR service and select a region, e.g. Oregon. Click Create cluster and select  "go to advanced options", which will bring up a detailed cluster configuration page.
+Go to AWS Management Console and click EMR service and select a region, e.g. Oregon. Click `Create cluster` and select "Go to advanced options", which will bring up a detailed cluster configuration page.
 
 ###### Step 1:  Software and Steps
 
-Select emr-5.23.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.0.
+Select emr-5.27.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.4.  (Any EMR version supporting Spark 2.3 and above will work).  
 
-Also add following settings to disable Spark Dynamic Allocation by default.
+Also add the following setting in "Edit software settings" to disable Spark Dynamic Allocation by default: `[{"classification":"spark-defaults","properties":{"spark.dynamicAllocation.enabled":"false"}}]`
 
 ![Step 1: Software and Steps](pics/emr-step-one-software-and-steps.png)
 
@@ -20,7 +20,7 @@ Also add following settings to disable Spark Dynamic Allocation by default.
 
 Select the right VPC for network and the availability zone for EC2 subnet.
 
-In node type,  keep the m3.xlarge for Master node and change the Core node type to p3.2xlarge with 1 or multiple instance.  No need for Task node.
+In node type,  keep the m3.xlarge for Master node and change the Core node type to p3.2xlarge with 1 or multiple instances.  There is no need for Task nodes.
 
 ![Step 2: Hardware](pics/emr-step-two-hardware.png)
 
@@ -34,7 +34,7 @@ Also keep a note for the s3 bucket name configured.  You can also add your custo
 
 ######  Step 4: Security
 
-Pick your own EC2 key pair for SSH access. You can use all the default roles and security groups.   For security groups, you may need to open SSH access for Master node. And click "Create cluster" to complete the whole process.
+Pick your own EC2 key pair for SSH access. You can use all the default roles and security groups.   For security groups, you may need to open SSH access for the Master node.  Click "Create cluster" to complete the whole process.
 
 ![Step 4: Security](pics/emr-step-four-security.png)
 
