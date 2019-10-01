@@ -1,78 +1,101 @@
-# Get Started with XGBoost4J-Spark on Google Cloud
+# Get Started with XGBoost4J-Spark on GCP
 
-This is a getting started guide to XGBoost4J-Spark on Google Cloud. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on Google Cloud.
+This is a getting started guide to XGBoost4J-Spark on [Google Cloud Dataproc](https://cloud.google.com/dataproc). At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on Google Cloud.
 
 ### Install & Cluster Spin up
 
-Then, use the steps from this [blog](https://medium.com/rapids-ai/scale-out-rapids-on-google-cloud-dataproc-8a873233258f) to create a RAPIDS cluster on Dataproc. Specifically, run through the steps in the Install Google Cloud SDK and the Create a Dataproc cluster sections.
+Prerequisites
+-------------
+* Apache Spark 2.3+
+* Hardware Requirements
+  * NVIDIA Pascal™ GPU architecture or better (V100, P100, T4 and later)
+  * Multi-node clusters with homogenous GPU configuration
+* Software Requirements
+  * NVIDIA driver 410.48+
+  * CUDA V10.0/9.2
+  * NCCL 2.4.7 and later
+* `EXCLUSIVE_PROCESS` must be set for all GPUs in each NodeManager.
+* `spark.dynamicAllocation.enabled` must be set to False for spark
 
-Here’s an example command:
+1.  Using the `gcloud` command to create a new cluster with Rapids Spark GPU initialization
+    action. The following command will create a new cluster named
+    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, use need to copy the spark-gpu initialization script in `spark-gpu` folder into a accessible GCS with following structure. Ubuntu is recommended as CUDA support ubuntu, debian could be used by modifying `image-version` and `linux-dist` accordingly. 
 
-```
-CLUSTER_NAME=raghav-cluster
-ZONE=us-east1-c
-STORAGE_BUCKET=rapidsai-test-1
-NUM_GPUS_IN_MASTER=4
-NUM_GPUS_IN_WORKER=4
-NUM_WORKERS=2
-DATAPROC_BUCKET=dataproc-initialization-actions
+    ```
+    /$STORAGE_BUCKET/spark-gpu/rapids.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
+    ```  
 
-gcloud beta dataproc clusters create $CLUSTER_NAME  \
---zone $ZONE \
---master-accelerator type=nvidia-tesla-t4,count=$NUM_GPUS_IN_MASTER \
---master-machine-type n1-standard-32 \
---worker-accelerator type=nvidia-tesla-t4,count=$NUM_GPUS_IN_WORKER \
---worker-machine-type n1-standard-32 \
---num-workers $NUM_WORKERS \
---bucket $STORAGE_BUCKET \
---metadata "JUPYTER_PORT=8888" \
---initialization-actions gs://$DATAPROC_BUCKET/rapids/rapids.sh \
---optional-components=ANACONDA,JUPYTER \
---enable-component-gateway
-```
+    ```bash
+    export CLUSTER_NAME=sparkgpu
+    export ZONE=us-central1-b
+    export REGION=us-central1
+    export STORAGE_BUCKET=dataproc-initialization-actions
+    export NUM_GPUS=2
+    export NUM_WORKERS=2
+    
+    gcloud beta dataproc clusters create $CLUSTER_NAME  \
+        --zone $ZONE \
+        --region $REGION \
+        --master-machine-type n1-standard-32 \
+        --master-boot-disk-size 50 \
+        --worker-accelerator type=nvidia-tesla-t4,count=$NUM_GPUS \
+        --worker-machine-type n1-standard-32 \
+        --worker-boot-disk-size 50 \
+        --num-worker-local-ssds 1 \
+        --num-workers $NUM_WORKERS \
+        --image-version 1.4-ubuntu18 \
+        --bucket $STORAGE_BUCKET \
+        --metadata zeppelin-port=8081,INIT_ACTIONS_REPO="gs://$STORAGE_BUCKET",linux-dist="ubuntu" \
+        --initialization-actions gs://$STORAGE_BUCKET/spark-gpu/rapids.sh \
+        --optional-components=ZEPPELIN \
+        --subnet=default \
+        --properties 'spark:spark.dynamicAllocation.enabled=false,spark:spark.shuffle.service.enabled=false' \
+        --enable-component-gateway
+    ```
 
-This cluster should now have NVIDIA drivers and the CUDA run time.
+This cluster should now have met prerequisites.
 
 ### Submitting Jobs
 
-Set up the jar files and data on a root folder in a GCP storage bucket like below.
+1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
 
 You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
-
-![GCP storage bucket](pics/gcp-bucket.png)
 
 ### Submit Spark Job on GPUs
 
 Use the following command to submit spark jobs on this GPU cluster.
 
-```
-CLUSTER_NAME=raghav-cluster
-ROOT_FOLDER=gs://rapidsai-test-1/spark
-MAIN_CLASS=ai.rapids.spark.examples.agaricus.GPUMain
-RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9.1-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta2.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-TRAIN_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/train
-TEST_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/test
-MODEL_PATH=$ROOT_FOLDER/models
+```bash
+    export STORAGE_BUCKET=dongm-gcp-shared
+    export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
+    export RAPIDS_JARS=gs://$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export DATA_PATH=hdfs:///tmp/xgboost4j_spark/mortgage/csv
+    export TREE_METHOD=gpu_hist
+    export SPARK_NUM_EXECUTORS=4
+    export CLUSTER_NAME=dongm-sparkgpu
+    export REGION=us-central1
 
-gcloud beta dataproc jobs submit spark \
---cluster=$CLUSTER_NAME \
---class=$MAIN_CLASS \
---jars=$RAPIDS_JARS \
---properties=spark.executor.memory=32G,spark.executorEnv.LD_LIBRARY_PATH=/opt/conda/anaconda/envs/RAPIDS/lib/ \
--- \
--format=csv \
--numRound=100 \
--mode=train \
--trainDataPath=$TRAIN_DATA_PATH \
--trainDataPath=$TEST_DATA_PATH \
--modelPath=$MODEL_PATH \
--overwrite=true
+    gcloud beta dataproc jobs submit spark \
+        --cluster=$CLUSTER_NAME \
+        --region=$REGION \
+        --class=$MAIN_CLASS \
+        --jars=$RAPIDS_JARS \
+        --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+        -- \
+        -format=csv \
+        -numRound=100 \
+        -numWorkers=${SPARK_NUM_EXECUTORS} \
+        -treeMethod=${TREE_METHOD} \
+        -trainDataPath=${DATA_PATH}/train/mortgage_train_merged.csv \
+         -evalDataPath=${DATA_PATH}/test/mortgage_eval_merged.csv \
+         -maxDepth=8  
 ```
 
 Here's a quick explanation of key parameters:
 
 - CLUSTER_NAME: name of the cluster you had created in the first step
-- ROOT_FOLDER: Storage bucket on GCP where you organize your data and jar files
 - MAIN_CLASS: Class containing the main method to run
 - RAPIDS_JARS: All the jar files you file need. This includes the RAPIDS jars as well as the one for the application you are submitting.
 properties:  Use this to specify Spark properties. The command above includes the ones you likely need.
@@ -81,38 +104,40 @@ You can check out the full documentation of this api [here](https://cloud.google
 
 ### Submit Spark Job on CPUs
 
-Submitting a CPU job on this cluster is very similar. Below's an example command that runs the same Agaricus application on CPUs:
+Submitting a CPU job on this cluster is very similar. Below's an example command that runs the same Mortgage application on CPUs:
 
-```
-CLUSTER_NAME=raghav-cluster
-ROOT_FOLDER=gs://rapidsai-test-1/spark
-MAIN_CLASS=ai.rapids.spark.examples.agaricus.CPUMain
-RAPIDS_JARS=$ROOT_FOLDER/jars/sample_xgboost_apps-0.1.4.jar,$ROOT_FOLDER/jars/cudf-0.9.1-cuda10.jar,$ROOT_FOLDER/jars/xgboost4j_2.11-1.0.0-Beta2.jar,$ROOT_FOLDER/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-TRAIN_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/train
-TEST_DATA_PATH=$ROOT_FOLDER/data/agaricus/csv/test
-MODEL_PATH=$ROOT_FOLDER/models
+```bash
+    export STORAGE_BUCKET=dongm-gcp-shared
+    export MAIN_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
+    export RAPIDS_JARS=gs://$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export DATA_PATH=hdfs:///tmp/xgboost4j_spark/mortgage/csv
+    export TREE_METHOD=hist
+    export SPARK_NUM_EXECUTORS=4
+    export CLUSTER_NAME=dongm-sparkgpu
+    export REGION=us-central1
 
-gcloud beta dataproc jobs submit spark \
---cluster=$CLUSTER_NAME \
---class=$MAIN_CLASS \
---jars=$RAPIDS_JARS \
---properties=spark.executor.memory=32G \
--- \
--format=csv \
--numRound=100 \
--mode=train \
--trainDataPath=$TRAIN_DATA_PATH \
--trainDataPath=$TEST_DATA_PATH \
--modelPath=$MODEL_PATH \
--overwrite=true \
--numWorkers=12 \
--treeMethod=hist
+    gcloud beta dataproc jobs submit spark \
+        --cluster=$CLUSTER_NAME \
+        --region=$REGION \
+        --class=$MAIN_CLASS \
+        --jars=$RAPIDS_JARS \
+        --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+        -- \
+        -format=csv \
+        -numRound=100 \
+        -numWorkers=${SPARK_NUM_EXECUTORS} \
+        -treeMethod=${TREE_METHOD} \
+        -trainDataPath=${DATA_PATH}/train/mortgage_train_merged.csv \
+         -evalDataPath=${DATA_PATH}/test/mortgage_eval_merged.csv \
+         -maxDepth=8
 ```
 
 ### Clean Up
 
 When you're done working on this cluster, don't forget to delete the cluster, using the following command (replacing the highlighted cluster name with yours):
 
+```bash
+    gcloud dataproc clusters delete $CLUSTER_NAME
 ```
-gcloud dataproc clusters delete raghav-cluster
-```
+
+<sup>*</sup> Please see our release announcement for official performance benchmarks.
