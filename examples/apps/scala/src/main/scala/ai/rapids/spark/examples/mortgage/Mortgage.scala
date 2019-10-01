@@ -18,6 +18,7 @@ package ai.rapids.spark.examples.mortgage
 import org.apache.spark.sql.types.{FloatType, IntegerType, StructField, StructType}
 
 private[mortgage] trait Mortgage {
+  val appName = "Mortgage"
   val labelColName = "delinquency_12"
 
   val schema = StructType(List(

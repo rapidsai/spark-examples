@@ -112,9 +112,9 @@ val commParamMap = Map(
 // MAGIC ```scala
 // MAGIC import org.apache.spark.sql.SparkSession
 // MAGIC val spark = SparkSession.builder().appName("mortgage-GPU").getOrCreate
-// MAGIC %AddJar file:/data/libs/cudf-0.9-cuda10.jar
-// MAGIC %AddJar file:/data/libs/xgboost4j_2.11-1.0.0-Beta_on_Rapids.jar
-// MAGIC %AddJar file:/data/libs/xgboost4j-spark_2.11-1.0.0-Beta_on_Rapids.jar
+// MAGIC %AddJar file:/data/libs/cudf-0.9.1-cuda10.jar
+// MAGIC %AddJar file:/data/libs/xgboost4j_2.11-1.0.0-Beta2_on_Rapids.jar
+// MAGIC %AddJar file:/data/libs/xgboost4j-spark_2.11-1.0.0-Beta2_on_Rapids.jar
 // MAGIC // ...
 // MAGIC ```
 

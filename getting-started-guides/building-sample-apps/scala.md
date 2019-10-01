@@ -4,12 +4,12 @@ Our examples rely on [cuDF](https://github.com/rapidsai/cudf) and [XGBoost](http
 
 ##### Build Process
 
-Follow these steps to build the Scala jars:
+Follow these steps to build the Scala jars (Here take CUDA 10.0 as an example):
 
 ```
 git clone https://github.com/rapidsai/spark-examples.git
 cd spark-examples/examples/apps/scala
-mvn package -Dcuda.classifier=cuda10 # omit cuda.classifier for cuda 9.2
+mvn package -Dcuda.classifier=cuda10
 ```
 
 ##### Generated Jars
@@ -23,4 +23,7 @@ The build process generates two jars:
 
 Classifiers:
 
-+ *cuda.classifier*: omit this classifier for CUDA 9.2 building, and set *cuda10* for CUDA 10.0 building
++ *cuda.classifier*
+    + For CUDA 9.2 building, omit this classifier
+    + For CUDA 10.0 building, specify *cuda10*
+    + For CUDA 10.1 building, specify *cuda10-1*

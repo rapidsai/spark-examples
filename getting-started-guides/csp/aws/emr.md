@@ -2,15 +2,17 @@
 
 This is a getting started guide to XGBoost4J-Spark on AWS EMR. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on AWS EMR.
 
-For more details of AWS EMR and get started, please check the [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
+For more details on AWS EMR, please see this [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
 
 ### Configure and Launch AWS EMR with GPU Nodes
 
-Go to AWS Management Console and click EMR service and select a region, e.g. Oregon. Click Create cluster and select  "go to advanced options", which will bring up a detailed cluster configuration page.
+Go to AWS Management Console and click EMR service and select a region, e.g. Oregon. Click `Create cluster` and select "Go to advanced options", which will bring up a detailed cluster configuration page.
 
 ###### Step 1:  Software and Steps
 
-Select emr-5.23.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.0.
+Select emr-5.27.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.4.  (Any EMR version supporting Spark 2.3 and above will work).  
+
+Also add the following setting in "Edit software settings" to disable Spark Dynamic Allocation by default: `[{"classification":"spark-defaults","properties":{"spark.dynamicAllocation.enabled":"false"}}]`
 
 ![Step 1: Software and Steps](pics/emr-step-one-software-and-steps.png)
 
@@ -18,7 +20,7 @@ Select emr-5.23.0 release, uncheck all the software versions, and then check Had
 
 Select the right VPC for network and the availability zone for EC2 subnet.
 
-In node type,  keep the m3.xlarge for Master node and change the Core node type to p3.2xlarge with 1 or multiple instance.  No need for Task node.
+In node type,  keep the m3.xlarge for Master node and change the Core node type to p3.2xlarge with 1 or multiple instances.  There is no need for Task nodes.
 
 ![Step 2: Hardware](pics/emr-step-two-hardware.png)
 
@@ -32,7 +34,7 @@ Also keep a note for the s3 bucket name configured.  You can also add your custo
 
 ######  Step 4: Security
 
-Pick your own EC2 key pair for SSH access. You can use all the default roles and security groups.   For security groups, you may need to open SSH access for Master node. And click "Create cluster" to complete the whole process.
+Pick your own EC2 key pair for SSH access. You can use all the default roles and security groups.   For security groups, you may need to open SSH access for the Master node.  Click "Create cluster" to complete the whole process.
 
 ![Step 4: Security](pics/emr-step-four-security.png)
 
@@ -52,41 +54,65 @@ Click the details of cluster and find the Master public DNS. Use this DNS addres
 
 ![Cluster SSH](pics/emr-cluster-ssh.png)
 
+### Build XGBoost-Spark examples on EMR
+
+Now once the EMR Hadoop/Spark cluster is ready, let’s launch the Nvidia GPU XGboost examples. 
+
+Let’s first install a git and maven package on master node.  And Download [apache-maven-3.6.2-bin.zip](http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip) into master node, unzip and add to $PATH.
+
+
+```
+sudo yum update -y
+sudo yum install git -y
+wget http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip
+unzip apache-maven-3.6.2-bin.zip
+export PATH=/home/hadoop/apache-maven-3.6.2/bin:$PATH
+mvn --version
+```
+
+Now let’s build example Jar by following the steps from [Build XGBoost Scala Examples](/getting-started-guides/building-sample-apps/scala.md). The mvn building option might be different based on the CUDA version on EMR instance images.
+
+```
+git clone https://github.com/rapidsai/spark-examples.git
+cd spark-examples/examples/apps/scala
+mvn package #  omit cuda.classifier for cuda 9.2 (AWS EMR Instance use CUDA 9.2)
+```
+
 ### Launch XGBoost-Spark examples on EMR
 
 Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-premises-cluster/yarn-scala.md) to run the example with data on Spark.
 
-First get application jar and dataset:
+First get mortgage dataset:
 
 ```
-mkdir jars
 mkdir data
-cp target/*.jar jars/
 cd data
 wget https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 unzip mortgage.zip
 cd ..
 ```
 
-Then copy local data and jar to HDFS:
+Then copy local data and jar files to HDFS:
 
 ```
 hadoop fs -mkdir /tmp/xgboost4j_spark
-hadoop fs -copyFromLocal * /tmp/xgboost4j_spark
+hadoop fs -mkdir /tmp/data
+hadoop fs -copyFromLocal ./target/*.jar /tmp/xgboost4j_spark
+hadoop fs -copyFromLocal ./data/* /tmp/data
 ```
 
 Now Launch the GPU Mortgage Example:
 
 ```
 # location where data was downloaded
-export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
+export DATA_PATH=hdfs:/tmp/data
 # location for the required jar
-export JARS_PATH=hdfs:/tmp/xgboost4j_spark/jars
+export JARS_PATH=hdfs:/tmp/xgboost4j_spark
 # spark deploy mode (see Apache Spark documentation for more information)
 export SPARK_DEPLOY_MODE=cluster
 # run a single executor for this example to limit the number of spark tasks and
 # partitions to 1 as currently this number must match the number of input files
-export SPARK_NUM_EXECUTORS=1
+export SPARK_NUM_EXECUTORS=2
 # spark driver memory
 export SPARK_DRIVER_MEMORY=4g
 # spark executor memory

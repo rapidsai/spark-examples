@@ -10,8 +10,8 @@ Prerequisites
   * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
   * Ubuntu 16.04/CentOS
-  * NVIDIA driver 410.48+
-  * CUDA V10.0/9.2
+  * CUDA V10.1/10.0/9.2
+  * NVIDIA driver compatible with your CUDA
   * NCCL 2.4.7
 * `EXCLUSIVE_PROCESS` must be set for all GPUs in each NodeManager. This can be accomplished using the `nvidia-smi` utility:
 

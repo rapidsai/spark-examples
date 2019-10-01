@@ -26,7 +26,6 @@ You can get a small size datasets for each example in the [datasets](/datasets) 
         - [EMR](/getting-started-guides/csp/aws/emr.md)
         - [SageMaker](/getting-started-guides/csp/aws/sagemaker.md)
     - [Databricks](/getting-started-guides/csp/databricks/databricks.md)
-    - [Azure Databricks](/getting-started-guides/csp/azure-databricks/azure-databricks.md)
     - [Google Cloud Platform](/getting-started-guides/csp/gcp/gcp.md)
 - Getting started for Jupyter Notebook applications
     - [Apache Toree Notebook for Scala](/getting-started-guides/notebook/toree.md)
