@@ -15,12 +15,12 @@ You can get a small size datasets for each example in the [datasets](/datasets) 
 - Building applications
     - [Scala](/getting-started-guides/building-sample-apps/scala.md)
     - [Python](/getting-started-guides/building-sample-apps/python.md)
-- Getting started on on-primises clusters
-    - [Standalone cluster for Scala](/getting-started-guides/on-premises-cluster/standalone-scala.md)
-    - [Standalone cluster for Python](/getting-started-guides/on-premises-cluster/standalone-python.md)
-    - [YARN for Scala](/getting-started-guides/on-premises-cluster/yarn-scala.md)
-    - [YARN for Python](/getting-started-guides/on-premises-cluster/yarn-python.md)
-    - [Kubernetes](/getting-started-guides/on-premises-cluster/kubernetes.md)
+- Getting started on on-prem clusters
+    - [Standalone cluster for Scala](/getting-started-guides/on-prem-cluster/standalone-scala.md)
+    - [Standalone cluster for Python](/getting-started-guides/on-prem-cluster/standalone-python.md)
+    - [YARN for Scala](/getting-started-guides/on-prem-cluster/yarn-scala.md)
+    - [YARN for Python](/getting-started-guides/on-prem-cluster/yarn-python.md)
+    - [Kubernetes](/getting-started-guides/on-prem-cluster/kubernetes.md)
 - Getting started on cloud service providers
     - Amazon AWS
         - [EMR](/getting-started-guides/csp/aws/emr.md)
