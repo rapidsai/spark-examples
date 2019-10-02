@@ -8,7 +8,7 @@ Please follow [this guide](emr.md#configure-and-launch-aws-emr-with-gpu-nodes) t
 
 ### Launch XGBoost-Spark Examples on EMR
 
-Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-premises-cluster/yarn-scala.md) to just upload data on Spark. (The other options is to put data on AWS S3 that can be accessed by Amazon SageMaker Notebook.)
+Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-prem-cluster/yarn-scala.md) to just upload data on Spark. (The other options is to put data on AWS S3 that can be accessed by Amazon SageMaker Notebook.)
 
 First get dataset and then copy local data to HDFS.
 

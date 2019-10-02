@@ -2,7 +2,7 @@ Get Started with XGBoost4J-Spark with Apache Toree Jupyter Notebook
 ===================================================================
 This is a getting started guide to XGBoost4J-Spark using an [Apache Toree](https://toree.apache.org/) Jupyter notebook. At the end of this guide, the reader will be able to run a sample notebook that runs on NVIDIA GPUs.
 
-Before you begin, please ensure that you have setup a [Spark Standalone Cluster](/getting-started-guides/on-premises-cluster/standalone-scala.md).
+Before you begin, please ensure that you have setup a [Spark Standalone Cluster](/getting-started-guides/on-prem-cluster/standalone-scala.md).
 
 It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are defined and point to the master spark URL (e.g. `spark://localhost:7077`), and the home directory for Apache Spark respectively.
 
