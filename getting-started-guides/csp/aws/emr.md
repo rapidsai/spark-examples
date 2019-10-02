@@ -80,7 +80,7 @@ mvn package #  omit cuda.classifier for cuda 9.2 (AWS EMR Instance use CUDA 9.2)
 
 ### Launch XGBoost-Spark examples on EMR
 
-Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-premises-cluster/yarn-scala.md) to run the example with data on Spark.
+Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-prem-cluster/yarn-scala.md) to run the example with data on Spark.
 
 First get mortgage dataset:
 
