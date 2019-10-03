@@ -3,7 +3,7 @@
 
 This guide adds some additional instructions and tips for running large Mortgage datasets on XGBoost4J-Spark on AWS EMR. Please use this quick start guide - [Get Started with XGBoost4J-Spark on AWS EMR](emr.md) for complete step-by-step instructions to run GPU XGBoost Mortgage Examples.
 
-#### Use Multi-GPU P3 instance for AWS EMR Core Nodes
+### Use Multi-GPU P3 instance for AWS EMR Core Nodes
 
 For large datasets, we recommend to use two P3.8xlarge instances as Core node, which has total 8 GPUs.
 Please also increase the EBS storage on each Core node to 300G if using HDFS to store the data.
@@ -16,9 +16,9 @@ You can use the same private key and username *hadoop* to log into each node. Th
 nvidia-smi -c EXCLUSIVE_PROCESS 
 ```
 
-#### Using Full Mortgage Datasets for Mortgage Example 
+### Using Full Mortgage Datasets for Mortgage Example 
 
-##### Option 1: Using EMR steps to copy full Mortgage datasets to HDFS  
+#### Option 1: Using EMR steps to copy full Mortgage datasets to HDFS  
 
 You can copy the full [mortgage data](https://rapidsai.github.io/demos/datasets/mortgage-data) to HDFS in EMR Master Node.  
 Or Load the dataset from S3 when launch the AWS EMR cluster using steps
@@ -31,7 +31,7 @@ s3-dist-cp --src=s3://spark-xgboost-mortgage-dataset/csv --dest=hdfs:///tmp/mort
 ![Step 1: Software and Steps](pics/emr-step-one-s3-copy.png)
 
 
-##### Option 2: Using AWS S3 for Datasets Directly  
+#### Option 2: Using AWS S3 for Datasets Directly  
 You can use dataseta on S3 directly when submit the spark job.
 Please refer to this [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-plan-file-systems.html) for detailed information.
 In our example, you can use following the format: 
@@ -40,7 +40,7 @@ export DATA_PREFIX=s3://spark-xgboost-mortgage-dataset/csv
 ```
 
 
-#### Run Mortgage Example with Full Datasets with 1000 rounds and 20 depth
+### Run Mortgage Example with Full Datasets with 1000 rounds and 20 depth
 The same jar file built in [quick start guide](emr.md) will be used here. 
 Now here is how to run the GPU Mortgage Example with full Mortgage Datasets for 1000 rounds and 20 depth:
 
