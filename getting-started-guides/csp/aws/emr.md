@@ -97,8 +97,7 @@ popd
 #### Upload Data and Jar files to HDFS
 
 ```
-hadoop fs -mkdir /tmp/xgboost4j_spark
-hadoop fs -mkdir /tmp/xgboost4j_spark/data
+hadoop fs -mkdir -p /tmp/xgboost4j_spark/data
 hadoop fs -copyFromLocal ~/spark-examples/examples/apps/scala/target/*.jar /tmp/xgboost4j_spark
 hadoop fs -copyFromLocal ~/data/* /tmp/xgboost4j_spark/data
 ```

@@ -8,17 +8,17 @@ Follow the steps in [Getting Started with XGBoost4J-Spark on AWS EMR](emr.md#con
 
 ### Put Example Data on HDFS
 
-This section duplicates instructions from the [fetch data](/getting-started-guides/csp/aws/emr.md#fetch-the-mortgage-dataset) and [upload to HDFS](/getting-started-guides/csp/aws/emr.md#upload-data-and-jars-files-to-hdfs) sections of the [Getting Started with XGBoost4J-Spark on AWS EMR](emr.md#configure-and-launch-aws-emr-with-gpu-nodes) guide. If the example application in that guide has already been ran successfully, this step can be skipped.
+This section duplicates instructions from the [fetch data](/getting-started-guides/csp/aws/emr.md#fetch-the-mortgage-dataset) and [upload to HDFS](/getting-started-guides/csp/aws/emr.md#upload-data-and-jars-files-to-hdfs) sections of the [Getting Started with XGBoost4J-Spark on AWS EMR](emr.md#configure-and-launch-aws-emr-with-gpu-nodes) guide. If the example application in that guide has already been run successfully, this step can be skipped.
 
 Execute the following commands while SSH'ed to the EMR Cluster's master node to download the dataset, unzip it, and push it to HDFS. See [this step](/getting-started-guides/csp/aws/emr.md#finish-cluster-configuration) for help SSH'ing to the EMR cluster.
 
 ```bash
-mkdir data
-pushd data
+mkdir ~/data
+pushd ~/data
 wget https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 unzip mortgage.zip
 popd
-hadoop fs -mkdir /tmp/xgboost4j_spark/data
+hadoop fs -mkdir -p /tmp/xgboost4j_spark/data
 hadoop fs -copyFromLocal ~/data/* /tmp/xgboost4j_spark/data
 ```
 
