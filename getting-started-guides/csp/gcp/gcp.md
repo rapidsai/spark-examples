@@ -29,15 +29,15 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 
 Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
 
-        ```
+```bash
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
-    ```  
+```  
 
 Using the `gcloud` command create a new cluster with Rapids Spark GPU initialization action. The following command will create a new cluster named `<CLUSTER_NAME>` under your Project space. Here we use Ubuntu since that is our recommended OS for Spark-XGBoost on GCP.
 
-    ```bash
+```bash
     export CLUSTER_NAME=sparkgpu
     export ZONE=us-central1-b
     export REGION=us-central1
@@ -63,20 +63,20 @@ Using the `gcloud` command create a new cluster with Rapids Spark GPU initializa
         --subnet=default \
         --properties 'spark:spark.dynamicAllocation.enabled=false,spark:spark.shuffle.service.enabled=false' \
         --enable-component-gateway
-    ```
+```
 
 This cluster is now ready to host RAPIDS Spark XGBoost Applications.
 
 #### Step 2. Copy sample data in to GCS Bucket 
 Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
 
-        ```
+```bash
     /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
     /$STORAGE_BUCKET/train/mortgage_train_merged.csv
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
-    ``` 
+``` 
 
 #### Step 3. Build Sample Apps
 a) Scala App: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
