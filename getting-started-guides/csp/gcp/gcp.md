@@ -17,15 +17,25 @@ Prerequisites
 * `EXCLUSIVE_PROCESS` must be set for all GPUs in each NodeManager.
 * `spark.dynamicAllocation.enabled` must be set to False for spark
 
-1.  Using the `gcloud` command to create a new cluster with Rapids Spark GPU initialization
-    action. The following command will create a new cluster named
-    `<CLUSTER_NAME>`. Before the init script fully merged into `<dataproc-initialization-actions>` bucket, user need to copy the spark-gpu initialization script in `spark-gpu` folder into a accessible GCS with following structure. Ubuntu is recommended as CUDA support ubuntu, debian could be used by modifying `image-version` and `linux-dist` accordingly. 
 
-    ```
+There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
+1. Create a GPU Cluster with preinstalled GPU Drivers, Spark RAPIDS libraries and Spark XGBoost libraries
+2. Copy sample data in to GCS Bucket 
+3. Prepare sample apps on your local machine. Sample Apps will be used to submit Spark jobs.
+4. Submit sample PySpark or Scala App using gcloud command
+
+
+####Step 1.  Create a GPU Cluster in GCP
+    Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
+
+        ```
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
     ```  
+
+    Using the `gcloud` command create a new cluster with Rapids Spark GPU initialization action. The following command will create a new cluster named
+    `<CLUSTER_NAME>` under your Project space. Here we use Ubuntu since that is our recommended OS for Spark-XGBoost on GCP.
 
     ```bash
     export CLUSTER_NAME=sparkgpu
@@ -57,15 +67,28 @@ Prerequisites
 
 This cluster should now have met prerequisites.
 
-### Submitting Jobs
+####Step 2. Copy sample data in to GCS Bucket 
+    Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
 
-1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
+        ```
+    /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
+    /$STORAGE_BUCKET/train/mortgage_train_merged.csv
+    /$STORAGE_BUCKET/spark-gpu/rapids.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
+    ``` 
 
-You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
+#### Step 3. Build Sample Apps
+    a) Scala App: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
 
-### Submit Spark Job on GPUs
+    You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
 
-Use the following command to submit spark jobs on this GPU cluster.
+    b) PySpark App: Please build the sample_xgboost pyspark app as specified in the [guide](/getting-started-guides/building-sample-apps/python.md) and place the files into GCP storage bucket.
+
+
+#### Step 4. Submitting Jobs
+
+### Use the following command to submit sample Scala app on this GPU cluster.
 
 ```bash
     export STORAGE_BUCKET=dataproc-initialization-actions
@@ -102,7 +125,42 @@ properties:  Use this to specify Spark properties. The command above includes th
 
 You can check out the full documentation of this api [here](https://cloud.google.com/sdk/gcloud/reference/beta/dataproc/jobs/submit/spark).
 
-### Submit Spark Job on CPUs
+
+### Use the following command to submit sample PySpark app on this GPU cluster.
+
+```bash
+    export DATA_PATH=gs://xgbst2
+    export LIBS_PATH=gs://xgbst2
+    export SPARK_DEPLOY_MODE=cluster
+    export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
+    export MAIN_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
+    export RAPIDS_JARS=${LIBS_PATH}/cudf-0.9.1-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar
+    export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.zip,${LIBS_PATH}/sample.zip
+    export TREE_METHOD=gpu_hist
+    export SPARK_NUM_EXECUTORS=4
+    export CLUSTER_NAME=sparkgputest2
+    export REGION=us-central1
+
+gcloud beta dataproc jobs submit pyspark \
+    --cluster=$CLUSTER_NAME \
+    --region=$REGION \
+    --jars=$RAPIDS_JARS \
+    --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+    --py-files=${SPARK_PY_FILES} \
+    ${SPARK_PYTHON_ENTRYPOINT} \
+    -- \
+    --format=csv \
+    --numRound=100 \
+    --numWorkers=${SPARK_NUM_EXECUTORS} \
+    --treeMethod=${TREE_METHOD} \
+    --trainDataPath=${DATA_PATH}/train/mortgage_train_merged.csv \
+    --evalDataPath=${DATA_PATH}/test/mortgage_eval_merged.csv \
+    --maxDepth=8 \
+    --mainClass=${MAIN_CLASS}
+```
+
+
+#### Addendum:Submit Spark Job on CPUs 
 
 Submitting a CPU job on this cluster is very similar. Below's an example command that runs the same Mortgage application on CPUs:
 
