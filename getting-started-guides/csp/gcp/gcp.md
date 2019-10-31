@@ -65,7 +65,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
         --enable-component-gateway
     ```
 
-This cluster should now have met prerequisites.
+This cluster should now have met the prerequisites for hosting a RAPIDS Spark XGBoost Applications.
 
 #### Step 2. Copy sample data in to GCS Bucket 
     Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
