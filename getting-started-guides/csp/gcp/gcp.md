@@ -26,7 +26,8 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 
 
 #### Step 1.  Create a GPU Cluster in GCP
-    Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
+
+Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
 
         ```
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
@@ -34,8 +35,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
     ```  
 
-    Using the `gcloud` command create a new cluster with Rapids Spark GPU initialization action. The following command will create a new cluster named
-    `<CLUSTER_NAME>` under your Project space. Here we use Ubuntu since that is our recommended OS for Spark-XGBoost on GCP.
+Using the `gcloud` command create a new cluster with Rapids Spark GPU initialization action. The following command will create a new cluster named `<CLUSTER_NAME>` under your Project space. Here we use Ubuntu since that is our recommended OS for Spark-XGBoost on GCP.
 
     ```bash
     export CLUSTER_NAME=sparkgpu
@@ -68,7 +68,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 This cluster is now ready to host RAPIDS Spark XGBoost Applications.
 
 #### Step 2. Copy sample data in to GCS Bucket 
-    Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
+Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
 
         ```
     /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
@@ -79,11 +79,11 @@ This cluster is now ready to host RAPIDS Spark XGBoost Applications.
     ``` 
 
 #### Step 3. Build Sample Apps
-    a) Scala App: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
+a) Scala App: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
 
-    You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
+You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
 
-    b) PySpark App: Please build the sample_xgboost pyspark app as specified in the [guide](/getting-started-guides/building-sample-apps/python.md) and place the files into GCP storage bucket.
+b) PySpark App: Please build the sample_xgboost pyspark app as specified in the [guide](/getting-started-guides/building-sample-apps/python.md) and place the files into GCP storage bucket.
 
 
 #### Step 4. Submitting Jobs
