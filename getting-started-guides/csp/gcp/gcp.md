@@ -2,7 +2,6 @@
 
 This is a getting started guide to XGBoost4J-Spark on [Google Cloud Dataproc](https://cloud.google.com/dataproc). At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on Google Cloud.
 
-### Install & Cluster Spin up
 
 Prerequisites
 -------------
@@ -111,7 +110,7 @@ Make sure you copy all the downloaded jar files into same GCS bucket. The direct
 
 ### Step 4. Submitting Jobs
 
-#### Use the following command to submit sample Scala app on this GPU cluster.
+### Use the following command to submit sample Scala app on this GPU cluster.
 
 ```bash
     export STORAGE_BUCKET=dataproc-initialization-actions
@@ -149,7 +148,7 @@ properties:  Use this to specify Spark properties. The command above includes th
 You can check out the full documentation of this api [here](https://cloud.google.com/sdk/gcloud/reference/beta/dataproc/jobs/submit/spark).
 
 
-#### Use the following command to submit sample PySpark app on this GPU cluster.
+### Use the following command to submit sample PySpark app on this GPU cluster.
 
 ```bash
     export DATA_PATH=gs://$STORAGE_BUCKET
