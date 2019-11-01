@@ -67,7 +67,7 @@ Using the `gcloud` command create a new cluster with Rapids Spark GPU initializa
 This cluster is now ready to host RAPIDS Spark XGBoost Applications.
 
 ### Step 2. Copy sample data in to GCS Bucket 
-Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
+Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the following:
 
 ```bash
     /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
