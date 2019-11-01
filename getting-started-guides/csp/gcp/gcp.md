@@ -25,7 +25,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 4. Submit sample PySpark or Scala App using gcloud command from your local machine
 
 
-#### Step 1.  Create a GPU Cluster in GCP
+### Step 1.  Create a GPU Cluster in GCP
 
 Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
 
@@ -67,7 +67,7 @@ Using the `gcloud` command create a new cluster with Rapids Spark GPU initializa
 
 This cluster is now ready to host RAPIDS Spark XGBoost Applications.
 
-#### Step 2. Copy sample data in to GCS Bucket 
+### Step 2. Copy sample data in to GCS Bucket 
 Copy the sample data<link> into the same GCS bucket where the GPU initialization scripts are stored. The GCS directory structure should look like the followinf
 
 ```bash
@@ -78,7 +78,7 @@ Copy the sample data<link> into the same GCS bucket where the GPU initialization
     /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
 ``` 
 
-#### Step 3. Build Sample Apps
+### Step 3. Build Sample Apps
 a) Scala App: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the Jar into GCP storage bucket.
 
 You can either drag and drop files from the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) to do this from the command line.
@@ -93,7 +93,7 @@ wget -O xgboost4j_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?fi
 wget -O xgboost4j-spark_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta2/xgboost4j-spark_2.11-1.0.0-Beta2.jar
 ```
 
-Make sure you copy all the downloaded jar files into same GCS bucket. The directory structure should look like the following(if you built both Scala and PySpark Apps:
+Make sure you copy all the downloaded jar files into same GCS bucket. The directory structure should look like the following(if you built both Scala and PySpark Apps):
 ```bash
     /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
     /$STORAGE_BUCKET/train/mortgage_train_merged.csv
@@ -109,9 +109,9 @@ Make sure you copy all the downloaded jar files into same GCS bucket. The direct
 ``` 
 
 
-#### Step 4. Submitting Jobs
+### Step 4. Submitting Jobs
 
-### Use the following command to submit sample Scala app on this GPU cluster.
+#### Use the following command to submit sample Scala app on this GPU cluster.
 
 ```bash
     export STORAGE_BUCKET=dataproc-initialization-actions
@@ -149,7 +149,7 @@ properties:  Use this to specify Spark properties. The command above includes th
 You can check out the full documentation of this api [here](https://cloud.google.com/sdk/gcloud/reference/beta/dataproc/jobs/submit/spark).
 
 
-### Use the following command to submit sample PySpark app on this GPU cluster.
+#### Use the following command to submit sample PySpark app on this GPU cluster.
 
 ```bash
     export DATA_PATH=gs://$STORAGE_BUCKET
