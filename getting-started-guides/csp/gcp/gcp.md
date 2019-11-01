@@ -85,6 +85,29 @@ You can either drag and drop files from the GCP [storage browser](https://consol
 
 b) PySpark App: Please build the sample_xgboost pyspark app as specified in the [guide](/getting-started-guides/building-sample-apps/python.md) and place the files into GCP storage bucket.
 
+You can download the latest RAPIDS jars to your local machine using the following commands:
+
+```bash
+wget -O cudf-0.9.1-cuda10.jar https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.1/cudf-0.9.1-cuda10.jar
+wget -O xgboost4j_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.11/1.0.0-Beta2/xgboost4j_2.11-1.0.0-Beta2.jar
+wget -O xgboost4j-spark_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta2/xgboost4j-spark_2.11-1.0.0-Beta2.jar
+```
+
+Make sure you copy all the downloaded jar files into same GCS bucket. The directory structure should look like the following(if you built both Scala and PySpark Apps:
+```bash
+    /$STORAGE_BUCKET/test/mortgage_eval_merged.csv
+    /$STORAGE_BUCKET/train/mortgage_train_merged.csv
+    /$STORAGE_BUCKET/spark-gpu/rapids.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-ubuntu.sh
+    /$STORAGE_BUCKET/spark-gpu/internal/install-gpu-driver-debian.sh
+    /$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    /$STORAGE_BUCKET/spark-gpu/cudf-0.9.1-cuda10.jar
+    /$STORAGE_BUCKET/xgboost4j_2.11-1.0.0-Beta2.jar
+    /$STORAGE_BUCKET/xgboost4j-spark_2.11-1.0.0-Beta2.jar
+    /$STORAGE_BUCKET/main.py
+    /$STORAGE_BUCKET/sample.zip
+``` 
+
 
 #### Step 4. Submitting Jobs
 
@@ -94,7 +117,7 @@ b) PySpark App: Please build the sample_xgboost pyspark app as specified in the 
     export STORAGE_BUCKET=dataproc-initialization-actions
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
     export RAPIDS_JARS=gs://$STORAGE_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
-    export DATA_PATH=hdfs:///tmp/xgboost4j_spark/mortgage/csv
+    export DATA_PATH=$STORAGE_BUCKET
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
     export CLUSTER_NAME=sparkgpu
@@ -129,13 +152,13 @@ You can check out the full documentation of this api [here](https://cloud.google
 ### Use the following command to submit sample PySpark app on this GPU cluster.
 
 ```bash
-    export DATA_PATH=gs://xgbst2
-    export LIBS_PATH=gs://xgbst2
+    export DATA_PATH=gs://$STORAGE_BUCKET
+    export LIBS_PATH=gs://$STORAGE_BUCKET
     export SPARK_DEPLOY_MODE=cluster
     export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
     export RAPIDS_JARS=${LIBS_PATH}/cudf-0.9.1-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-    export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.zip,${LIBS_PATH}/sample.zip
+    export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/sample.zip
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
     export CLUSTER_NAME=sparkgputest2
@@ -160,9 +183,9 @@ gcloud beta dataproc jobs submit pyspark \
 ```
 
 
-#### Addendum:Submit Spark Job on CPUs 
+#### Addendum: Submit Spark Job on CPUs 
 
-Submitting a CPU job on this cluster is very similar. Below's an example command that runs the same Mortgage application on CPUs:
+Submitting a CPU job on this cluster is very similar. Given below iss an example command that runs the same Mortgage application on CPUs:
 
 ```bash
     export STORAGE_BUCKET=dataproc-initialization-actions
