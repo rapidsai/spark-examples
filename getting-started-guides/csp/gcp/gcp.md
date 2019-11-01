@@ -26,7 +26,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 
 ### Step 1.  Create a GPU Cluster in GCP
 
-Before you create a cluster, please gitclone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts inside `spark-gpu` folder into an accessible GCS bucket with following structure:
+Before you create a cluster, please git clone the spark-examples directory to your local machine. From the spark-examples directory, copy the spark-gpu initialization scripts from the `/getting-started-guides/csp/gcp/spark-gpu` folder into an accessible GCS bucket with following structure:
 
 ```bash
     /$STORAGE_BUCKET/spark-gpu/rapids.sh
