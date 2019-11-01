@@ -17,7 +17,7 @@ Prerequisites
 * `spark.dynamicAllocation.enabled` must be set to False for spark
 
 
-There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
+There are four steps to run a sample XGBoost4j app on a GCP GPU Cluster:
 1. Create a GPU Cluster with preinstalled GPU Drivers, Spark RAPIDS libraries and Spark XGBoost libraries
 2. Copy sample data in to GCS Bucket 
 3. Prepare sample XGBoost apps on your local machine. 
