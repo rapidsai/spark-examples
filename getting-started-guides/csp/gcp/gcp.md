@@ -21,7 +21,7 @@ There are four steps to run a Sample XGBoost4j app on a GCP GPU Cluster:
 1. Create a GPU Cluster with preinstalled GPU Drivers, Spark RAPIDS libraries and Spark XGBoost libraries
 2. Copy sample data in to GCS Bucket 
 3. Prepare sample XGBoost apps on your local machine. 
-4. Submit sample PySpark or Scala App using gcloud command from your local machine
+4. Submit sample PySpark or Scala App using the gcloud command from your local machine
 
 
 ### Step 1.  Create a GPU Cluster in GCP
