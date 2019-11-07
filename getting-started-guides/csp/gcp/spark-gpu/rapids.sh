@@ -5,7 +5,6 @@ set -euxo pipefail
 readonly ROLE=$(/usr/share/google/get_metadata_value attributes/dataproc-role)
 readonly LINUX_DIST=$(/usr/share/google/get_metadata_value attributes/linux-dist)
 
-readonly DEAFULT_INIT_ACTIONS_REPO=gs://dongm-gcp-shared
 readonly INIT_ACTIONS_REPO="$(/usr/share/google/get_metadata_value attributes/INIT_ACTIONS_REPO ||
   echo ${DEAFULT_INIT_ACTIONS_REPO})"
 
@@ -25,7 +24,7 @@ if [[ "${ROLE}" != 'Master' ]]; then
   # Ensure we have GPU drivers installed.
   "${RAPIDS_INIT_ACTION_DIR}/internal/install-gpu-driver.sh"
 else
-  readonly STORAGE_BUCKET=my_bucket
+  readonly STORAGE_BUCKET=my-bucket
   gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/python/lib/
   gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
   gsutil cp gs://${STORAGE_BUCKET}/xgboost4j_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
