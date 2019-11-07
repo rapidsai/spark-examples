@@ -25,16 +25,17 @@ if [[ "${ROLE}" != 'Master' ]]; then
   # Ensure we have GPU drivers installed.
   "${RAPIDS_INIT_ACTION_DIR}/internal/install-gpu-driver.sh"
 else
+  readonly STORAGE_BUCKET=my_bucket
+  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.x-1.0.0-Beta3.jar /usr/lib/spark/python/lib/
+  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.x-1.0.0-Beta3.jar /usr/lib/spark/jars/
+  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j_2.x-1.0.0-Beta3.jar /usr/lib/spark/jars/
+  gsutil cp gs://${STORAGE_BUCKET}/cudf-0.9.2-cuda10.jar /usr/lib/spark/jars/
+
   wget "https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip"
   unzip "mortgage.zip"
   hadoop fs -mkdir "/tmp/xgboost4j_spark"
   hadoop fs -copyFromLocal mortgage "/tmp/xgboost4j_spark/mortgage"
 fi
 
-export STORAGE_BUCKET=my_bucket
 
-gsutil cp gs://${STORAGE_BUCKET}/sample.zip /usr/lib/spark/python/lib/
-gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.x-1.0.0-Beta3.jar /usr/lib/spark/python/lib/
-gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.x-1.0.0-Beta3.jar /usr/lib/spark/jars/
-gsutil cp gs://${STORAGE_BUCKET}/xgboost4j_2.x-1.0.0-Beta3.jar /usr/lib/spark/jars/
-gsutil cp gs://${STORAGE_BUCKET}/cudf-0.9.2-cuda10.jar /usr/lib/spark/jars/
+
