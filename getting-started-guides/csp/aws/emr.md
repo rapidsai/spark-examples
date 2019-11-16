@@ -1,65 +1,68 @@
 # Get Started with XGBoost4J-Spark on AWS EMR
 
-This is a getting started guide to XGBoost4J-Spark on AWS EMR. At the end of this guide, the reader will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on AWS EMR.
+This is a getting started guide for XGBoost4J-Spark on AWS EMR. At the end of this guide, the user will be able to run a sample Apache Spark application that runs on NVIDIA GPUs on AWS EMR.
 
-For more details on AWS EMR, please see this [AWS document](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
+For more information on AWS EMR, please see the [AWS documentation](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html).
 
 ### Configure and Launch AWS EMR with GPU Nodes
 
-Go to AWS Management Console and click EMR service and select a region, e.g. Oregon. Click `Create cluster` and select "Go to advanced options", which will bring up a detailed cluster configuration page.
+Go to the AWS Management Console and select the `EMR` service from the "Analytics" section. Choose the region you want to launch your cluster in, e.g. US West Oregon, using the dropdown menu in the top right corner. Click `Create cluster` and select `Go to advanced options`, which will bring up a detailed cluster configuration page.
 
-###### Step 1:  Software and Steps
+##### Step 1:  Software and Steps
 
-Select emr-5.27.0 release, uncheck all the software versions, and then check Hadoop 2.8.5 and Spark 2.4.4.  (Any EMR version supporting Spark 2.3 and above will work).  
+Select **emr-5.27.0** for the release, uncheck all the software options, and then check **Hadoop 2.8.5** and **Spark 2.4.4**.  (Any EMR version that supports Spark 2.3 or above will work).
 
-Also add the following setting in "Edit software settings" to disable Spark Dynamic Allocation by default: `[{"classification":"spark-defaults","properties":{"spark.dynamicAllocation.enabled":"false"}}]`
+In the "Edit software settings" field, add the following snippet to disable Spark Dynamic Allocation by default: `[{"classification":"spark-defaults","properties":{"spark.dynamicAllocation.enabled":"false"}}]`
 
 ![Step 1: Software and Steps](pics/emr-step-one-software-and-steps.png)
 
-###### Step 2: Hardware
+##### Step 2: Hardware
 
-Select the right VPC for network and the availability zone for EC2 subnet.
+Select the desired VPC and availability zone in the "Network" and "EC2 Subnet" fields respectively. (Default network and subnet are ok)
 
-In node type,  keep the m3.xlarge for Master node and change the Core node type to p3.2xlarge with 1 or multiple instances.  There is no need for Task nodes.
+In the "Core" node row, change the "Instance type" to **p3.2xlarge** and ensure "Instance count" is set to **2**. Keep the default "Master" node instance type of **m3.xlarge** and ignore the unnecessary "Task" node configuration.
 
 ![Step 2: Hardware](pics/emr-step-two-hardware.png)
 
-###### Step 3:  General Cluster Settings
+##### Step 3:  General Cluster Settings
 
-Input cluster name and key names (optional) for the EMR cluster.
+Enter a custom "Cluster name" and make a note of the s3 folder that cluster logs will be written to.
 
-Also keep a note for the s3 bucket name configured.  You can also add your custom AMI or Bootstrap Actions here.
+*Optionally* add key-value "Tags", configure a "Custom AMI", or add custom "Bootstrap Actions"  for the EMR cluster on this page.
 
 ![Step 3: General Cluster Settings](pics/emr-step-three-general-cluster-settings.png)
 
-######  Step 4: Security
+#####  Step 4: Security
 
-Pick your own EC2 key pair for SSH access. You can use all the default roles and security groups.   For security groups, you may need to open SSH access for the Master node.  Click "Create cluster" to complete the whole process.
+Select an existing "EC2 key pair" that will be used to authenticate SSH access to the cluster's nodes. If you do not have access to an EC2 key pair, follow these instructions to [create an EC2 key pair](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair).
+
+*Optionally* set custom security groups in the "EC2 security groups" tab.
+
+In the "EC2 security groups" tab, confirm that the security group chosen for the "Master" node allows for SSH access. Follow these instructions to [allow inbound SSH traffic](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html) if the security group does not allow it yet.
 
 ![Step 4: Security](pics/emr-step-four-security.png)
 
-###### Finish the Configuration
+##### Finish Cluster Configuration
 
-The management page will show the details of the cluster and the nodes are being provisioned.
+The EMR cluster management page displays the status of multiple clusters or detailed information about a chosen cluster. In the detailed cluster view, the "Summary" and "Hardware" tabs can be used to monitor the status of master and core nodes as they provision and initialize.
 
 ![Cluster Details](pics/emr-cluster-details.png )
 
-Cluster will show "Waiting, cluster ready" when it is full provisioned.
+When the cluster is ready, a green-dot will appear next to the cluster name and the "Status" column will display **Waiting, cluster ready**.
 
 ![Cluster Waiting](pics/emr-cluster-waiting.png)
 
-Click the details of cluster and find the Master public DNS. Use this DNS address to ssh into with the corresponding EC2 private key. The username is hadoop.
+In the cluster's "Summary" tab, find the "Master public DNS" field and click the `SSH` button. Follow the instructions to SSH to the new cluster's master node.
 
 ![Cluster DNS](pics/emr-cluster-dns.png)
 
 ![Cluster SSH](pics/emr-cluster-ssh.png)
 
-### Build XGBoost-Spark examples on EMR
+### Build and Execute XGBoost-Spark examples on EMR
 
-Now once the EMR Hadoop/Spark cluster is ready, let’s launch the Nvidia GPU XGboost examples. 
+SSH to the EMR cluster's master node and run the following steps to setup, build, and run the XGBoost-Spark examples.
 
-Let’s first install a git and maven package on master node.  And Download [apache-maven-3.6.2-bin.zip](http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip) into master node, unzip and add to $PATH.
-
+#### Install git and maven
 
 ```
 sudo yum update -y
@@ -70,42 +73,40 @@ export PATH=/home/hadoop/apache-maven-3.6.2/bin:$PATH
 mvn --version
 ```
 
-Now let’s build example Jar by following the steps from [Build XGBoost Scala Examples](/getting-started-guides/building-sample-apps/scala.md). The mvn building option might be different based on the CUDA version on EMR instance images.
+#### Build Example Jars
 
 ```
 git clone https://github.com/rapidsai/spark-examples.git
-cd spark-examples/examples/apps/scala
-mvn package #  omit cuda.classifier for cuda 9.2 (AWS EMR Instance use CUDA 9.2)
+pushd spark-examples/examples/apps/scala
+mvn package #CUDA 9.2 build command
+popd
 ```
 
-### Launch XGBoost-Spark examples on EMR
+The `mvn package` command may require additional configuration depending on the CUDA version of the chosen EMR instance images. For detailed build instructions including different CUDA versions, see [Build XGBoost Scala Examples](/getting-started-guides/building-sample-apps/scala.md).
 
-Last, let's follow this guide [Get Started with XGBoost4J-Spark on Apache Hadoop YARN](/getting-started-guides/on-premises-cluster/yarn-scala.md) to run the example with data on Spark.
-
-First get mortgage dataset:
+#### Fetch the Mortgage Dataset
 
 ```
 mkdir data
-cd data
+pushd data
 wget https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 unzip mortgage.zip
-cd ..
+popd
 ```
 
-Then copy local data and jar files to HDFS:
+#### Upload Data and Jar files to HDFS
 
 ```
-hadoop fs -mkdir /tmp/xgboost4j_spark
-hadoop fs -mkdir /tmp/data
-hadoop fs -copyFromLocal ./target/*.jar /tmp/xgboost4j_spark
-hadoop fs -copyFromLocal ./data/* /tmp/data
+hadoop fs -mkdir -p /tmp/xgboost4j_spark/data
+hadoop fs -copyFromLocal ~/spark-examples/examples/apps/scala/target/*.jar /tmp/xgboost4j_spark
+hadoop fs -copyFromLocal ~/data/* /tmp/xgboost4j_spark/data
 ```
 
-Now Launch the GPU Mortgage Example:
+#### Launch the GPU Mortgage Example
 
 ```
 # location where data was downloaded
-export DATA_PATH=hdfs:/tmp/data
+export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 # location for the required jar
 export JARS_PATH=hdfs:/tmp/xgboost4j_spark
 # spark deploy mode (see Apache Spark documentation for more information)
@@ -125,7 +126,7 @@ export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.
 export TREE_METHOD=gpu_hist
 
 
-spark-submit                                                  \
+spark-submit                                                                    \
  --master yarn                                                                  \
  --deploy-mode ${SPARK_DEPLOY_MODE}                                             \
  --num-executors ${SPARK_NUM_EXECUTORS}                                         \
@@ -142,7 +143,7 @@ spark-submit                                                  \
  -maxDepth=8
 ```
 
-In the stdout driver log, you should see timings\* (in seconds), and the RMSE accuracy metric.  To find the stdout, go to the details of cluster, select Application history tab, and then click the application you just ran, click Executors tab, in the driver row, click "view logs" and then click "stdout".  The stdout log file will show all the outputs.
+Retrieve the Spark driver's logs from the EMR cluster's "Application history" tab. Select the completed mortgage example's ID from the "Application ID" column and then select the "Executors" tab. In the **driver** row, click on `View logs` then `stdout`. The stdout log file contains time metrics and RMSE accuracy metrics.
 
 ![View Logs](pics/emr-view-logs.png)
 
