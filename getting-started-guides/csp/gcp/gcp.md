@@ -92,7 +92,8 @@ gcloud beta dataproc clusters create $CLUSTER_NAME  \
     --num-workers $NUM_WORKERS \
     --image-version 1.4-ubuntu18 \
     --bucket $GCS_BUCKET \
-    --metadata JUPYTER_PORT=80,INIT_ACTIONS_REPO="gs://$INIT_ACTIONS_BUCKET",linux-dist="ubuntu",GCS_BUCKET="gs://$GCS_BUCKET" \
+    --metadata JUPYTER_PORT=8123,INIT_ACTIONS_REPO="gs://$INIT_ACTIONS_BUCKET",linux-dist="ubuntu",
+    GCS_BUCKET="gs://$GCS_BUCKET" \
     --initialization-actions gs://$INIT_ACTIONS_BUCKET/spark-gpu/rapids.sh \
     --optional-components=ANACONDA,JUPYTER \
     --subnet=default \
@@ -125,7 +126,7 @@ Use the following commands to submit sample Scala app on this GPU cluster.
 
 ```export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
     export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
-    export DATA_PATH=$GCS_BUCKET
+    export DATA_PATH=gs://$GCS_BUCKET
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
     export CLUSTER_NAME=my-gpu-cluster
@@ -167,22 +168,22 @@ Use the following commands to submit sample PySpark app on this GPU cluster.
     export CLUSTER_NAME=my-gpu-cluster
     export REGION=us-central1
 
-gcloud beta dataproc jobs submit pyspark \
-    --cluster=$CLUSTER_NAME \
-    --region=$REGION \
-    --jars=$RAPIDS_JARS \
-    --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
-    --py-files=${SPARK_PY_FILES} \
-    ${SPARK_PYTHON_ENTRYPOINT} \
-    -- \
-    --format=csv \
-    --numRound=100 \
-    --numWorkers=${SPARK_NUM_EXECUTORS} \
-    --treeMethod=${TREE_METHOD} \
-    --trainDataPath=${DATA_PATH}/mortgage-small/train/mortgage_small.csv \
-    --evalDataPath=${DATA_PATH}/mortgage-small/eval/mortgage_small.csv \
-    --maxDepth=8 \
-    --mainClass=${MAIN_CLASS}
+    gcloud beta dataproc jobs submit pyspark \
+        --cluster=$CLUSTER_NAME \
+        --region=$REGION \
+        --jars=$RAPIDS_JARS \
+        --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+        --py-files=${SPARK_PY_FILES} \
+        ${SPARK_PYTHON_ENTRYPOINT} \
+        -- \
+        --format=csv \
+        --numRound=100 \
+        --numWorkers=${SPARK_NUM_EXECUTORS} \
+        --treeMethod=${TREE_METHOD} \
+        --trainDataPath=${DATA_PATH}/mortgage-small/train/mortgage_small.csv \
+        --evalDataPath=${DATA_PATH}/mortgage-small/eval/mortgage_small.csv \
+        --maxDepth=8 \
+        --mainClass=${MAIN_CLASS}
 ```
 
 #### 4c) Addendum: Submit a Spark Job on CPUs 

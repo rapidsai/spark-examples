@@ -29,10 +29,10 @@ if [[ "${ROLE}" != 'Master' ]]; then
   # Ensure we have GPU drivers installed.
   "${RAPIDS_INIT_ACTION_DIR}/internal/install-gpu-driver.sh"
 else
-  gsutil cp gs://${GCS_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/python/lib/
-  gsutil cp gs://${GCS_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
-  gsutil cp gs://${GCS_BUCKET}/xgboost4j_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
-  gsutil cp gs://${GCS_BUCKET}/cudf-0.9.1-cuda10.jar /usr/lib/spark/jars/
+  gsutil cp ${GCS_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/python/lib/
+  gsutil cp ${GCS_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
+  gsutil cp ${GCS_BUCKET}/xgboost4j_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
+  gsutil cp ${GCS_BUCKET}/cudf-0.9.1-cuda10.jar /usr/lib/spark/jars/
 fi
 
 
