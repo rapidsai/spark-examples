@@ -27,7 +27,7 @@ There are three steps to run a sample PySpark XGBoost app using Jupyter notebook
 
 ### Step 1.  Initialization steps to download required files for Spark RAPIDS XGBoost PySpark app
 
-Before you create a cluster, please git clone the [spark-examples directory](https://github.com/rapidsai/spark-examples) to your local machine. `cd` into the spark-examples/getting-started-guides/csp/gcp/spark-gpu directory. Open the rapids.sh script using a text editor.  Modify the `GCS_BUCKET=my-bucket` line to specify your google GCP bucket name.  
+Before you create a cluster, please git clone the [spark-examples directory](https://github.com/rapidsai/spark-examples) to your local machine. `cd` into the spark-examples/getting-started-guides/csp/gcp/spark-gpu directory. Open the rapids.sh script using a text editor.  Modify the `GCS_BUCKET=my-bucket` line and `INIT_ACTIONS_BUCKET=my-bucket`(this parameter will not be required after init action merged into dataproc official repo) to specify your google GCP bucket name.  
 
 Execute the commands below while in the spark-examples folder.  These commands will copy the following files into your GCP bucket: 
 
@@ -92,8 +92,7 @@ gcloud beta dataproc clusters create $CLUSTER_NAME  \
     --num-workers $NUM_WORKERS \
     --image-version 1.4-ubuntu18 \
     --bucket $GCS_BUCKET \
-    --metadata JUPYTER_PORT=8123,INIT_ACTIONS_REPO="gs://$INIT_ACTIONS_BUCKET",linux-dist="ubuntu",
-    GCS_BUCKET="gs://$GCS_BUCKET" \
+    --metadata JUPYTER_PORT=8123,INIT_ACTIONS_REPO="gs://$INIT_ACTIONS_BUCKET",linux-dist="ubuntu",GCS_BUCKET="gs://$GCS_BUCKET" \
     --initialization-actions gs://$INIT_ACTIONS_BUCKET/spark-gpu/rapids.sh \
     --optional-components=ANACONDA,JUPYTER \
     --subnet=default \
@@ -119,8 +118,7 @@ eval_data = GpuDataReader(spark).schema(schema).option('header', True).csv('gs:/
 ### Step 4. [Optional] Submit Sample Apps 
 #### 4a) Submit Scala Spark App on GPUs
 
-Please build the `sample_xgboost_apps jar` with dependencies as specified in the [guide]
-(/getting-started-guides/building-sample-apps/scala.md) and place the jar file (`sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`) under the `gs://$GCS_BUCKET/spark-gpu` folder. To do this you can either drag and drop files from your local machine into the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) as shown before to do this from a command line.
+Please build the `sample_xgboost_apps jar` with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the jar file (`sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`) under the `gs://$GCS_BUCKET/spark-gpu` folder. To do this you can either drag and drop files from your local machine into the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) as shown before to do this from a command line.
 
 Use the following commands to submit sample Scala app on this GPU cluster.
 
@@ -221,7 +219,7 @@ Submitting a CPU job on this cluster is very similar. Below's an example command
 When you're done working on this cluster, don't forget to delete the cluster, using the following command (replacing the highlighted cluster name with yours):
 
 ```bash
-    gcloud dataproc clusters delete my-gpu-cluster
+    gcloud dataproc clusters delete my-gpu-cluster --region=$REGION
 ```
 
 <sup>*</sup> Please see our release [announcement](https://news.developer.nvidia.com/gpu-accelerated-spark-xgboost/) for official performance benchmarks.
