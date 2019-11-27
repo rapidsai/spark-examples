@@ -25,7 +25,7 @@ There are three steps to run a sample PySpark XGBoost app using Jupyter notebook
 4. Optional step: Submit sample PySpark or Scala App using the gcloud command from your local machine
 
 
-### Step 1.  Initialization steps to download required files for Spark RAPIDS XGBoost PySpark app
+### Step 1.  Initialization steps to download required files for Spark RAPIDS XGBoost app
 
 Before you create a cluster, please git clone the [spark-examples directory](https://github.com/rapidsai/spark-examples) to your local machine. `cd` into the spark-examples/getting-started-guides/csp/gcp/spark-gpu directory. Open the rapids.sh script using a text editor.  Modify the `GCS_BUCKET=my-bucket` line and `INIT_ACTIONS_BUCKET=my-bucket`(this parameter will not be required after init action merged into dataproc official repo) to specify your google GCP bucket name.  
 
@@ -36,8 +36,10 @@ Execute the commands below while in the spark-examples folder.  These commands w
 3. A sample dataset for a XGBoost PySpark app 
 4. The latest Spark RAPIDS XGBoost jar files from the public maven repository
 
-```
+```bash
 export GCS_BUCKET=my-bucket
+export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
 pushd getting-started-guides/csp/gcp/spark-gpu
 gsutil cp -r internal gs://$GCS_BUCKET/spark-gpu/
 gsutil cp rapids.sh gs://$GCS_BUCKET/spark-gpu/rapids.sh
@@ -46,19 +48,19 @@ pushd datasets/
 tar -xvf mortgage-small.tar.gz
 gsutil cp -r mortgage-small/ gs://$GCS_BUCKET/
 popd
-wget -O cudf-0.9.1-cuda10.jar https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.1/cudf-0.9.1-cuda10.jar
-wget -O xgboost4j_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.11/1.0.0-Beta2/xgboost4j_2.11-1.0.0-Beta2.jar
-wget -O xgboost4j-spark_2.11-1.0.0-Beta2.jar https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.11/1.0.0-Beta2/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-gsutil cp cudf-0.9.1-cuda10.jar xgboost4j-spark_2.11-1.0.0-Beta2.jar xgboost4j_2.11-1.0.0-Beta2.jar gs://$GCS_BUCKET/
+wget -O cudf-${RAPIDS_CUDF_VERSION}.jar https://repo1.maven.org/maven2/ai/rapids/cudf/${RAPIDS_CUDF_VERSION%-*}/cudf-${RAPIDS_CUDF_VERSION}.jar
+wget -O xgboost4j_${RAPIDS_SPARK_VERSION}.jar https://repo1.maven.org/maven2/ai/rapids/xgboost4j_${RAPIDS_SPARK_VERSION/-/\/}/xgboost4j_${RAPIDS_SPARK_VERSION}.jar
+wget -O xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar https://repo1.maven.org/maven2/ai/rapids/xgboost4j-spark_${RAPIDS_SPARK_VERSION/-/\/}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar
+gsutil cp cudf-${RAPIDS_CUDF_VERSION}.jar xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar xgboost4j_${RAPIDS_SPARK_VERSION}.jar gs://$GCS_BUCKET/
 ````
 
 After executing these commands, use your web browser to navigate to Google Cloud Platform console and make sure your Google storage bucket “my-bucket” directory structure has the following files:
 * gs://my-bucket/spark-gpu/rapids.sh
 * gs://my-bucket/spark-gpu/internal/install-gpu-driver-debian.sh
 * gs://my-bucket/spark-gpu/internal/install-gpu-driver-ubuntu.sh
-* gs://my-bucket/cudf-0.9.1-cuda10.jar
-* gs://my-bucket/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-* gs://my-bucket/xgboost4j_2.11-1.0.0-Beta2.jar
+* gs://my-bucket/cudf-${RAPIDS_CUDF_VERSION}.jar
+* gs://my-bucket/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar
+* gs://my-bucket/xgboost4j_${RAPIDS_SPARK_VERSION}.jar
 * gs://my-bucket/mortgage-small/eval/mortgage-small.csv
 * gs://my-bucket/mortgage-small/eval/mortgage-small.csv
 * gs://my-bucket/mortgage-small/trainWithEval/test.csv
@@ -71,8 +73,10 @@ will create a new cluster named `<CLUSTER_NAME>` under your project directory. H
 OS for Spark-XGBoost on GCP. Modify the `GCS_BUCKET=my-bucket` line to specify your google GCP bucket name. Also 
 modify `--properties` to include update-to-date jar file released by NVIDIA Spark XGBoost team. 
 
-```
+```bash
 export CLUSTER_NAME=my-gpu-cluster
+export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
 export ZONE=us-central1-b
 export REGION=us-central1
 export GCS_BUCKET=my-bucket
@@ -96,7 +100,7 @@ gcloud beta dataproc clusters create $CLUSTER_NAME  \
     --initialization-actions gs://$INIT_ACTIONS_BUCKET/spark-gpu/rapids.sh \
     --optional-components=ANACONDA,JUPYTER \
     --subnet=default \
-    --properties '^#^spark:spark.dynamicAllocation.enabled=false#spark:spark.shuffle.service.enabled=false#spark:spark.submit.pyFiles=/usr/lib/spark/python/lib/xgboost4j-spark_2.11-1.0.0-Beta2.jar#spark:spark.jars=/usr/lib/spark/jars/xgboost4j-spark_2.11-1.0.0-Beta2.jar,/usr/lib/spark/jars/xgboost4j_2.11-1.0.0-Beta2.jar,/usr/lib/spark/jars/cudf-0.9.1-cuda10.jar' \
+    --properties "^#^spark:spark.dynamicAllocation.enabled=false#spark:spark.shuffle.service.enabled=false#spark:spark.submit.pyFiles=/usr/lib/spark/python/lib/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar#spark:spark.jars=/usr/lib/spark/jars/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar,/usr/lib/spark/jars/xgboost4j_${RAPIDS_SPARK_VERSION}.jar,/usr/lib/spark/jars/cudf-${RAPIDS_CUDF_VERSION}.jar" \
     --enable-component-gateway 
 ```
 
@@ -122,7 +126,8 @@ Please build the `sample_xgboost_apps jar` with dependencies as specified in the
 
 Use the following commands to submit sample Scala app on this GPU cluster.
 
-```export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
+```bash
+    export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
     export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
     export DATA_PATH=gs://$GCS_BUCKET
     export TREE_METHOD=gpu_hist
@@ -153,14 +158,16 @@ Please build the sample_xgboost pyspark app as specified in the [guide](/getting
 Use the following commands to submit sample PySpark app on this GPU cluster.
 
 
-```
+```bash
     export DATA_PATH=gs://$GCS_BUCKET
     export LIBS_PATH=gs://$GCS_BUCKET
+    export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+    export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
     export SPARK_DEPLOY_MODE=cluster
     export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
-    export RAPIDS_JARS=${LIBS_PATH}/cudf-0.9.1-cuda10.jar,${LIBS_PATH}/xgboost4j_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar
-    export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.11-1.0.0-Beta2.jar,${LIBS_PATH}/sample.zip
+    export RAPIDS_JARS=${LIBS_PATH}/cudf-${RAPIDS_CUDF_VERSION}.jar,${LIBS_PATH}/xgboost4j_${RAPIDS_SPARK_VERSION}.jar,${LIBS_PATH}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar
+    export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar,${LIBS_PATH}/sample.zip
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
     export CLUSTER_NAME=my-gpu-cluster
@@ -188,7 +195,7 @@ Use the following commands to submit sample PySpark app on this GPU cluster.
 
 Submitting a CPU job on this cluster is very similar. Below's an example command that runs the same Mortgage application on CPUs:
 
-```
+```bash
     export GCS_BUCKET=my-bucket
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
     export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
