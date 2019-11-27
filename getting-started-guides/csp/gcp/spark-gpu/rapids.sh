@@ -5,8 +5,21 @@ set -euxo pipefail
 readonly ROLE=$(/usr/share/google/get_metadata_value attributes/dataproc-role)
 readonly LINUX_DIST=$(/usr/share/google/get_metadata_value attributes/linux-dist)
 
+readonly DEFAULT_INIT_ACTIONS_REPO=gs://dataproc-initialization-actions
 readonly INIT_ACTIONS_REPO="$(/usr/share/google/get_metadata_value attributes/INIT_ACTIONS_REPO ||
-  echo ${DEAFULT_INIT_ACTIONS_REPO})"
+  echo ${DEFAULT_INIT_ACTIONS_REPO})"
+
+readonly DEFAULT_GCS_BUCKET=gs://my-bucket
+readonly GCS_BUCKET="$(/usr/share/google/get_metadata_value attributes/GCS_BUCKET ||
+  echo ${DEFAULT_GCS_BUCKET})"
+
+readonly DEFAULT_RAPIDS_SPARK_VERSION=2.x-1.0.0-Beta3
+readonly RAPIDS_SPARK_VERSION="$(/usr/share/google/get_metadata_value attributes/RAPIDS_SPARK_VERSION ||
+  echo ${DEFAULT_RAPIDS_SPARK_VERSION})"
+
+readonly DEFAULT_RAPIDS_CUDF_VERSION=0.9.2-cuda10
+readonly RAPIDS_CUDF_VERSION="$(/usr/share/google/get_metadata_value attributes/RAPIDS_CUDF_VERSION ||
+  echo ${DEFAULT_RAPIDS_CUDF_VERSION})"
 
 echo "Cloning RAPIDS initialization action from '${INIT_ACTIONS_REPO}' ..."
 RAPIDS_INIT_ACTION_DIR=$(mktemp -d -t rapids-init-action-XXXX)
@@ -24,16 +37,10 @@ if [[ "${ROLE}" != 'Master' ]]; then
   # Ensure we have GPU drivers installed.
   "${RAPIDS_INIT_ACTION_DIR}/internal/install-gpu-driver.sh"
 else
-  readonly STORAGE_BUCKET=my-bucket
-  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/python/lib/
-  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j-spark_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
-  gsutil cp gs://${STORAGE_BUCKET}/xgboost4j_2.11-1.0.0-Beta2.jar /usr/lib/spark/jars/
-  gsutil cp gs://${STORAGE_BUCKET}/cudf-0.9.1-cuda10.jar /usr/lib/spark/jars/
-
-  wget "https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip"
-  unzip "mortgage.zip"
-  hadoop fs -mkdir "/tmp/xgboost4j_spark"
-  hadoop fs -copyFromLocal mortgage "/tmp/xgboost4j_spark/mortgage"
+  gsutil cp ${GCS_BUCKET}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar /usr/lib/spark/python/lib/
+  gsutil cp ${GCS_BUCKET}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar /usr/lib/spark/jars/
+  gsutil cp ${GCS_BUCKET}/xgboost4j_${RAPIDS_SPARK_VERSION}.jar /usr/lib/spark/jars/
+  gsutil cp ${GCS_BUCKET}/cudf-${RAPIDS_CUDF_VERSION}.jar /usr/lib/spark/jars/
 fi
 
 
