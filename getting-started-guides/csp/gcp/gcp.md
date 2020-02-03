@@ -124,7 +124,7 @@ eval_data = GpuDataReader(spark).schema(schema).option('header', True).csv('gs:/
 
 Please build the `sample_xgboost_apps jar` with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the jar file (`sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`) under the `gs://$GCS_BUCKET/spark-gpu` folder. To do this you can either drag and drop files from your local machine into the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) as shown before to do this from a command line.
 
-Use the following commands to submit sample Scala app on this GPU cluster.
+Use the following commands to submit sample Scala app on this GPU cluster. Note that `spark.task.cpus` need to match `spark.executor.cores`.
 
 ```bash
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
@@ -132,6 +132,7 @@ Use the following commands to submit sample Scala app on this GPU cluster.
     export DATA_PATH=gs://$GCS_BUCKET
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
+    export SPARK_NUM_CORES_PER_EXECUTOR=1
     export CLUSTER_NAME=my-gpu-cluster
     export REGION=us-central1
 
@@ -140,7 +141,7 @@ Use the following commands to submit sample Scala app on this GPU cluster.
         --region=$REGION \
         --class=$MAIN_CLASS \
         --jars=$RAPIDS_JARS \
-        --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+        --properties=spark.executor.cores=${SPARK_NUM_CORES_PER_EXECUTOR},spark.task.cpus=${SPARK_NUM_CORES_PER_EXECUTOR},spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
         -- \
         -format=csv \
         -numRound=100 \
@@ -170,6 +171,7 @@ Use the following commands to submit sample PySpark app on this GPU cluster.
     export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_${RAPIDS_SPARK_VERSION}.jar,${LIBS_PATH}/sample.zip
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
+    export SPARK_NUM_CORES_PER_EXECUTOR=1
     export CLUSTER_NAME=my-gpu-cluster
     export REGION=us-central1
 
@@ -177,7 +179,7 @@ Use the following commands to submit sample PySpark app on this GPU cluster.
         --cluster=$CLUSTER_NAME \
         --region=$REGION \
         --jars=$RAPIDS_JARS \
-        --properties=spark.executor.cores=1,spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
+        --properties=spark.executor.cores=${SPARK_NUM_CORES_PER_EXECUTOR},spark.task.cpus=${SPARK_NUM_CORES_PER_EXECUTOR},spark.executor.instances=${SPARK_NUM_EXECUTORS},spark.executor.memory=8G,spark.executorEnv.LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/cuda-10.0/lib64:${LD_LIBRARY_PATH} \
         --py-files=${SPARK_PY_FILES} \
         ${SPARK_PYTHON_ENTRYPOINT} \
         -- \
