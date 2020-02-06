@@ -58,6 +58,14 @@ In the cluster's "Summary" tab, find the "Master public DNS" field and click the
 
 ![Cluster SSH](pics/emr-cluster-ssh.png)
 
+#####  Above Cluster can also be built using AWS CLI
+
+```
+aws emr create-cluster --termination-protected --applications Name=Hadoop Name=Spark Name=Zeppelin Name=Livy --tags 'Name=nvidia-gpu-spark' --ec2-attributes '{"KeyName":"your-key-name","InstanceProfile":"EMR_EC2_DefaultRole","SubnetId":"your-subnet-ID","EmrManagedSlaveSecurityGroup":"your-EMR-slave-security-group-ID","EmrManagedMasterSecurityGroup":"your-EMR-master-security-group-ID"}' --release-label emr-5.27.0 --log-uri 's3n://aws-logs-354625738399-us-west-2/elasticmapreduce/' --instance-groups '[{"InstanceCount":1,"EbsConfiguration":{"EbsBlockDeviceConfigs":[{"VolumeSpecification":{"SizeInGB":32,"VolumeType":"gp2"},"VolumesPerInstance":2}]},"InstanceGroupType":"MASTER","InstanceType":"m5.xlarge","Name":"Master - 1"},{"InstanceCount":2,"EbsConfiguration":{"EbsBlockDeviceConfigs":[{"VolumeSpecification":{"SizeInGB":32,"VolumeType":"gp2"},"VolumesPerInstance":4}]},"InstanceGroupType":"CORE","InstanceType":"p3.2xlarge","Name":"Core - 2"}]' --configurations '[{"Classification":"spark-defaults","Properties":{"spark.dynamicAllocation.enabled":"false"}}]' --auto-scaling-role EMR_AutoScaling_DefaultRole --ebs-root-volume-size 10 --service-role EMR_DefaultRole --enable-debugging --name 'nvidia-gpu-spark' --scale-down-behavior TERMINATE_AT_TASK_COMPLETION --region us-west-2
+```
+Fill with actual value for KeyName, SubnetId, EmrManagedSlaveSecurityGroup, EmrManagedMasterSecurityGroup, name and region.
+
+
 ### Build and Execute XGBoost-Spark examples on EMR
 
 SSH to the EMR cluster's master node and run the following steps to setup, build, and run the XGBoost-Spark examples.
@@ -67,9 +75,9 @@ SSH to the EMR cluster's master node and run the following steps to setup, build
 ```
 sudo yum update -y
 sudo yum install git -y
-wget http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.zip
-unzip apache-maven-3.6.2-bin.zip
-export PATH=/home/hadoop/apache-maven-3.6.2/bin:$PATH
+wget http://apache.mirrors.lucidnetworks.net/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.zip
+unzip apache-maven-3.6.3-bin.zip
+export PATH=/home/hadoop/apache-maven-3.6.3/bin:$PATH
 mvn --version
 ```
 
