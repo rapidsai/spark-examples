@@ -129,7 +129,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 # example class to use
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 # XGBoost4J example jar
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
 

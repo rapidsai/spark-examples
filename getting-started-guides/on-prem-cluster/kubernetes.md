@@ -59,7 +59,7 @@ Place the required jar and dataset in a local directory. In this example the jar
 [xgboost4j_spark]$ find . -type f -print|sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./jars/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+./jars/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 ```
 
 Make sure that data and jars are accessible by each node of the Kubernetes cluster via [Kubernetes volumes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#using-kubernetes-volumes), on cluster filesystems like HDFS, or in [object stores like S3 and GCS](https://spark.apache.org/docs/2.3.0/cloud-integration.html). Note that using [application dependencies](https://spark.apache.org/docs/latest/running-on-kubernetes.html#dependency-management) from the submission client’s local file system is currently not yet supported.
@@ -127,7 +127,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
 # XGBoost4J example jar
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist

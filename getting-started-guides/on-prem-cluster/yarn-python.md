@@ -38,8 +38,8 @@ Get Application Jar and Dataset
     * [*cudf-0.9.2-cuda10.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2-cuda10.jar) (Here take CUDA 10.0 as an example)
         * For CUDA 9.2, please download [*cudf-0.9.2.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2.jar) instead, and replace *cudf-0.9.2-cuda10.jar* with *cudf-0.9.2.jar* throughout this whole guide
         * For CUDA 10.1, please download [*cudf-0.9.2-cuda10-1.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2-cuda10-1.jar) instead, and replace *cudf-0.9.2-cuda10.jar* with *cudf-0.9.2-cuda10-1.jar* throughout this whole guide
-    * [*xgboost4j_2.x-1.0.0-Beta3.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.x/1.0.0-Beta3/xgboost4j_2.x-1.0.0-Beta3.jar)
-    * [*xgboost4j-spark_2.x-1.0.0-Beta3.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.x/1.0.0-Beta3/xgboost4j-spark_2.x-1.0.0-Beta3.jar)
+    * [*xgboost4j_2.x-1.0.0-Beta5.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.x/1.0.0-Beta5/xgboost4j_2.x-1.0.0-Beta5.jar)
+    * [*xgboost4j-spark_2.x-1.0.0-Beta5.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.x/1.0.0-Beta5/xgboost4j-spark_2.x-1.0.0-Beta5.jar)
 3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place dataset and other files in a local directory. In this example the dataset was unzipped in the `xgboost4j_spark_python/data` directory, and all other files in the `xgboost4j_spark_python/libs` directory.
@@ -51,8 +51,8 @@ Place dataset and other files in a local directory. In this example the dataset 
 ./libs/cudf-0.9.2-cuda10.jar
 ./libs/main.py
 ./libs/samples.zip
-./libs/xgboost4j_2.x-1.0.0-Beta3.jar
-./libs/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+./libs/xgboost4j_2.x-1.0.0-Beta5.jar
+./libs/xgboost4j-spark_2.x-1.0.0-Beta5.jar
 ```
 
 Create a directory in HDFS, and copy:
@@ -71,8 +71,8 @@ Verify that the jar and dataset are in HDFS:
 /tmp/xgboost4j_spark_python/libs/cudf-0.9.2-cuda10.jar
 /tmp/xgboost4j_spark_python/libs/main.py
 /tmp/xgboost4j_spark_python/libs/samples.zip
-/tmp/xgboost4j_spark_python/libs/xgboost4j_2.x-1.0.0-Beta3.jar
-/tmp/xgboost4j_spark_python/libs/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+/tmp/xgboost4j_spark_python/libs/xgboost4j_2.x-1.0.0-Beta5.jar
+/tmp/xgboost4j_spark_python/libs/xgboost4j-spark_2.x-1.0.0-Beta5.jar
 ```
 
 Launch GPU Mortgage Example
@@ -106,10 +106,10 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta5.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta5.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta5.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -191,10 +191,10 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.cpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta5.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta5.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta5.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=hist

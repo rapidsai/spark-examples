@@ -41,6 +41,16 @@ object Vectorize {
       .select(col("features"), col(labelName))
   }
 
+  def criteoApply(df: DataFrame, featureNames: Seq[String], labelName: String): DataFrame = {
+    val toFloat = df.schema.map(f => col(f.name).cast(FloatType))
+    new VectorAssembler()
+      .setHandleInvalid("keep")
+      .setInputCols(featureNames.toArray)
+      .setOutputCol("features")
+      .transform(df.select(toFloat:_*))
+      .select(col("features"), col(labelName))
+  }
+
   def apply(featureNames: Seq[String], df: DataFrame, otherNames: String*): DataFrame = {
     val resultCols = (otherNames :+ "features").map(col(_))
     new VectorAssembler()

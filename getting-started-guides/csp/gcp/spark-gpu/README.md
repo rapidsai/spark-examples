@@ -31,7 +31,7 @@ Execute the commands below while in the spark-examples folder.  These commands w
 
 ```bash
 export GCS_BUCKET=my-bucket
-export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta5'
 export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
 pushd getting-started-guides/csp/gcp/spark-gpu
 gsutil cp -r internal gs://$GCS_BUCKET/spark-gpu/
@@ -77,7 +77,7 @@ The following command will create a new cluster named `<CLUSTER_NAME>`. Before t
     export INIT_ACTIONS_BUCKET=my-bucket
     export NUM_GPUS=2
     export NUM_WORKERS=2
-    export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+    export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta5'
     export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
      
     gcloud beta dataproc clusters create $CLUSTER_NAME  \
@@ -121,7 +121,7 @@ To submit such a job run:
 
  ```bash
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
-    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
     export DATA_PATH=$GCS_BUCKET
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4

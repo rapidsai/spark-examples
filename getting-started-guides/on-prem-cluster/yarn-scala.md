@@ -40,7 +40,7 @@ First place the required jar and dataset in a local directory. In this example t
 [xgboost4j_spark]$ find . -type f -print|sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./jars/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+./jars/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 ``` 
 
 Create a directory in HDFS, and copy:
@@ -56,7 +56,7 @@ Verify that the jar and dataset are in HDFS:
 [xgboost4j_spark]$ hadoop fs -find /tmp/xgboost4j_spark -print|grep "\."|sort
 /tmp/xgboost4j_spark/data/mortgage/csv/test/mortgage_eval_merged.csv
 /tmp/xgboost4j_spark/data/mortgage/csv/train/mortgage_train_merged.csv
-/tmp/xgboost4j_spark/jars/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+/tmp/xgboost4j_spark/jars/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 ```
 
 Launch GPU Mortgage Example
@@ -87,7 +87,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
 # XGBoost4J example jar
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -166,7 +166,7 @@ export SPARK_EXECUTOR_MEMORY=8g
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
 
 # XGBoost4J example jar
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 
 # tree construction algorithm
 export TREE_METHOD=hist

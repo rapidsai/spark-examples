@@ -1,7 +1,8 @@
 # Scala API for XGBoost-Spark
 
-This doc focuses on GPU related Scala API interfaces. Six new classes are introduced:
+This doc focuses on GPU related Scala API interfaces. 7 new classes are introduced:
 
+- [CrossValidator](#crossvalidator)
 - [GpuDataset](#gpudataset)
 - [GpuDataReader](#gpudatareader)
 - [XGBoostClassifier](#xgboostclassifier)
@@ -9,13 +10,31 @@ This doc focuses on GPU related Scala API interfaces. Six new classes are introd
 - [XGBoostRegressor](#xgboostregressor)
 - [XGBoostRegressionModel](#xgboostregressionmodel)
 
+### CrossValidator
+
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.CrossValidator`, extending from the Spark's [CrossValidator](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.tuning.CrossValidator).
+
+##### Constructors
+
++ CrossValidator()
+
+##### Methods
+
+*Note: Only GPU related methods are listed below.*
+
++ fit(dataset: [GpuDataset](#gpudataset)): [Model](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.Model)[\_]. This method triggers the corss validation for hyperparameter tuninng.
+    + dataset: a [GpuDataset](#gpudataset) used for cross validation
+    + returns the best [Model](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.Model)[\_] for the given hyperparameters. Please note this model returned here is actually a [XGBoostClassificationModel](#xgboostclassificationmodel) for [XGBoostClassifier](#xgboostclassifier), or a  [XGBoostRegressionModel](#xgboostregressionmodel) for [XGBoostRegressor](#xgboostregressor). You need to cast it to the right model for calling the GPU version `transform`(dataset: [GpuDataset](#gpudataset)).
+    + Note: For CPU version, you can still call `fit`(dataset: [Dataset](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.sql.Dataset)[\_])
+
+
 ### GpuDataset
 
-The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataset. A GpuDataset is an object that is produced by [GpuDataReader](#gpudatareader)s and consumed by [XGBoostClassifier](#xgboostclassifier)s and [XGBoostRegressor](#xgboostregressor)s. No constructors or methods are exposed for this class.
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataset`. A GpuDataset is an object that is produced by [GpuDataReader](#gpudatareader)s and consumed by [XGBoostClassifier](#xgboostclassifier)s and [XGBoostRegressor](#xgboostregressor)s. No constructors or methods are exposed for this class.
 
 ### GpuDataReader
 
-The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader. A GpuDataReader sets options and builds [GpuDataset](#gpudataset) from data sources. The data loading is a lazy operation. It occurs when the data is processed later.
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader`. A GpuDataReader sets options and builds [GpuDataset](#gpudataset) from data sources. The data loading is a lazy operation. It occurs when the data is processed later.
 
 ##### Constructors
 
@@ -96,7 +115,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader. A GpuDataRe
 
 ### XGBoostClassifier
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier. It extends [ProbabilisticClassifier](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.classification.ProbabilisticClassifier)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostClassifier](#xgboostclassifier), [XGBoostClassificationModel](#xgboostclassificationmodel)].
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier`. It extends [ProbabilisticClassifier](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.classification.ProbabilisticClassifier)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostClassifier](#xgboostclassifier), [XGBoostClassificationModel](#xgboostclassificationmodel)].
 
 #####  Constructors
 
@@ -121,7 +140,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier. It extends [Pr
 
 ### XGBoostClassificationModel
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel. It extends [ProbabilisticClassificationModel](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.classification.ProbabilisticClassificationModel)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostClassificationModel](#xgboostclassificationmodel)].
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel`. It extends [ProbabilisticClassificationModel](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.classification.ProbabilisticClassificationModel)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostClassificationModel](#xgboostclassificationmodel)].
 
 ##### Methods
 
@@ -133,7 +152,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel. It ex
 
 ### XGBoostRegressor
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor. It extends [Predictor](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.Predictor)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostRegressor](#xgboostregressor), [XGBoostRegressionModel](#xgboostregressionmodel)].
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor`. It extends [Predictor](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.Predictor)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostRegressor](#xgboostregressor), [XGBoostRegressionModel](#xgboostregressionmodel)].
 
 #####  Constructors
 
@@ -158,7 +177,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor. It extends [Pre
 
 ### XGBoostRegressionModel
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressionModel. It extends [PredictionModel](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.PredictionModel)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostRegressionModel](#xgboostregressionmodel)].
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostRegressionModel`. It extends [PredictionModel](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.PredictionModel)[[Vector](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.linalg.Vector), [XGBoostRegressionModel](#xgboostregressionmodel)].
 
 ##### Methods
 

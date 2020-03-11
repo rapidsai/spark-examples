@@ -15,7 +15,7 @@ It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are
 2. Install kernel configured for our example:
   ```
   export SPARK_EXAMPLES=[full path to spark-examples repo]
-  export SPARK_JARS=${SPARK_EXAMPLES}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+  export SPARK_JARS=${SPARK_EXAMPLES}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 
   jupyter toree install                                                             \
   --spark_home=${SPARK_HOME}                                                        \

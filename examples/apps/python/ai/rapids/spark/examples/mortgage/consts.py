@@ -58,6 +58,7 @@ default_params = {
     'maxDepth': 10,
     'maxLeaves': 256,
     'growPolicy': 'depthwise',
+    'objective': 'binary:logistic',
     'minChildWeight': 30.0,
     'lambda_': 1.0,
     'scalePosWeight': 2.0,
