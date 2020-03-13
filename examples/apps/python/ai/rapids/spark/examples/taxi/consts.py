@@ -18,7 +18,28 @@ from pyspark.sql.types import *
 
 label = 'fare_amount'
 
-schema = StructType([
+raw_schema = StructType([
+    StructField('vendor_id', StringType()),
+    StructField('pickup_datetime', StringType()),
+    StructField('dropoff_datetime', StringType()),
+    StructField('passenger_count', IntegerType()),
+    StructField('trip_distance', DoubleType()),
+    StructField('pickup_longitude', DoubleType()),
+    StructField('pickup_latitude', DoubleType()),
+    StructField('rate_code', StringType()),
+    StructField('store_and_fwd_flag', StringType()),
+    StructField('dropoff_longitude', DoubleType()),
+    StructField('dropoff_latitude', DoubleType()),
+    StructField('payment_type', StringType()),
+    StructField(label, DoubleType()),
+    StructField('surcharge', DoubleType()),
+    StructField('mta_tax', DoubleType()),
+    StructField('tip_amount', DoubleType()),
+    StructField('tolls_amount', DoubleType()),
+    StructField('total_amount', DoubleType()),
+])
+
+final_schema = StructType([
     StructField('vendor_id', FloatType()),
     StructField('passenger_count', FloatType()),
     StructField('trip_distance', FloatType()),
@@ -36,8 +57,6 @@ schema = StructType([
     StructField('day_of_week', FloatType()),
     StructField('is_weekend', FloatType()),
 ])
-
-features = [ x.name for x in schema if x.name != label ]
 
 default_params = {
     'eta': 0.05,

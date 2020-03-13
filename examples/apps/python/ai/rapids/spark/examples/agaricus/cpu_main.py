@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 from ai.rapids.spark.examples.agaricus.consts import *
-from ai.rapids.spark.examples.utility.args import parse_arguments
 from ai.rapids.spark.examples.utility.utils import *
 from ml.dmlc.xgboost4j.scala.spark import *
 from pyspark.sql import SparkSession
@@ -25,22 +24,20 @@ def main(args, xgboost_args):
         .appName(args.mainClass)
         .getOrCreate())
 
-    def prepare_data(path):
-        reader = spark.read.format(args.format)
-        if args.format == 'csv':
-            reader.schema(schema).option('header', args.hasHeader)
-        return vectorize(reader.load(path), label)
+    train_data, eval_data, trans_data = valid_input_data(spark, args, '', schema)
 
     if args.mode in [ 'all', 'train' ]:
         classifier = (XGBoostClassifier(**merge_dicts(default_params, xgboost_args))
             .setLabelCol(label)
             .setFeaturesCol('features'))
-
-        if args.trainEvalDataPath:
-            train_eval_data = prepare_data(args.trainEvalDataPath)
-            classifier.setEvalSets({ 'test': train_eval_data })
-
-        train_data = prepare_data(args.trainDataPath)
+        if eval_data:
+            eval_data = vectorize_data_frame(eval_data, label)
+            classifier.setEvalSets({ 'test': eval_data })
+        if not train_data:
+            print('-' * 80)
+            print('Usage: train data path required when mode is all or train')
+            exit(1)
+        train_data = vectorize_data_frame(train_data, label)
         model = with_benchmark('Training', lambda: classifier.fit(train_data))
 
         if args.modelPath:
@@ -50,13 +47,16 @@ def main(args, xgboost_args):
         model = XGBoostClassificationModel().load(args.modelPath)
 
     if args.mode in [ 'all', 'transform' ]:
-        eval_data = prepare_data(args.evalDataPath)
-
         def transform():
-            result = model.transform(eval_data).cache()
+            cv_trans_data = vectorize_data_frame(trans_data, label)
+            result = model.transform(cv_trans_data).cache()
             result.foreachPartition(lambda _: None)
             return result
 
+        if not trans_data:
+            print('-' * 80)
+            print('Usage: trans data path required when mode is all or transform')
+            exit(1)
         result = with_benchmark('Transformation', transform)
         show_sample(args, result, label)
         with_benchmark('Evaluation', lambda: check_classification_accuracy(result, label))

@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from ai.rapids.spark.examples.taxi.consts import *
-from ai.rapids.spark.examples.utility.args import parse_arguments
+from ai.rapids.spark.examples.taxi.pre_process import pre_process
 from ai.rapids.spark.examples.utility.utils import *
 from ml.dmlc.xgboost4j.scala.spark import *
 from pyspark.sql import SparkSession
@@ -25,22 +25,20 @@ def main(args, xgboost_args):
         .appName(args.mainClass)
         .getOrCreate())
 
-    def prepare_data(path):
-        reader = spark.read.format(args.format)
-        if args.format == 'csv':
-            reader.schema(schema).option('header', args.hasHeader)
-        return vectorize(reader.load(path), label)
+    train_data, eval_data, trans_data = valid_input_data(spark, args, raw_schema, final_schema)
 
     if args.mode in [ 'all', 'train' ]:
         regressor = (XGBoostRegressor(**merge_dicts(default_params, xgboost_args))
             .setLabelCol(label)
             .setFeaturesCol('features'))
-
-        if args.trainEvalDataPath:
-            train_eval_data = prepare_data(args.trainEvalDataPath)
+        if eval_data:
+            train_eval_data = vectorize_data_frame(eval_data, label)
             regressor.setEvalSets({ 'test': train_eval_data })
-
-        train_data = prepare_data(args.trainDataPath)
+        if not train_data:
+            print('-' * 80)
+            print('Usage: training data path required when mode is all or train')
+            exit(1)
+        train_data = vectorize_data_frame(train_data, label)
         model = with_benchmark('Training', lambda: regressor.fit(train_data))
 
         if args.modelPath:
@@ -50,13 +48,15 @@ def main(args, xgboost_args):
         model = XGBoostRegressionModel().load(args.modelPath)
 
     if args.mode in [ 'all', 'transform' ]:
-        eval_data = prepare_data(args.evalDataPath)
-
         def transform():
-            result = model.transform(eval_data).cache()
+            vec_df = vectorize_data_frame(trans_data, label)
+            result = model.transform(vec_df).cache()
             result.foreachPartition(lambda _: None)
             return result
-
+        if not trans_data:
+            print('-' * 80)
+            print('Usage: trans data path required when mode is all or transform')
+            exit(1)
         result = with_benchmark('Transformation', transform)
         show_sample(args, result, label)
         with_benchmark('Evaluation', lambda: check_regression_accuracy(result, label))

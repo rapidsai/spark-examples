@@ -17,93 +17,92 @@ package ai.rapids.spark.examples.mortgage
 
 import ai.rapids.spark.examples.utility.{Benchmark, Vectorize, XGBoostArgs}
 import ml.dmlc.xgboost4j.scala.spark.{XGBoostClassificationModel, XGBoostClassifier}
-import ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 
-// Only 3 differences between CPU and GPU. Please refer to '=== diff ==='
+// Only 2 differences between CPU and GPU. Please refer to '=== diff ==='
 object CPUMain extends Mortgage {
 
   def main(args: Array[String]): Unit = {
-    val xgboostArgs = XGBoostArgs.parse(args)
+    val appArgs = XGBoostArgs(args)
     val processor = this.getClass.getSimpleName.stripSuffix("$").substring(0, 3)
-    val appInfo = Seq(appName, processor, xgboostArgs.format)
-
-    // build spark session
-    val spark = SparkSession.builder()
-      .appName(appInfo.mkString("-"))
-      .getOrCreate()
-
+    val appInfo = Seq(appName, processor, appArgs.format)
     val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
-    // === diff ===
+    // build spark session
+    val spark = SparkSession.builder().appName(appInfo.mkString("-")).getOrCreate()
     // build data reader
     val dataReader = spark.read
 
-    // load datasets, the order is (train, train-eval, eval)
-    var datasets = xgboostArgs.dataPaths.map(_.map{
-      path =>
-        xgboostArgs.format match {
-          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(schema).csv(path)
-          case "parquet" => dataReader.parquet(path)
-          case "orc" => dataReader.orc(path)
-          case _ => throw new IllegalArgumentException("Unsupported data file format!")
+    try {
+      // loaded XGBoost ETLed data
+      val pathsArray = appArgs.getDataPaths
+      // 0: train 1: eval 2:transform
+      var datasets = pathsArray.map { paths =>
+        if (paths.nonEmpty) {
+          appArgs.format match {
+            case "csv" => Some(dataReader.option("header", appArgs.hasHeader).schema(schema).csv(paths: _*))
+            case "orc" => Some(dataReader.orc(paths: _*))
+            case "parquet" => Some(dataReader.parquet(paths: _*))
+            case _ => throw new IllegalArgumentException("Unsupported data file format!")
+          }
+        } else {
+          None
         }
-    })
-
-    val featureNames = schema.filter(_.name != labelColName).map(_.name)
-
-    // === diff ===
-    datasets = datasets.map(_.map(ds => Vectorize(ds, featureNames, labelColName)))
-
-    val xgbClassificationModel = if (xgboostArgs.isToTrain) {
-      // build XGBoost classifier
-      val xgbParamFinal = xgboostArgs.xgboostParams(commParamMap +
-        // Add train-eval dataset if specified
-        ("eval_sets" -> datasets(1).map(ds => Map("test" -> ds)).getOrElse(Map.empty))
-      )
-      val xgbClassifier = new XGBoostClassifier(xgbParamFinal)
-        .setLabelCol(labelColName)
-        // === diff ===
-        .setFeaturesCol("features")
-
-      // Start training
-      println("\n------ Training ------")
-      // Shall we not log the time if it is abnormal, which is usually caused by training failure
-      val (model, _) = benchmark.time("train") {
-        xgbClassifier.fit(datasets(0).get)
       }
-      // Save model if modelPath exists
-      xgboostArgs.modelPath.foreach(path =>
-        if(xgboostArgs.isOverwrite) model.write.overwrite().save(path) else model.save(path))
-      model
-    } else {
-      XGBoostClassificationModel.load(xgboostArgs.modelPath.get)
-    }
 
-    if (xgboostArgs.isToTransform) {
-      println("\n------ Transforming ------")
-      var (results, _) = benchmark.time("transform") {
-        val ret = xgbClassificationModel.transform(datasets(2).get).cache()
-        // Trigger the transformation
-        ret.foreachPartition(_ => ())
-        ret
-      }
-      results = if (xgboostArgs.isShowFeatures) {
-        results
+      // === diff ===
+      datasets = datasets.map(_.map(Vectorize(_, featureNames, labelColName)))
+
+      val xgbClassificationModel = if (appArgs.isToTrain) {
+        // build XGBoost classifier
+        val xgbParamFinal = appArgs.xgboostParams(commParamMap +
+          // Add train-eval dataset if specified
+          ("eval_sets" -> datasets(1).map(ds => Map("eval" -> ds)).getOrElse(Map.empty))
+        )
+        val xgbClassifier = new XGBoostClassifier(xgbParamFinal)
+          .setLabelCol(labelColName)
+          // === diff ===
+          .setFeaturesCol("features")
+
+        // Start training
+        println("\n------ Training ------")
+        // Shall we not log the time if it is abnormal, which is usually caused by training failure
+        val (model, _) = benchmark.time("train") {
+          xgbClassifier.fit(datasets(0).get)
+        }
+        // Save model if modelPath exists
+        appArgs.modelPath.foreach(path =>
+          if (appArgs.isOverwrite) model.write.overwrite().save(path) else model.save(path))
+        model
       } else {
-        results.select(labelColName, "rawPrediction", "probability", "prediction")
+        XGBoostClassificationModel.load(appArgs.modelPath.get)
       }
-      results.show(xgboostArgs.numRows)
 
-      println("\n------Accuracy of Evaluation------")
-      val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelColName)
-      evaluator.evaluate(results) match {
-        case accuracy if !accuracy.isNaN =>
-          benchmark.value(accuracy, "Accuracy", "Accuracy for")
-        // Throw an exception when NaN ?
+      if (appArgs.isToTransform) {
+        println("\n------ Transforming ------")
+        var (results, _) = benchmark.time("transform") {
+          val ret = xgbClassificationModel.transform(datasets(2).get).cache()
+          // Trigger the transformation
+          ret.foreachPartition((_: Iterator[_]) => ())
+          ret
+        }
+        results = if (appArgs.isShowFeatures) {
+          results
+        } else {
+          results.select(labelColName, "rawPrediction", "probability", "prediction")
+        }
+        results.show(appArgs.numRows)
+
+        println("\n------Accuracy of Evaluation------")
+        val evaluator = new MulticlassClassificationEvaluator().setLabelCol(labelColName)
+        evaluator.evaluate(results) match {
+          case accuracy if !accuracy.isNaN =>
+            benchmark.value(accuracy, "Accuracy", "Accuracy for")
+          // Throw an exception when NaN ?
+        }
       }
+    } finally {
+      spark.close()
     }
-
-    spark.close()
   }
 }
