@@ -6,6 +6,7 @@ Before you begin, please ensure that you have setup a [Spark Standalone Cluster]
 
 It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are defined and point to the master spark URL (e.g. `spark://localhost:7077`), and the home directory for Apache Spark respectively.
 
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for the toree package now.
 1. Make sure you have jupyter notebook installed first.
 2. Download the 'toree' built against scala2.12 from [here](TBD) to local, and install it.
   ```

@@ -43,6 +43,7 @@ Prerequisites
 
 Get Jars and Dataset
 -------------------------------
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for these jars now, since they have not been released yet.
 1. Application Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md)
 2. Rapids Plugin Jar: You can download it from [here](TBD)
 3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip

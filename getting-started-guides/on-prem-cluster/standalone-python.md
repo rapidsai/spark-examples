@@ -45,6 +45,7 @@ Prerequisites
 
 Get Application Files, Jar and Dataset
 -------------------------------
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for these jars now, since they have not been released yet.
 1. *samples.zip* and *main.py*: Please build the files by following the [guide](/getting-started-guides/building-sample-apps/python.md)
 2. Jars: Please download the following jars:
     * [*cudf-0.13-cuda10.jar*](TBD) for CUDA 10.0 (Here take CUDA 10.0 as an example) or [*cudf-0.13-cuda10-1.jar*](TBD) for CUDA 10.1
