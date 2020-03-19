@@ -23,7 +23,7 @@ sets *EXCLUSIVE_PROCESS* for GPU *0*.
 
 ### Configuration for On-Premises Clusters
 
-To set the *EXCLUSIVE_PROCESS* for an on-promises cluster, please run the above *nvidia-smi* command for each GPU on each host before setting up the cluster. These commands might be added to a bootstrap script.
+To set the *EXCLUSIVE_PROCESS* for an on-premises cluster, please run the above *nvidia-smi* command for each GPU on each host before setting up the cluster. These commands might be added to a bootstrap script.
 
 ### Configuration for Cloud Service Providers (CSP)
 
