@@ -54,6 +54,9 @@ object XGBoostArgs {
     "numRows" -> XGBoostArg(
       isValid = value => Try(value.toInt).isSuccess,
       message = "Require an Int."),
+    "numFold" -> XGBoostArg(
+      isValid = value => Try(value.toInt).isSuccess,
+      message = "Require an Int."),
     "showFeatures"  -> XGBoostArg(
       isValid = value => stringToBool.contains(value),
       message = "Expect 'true' or '1' for true, 'false' or '0' for false."),
@@ -88,6 +91,8 @@ object XGBoostArgs {
       "        Whether the csv file has header. Default is true.\n")
     println("    -numRows=value: Int\n" +
       "        Number of the rows to show after transformation. Default is 5.\n")
+    println("    -numFold=value: Int\n" +
+      "        Number of the folders to be used in Cross Validation. Default is 3.\n")
     println("    -showFeatures=value: Boolean\n" +
       "        Whether to include the features columns when showing results of transformation. Default is true.\n")
     println("    -asFloats=value: Boolean\n" +
@@ -181,6 +186,8 @@ class XGBoostArgs private[utility] (
     .forall(value => XGBoostArgs.stringToBool(value.toString))
 
   def numRows: Int = appArgsMap.get("numRows").map(_.toInt).getOrElse(5)
+
+  def numFold: Int = appArgsMap.get("numFold").map(_.toInt).getOrElse(3)
 
   def isShowFeatures: Boolean = appArgsMap.get("showFeatures")
     .forall(value => XGBoostArgs.stringToBool(value.toString))

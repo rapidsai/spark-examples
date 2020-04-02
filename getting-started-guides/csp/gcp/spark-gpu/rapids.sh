@@ -13,7 +13,7 @@ readonly DEFAULT_GCS_BUCKET=gs://my-bucket
 readonly GCS_BUCKET="$(/usr/share/google/get_metadata_value attributes/GCS_BUCKET ||
   echo ${DEFAULT_GCS_BUCKET})"
 
-readonly DEFAULT_RAPIDS_SPARK_VERSION=2.x-1.0.0-Beta3
+readonly DEFAULT_RAPIDS_SPARK_VERSION=2.x-1.0.0-Beta5
 readonly RAPIDS_SPARK_VERSION="$(/usr/share/google/get_metadata_value attributes/RAPIDS_SPARK_VERSION ||
   echo ${DEFAULT_RAPIDS_SPARK_VERSION})"
 

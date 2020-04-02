@@ -1,7 +1,8 @@
 # Python API for XGBoost-Spark
 
-This doc focuses on GPU related Python API interfaces. Six new classes are introduced:
+This doc focuses on GPU related Python API interfaces. 7 new classes are introduced:
 
+- [CrossValidator](#crossvalidator)
 - [GpuDataset](#gpudataset)
 - [GpuDataReader](#gpudatareader)
 - [XGBoostClassifier](#xgboostclassifier)
@@ -9,13 +10,30 @@ This doc focuses on GPU related Python API interfaces. Six new classes are intro
 - [XGBoostRegressor](#xgboostregressor)
 - [XGBoostRegressionModel](#xgboostregressionmodel)
 
+### CrossValidator
+
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.CrossValidator`, and it is a wrapper around [Scala CrossValidator](scala.md#crossvalidator).
+
+##### Constructors
+
++ CrossValidator()
+
+##### Methods
+
+*Note: Only GPU related methods are listed below.*
+
++ fit(dataset): This method triggers the corss validation for hyperparameter tuninng.
+    + dataset: a [GpuDataset](#gpudataset) used for cross validation
+    + returns the best [Model](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.ml.Model)[\_] for the given hyperparameters.
+    + Note: For CPU version, you can still call `fit` by passing a [Dataset](https://spark.apache.org/docs/latest/api/scala/#org.apache.spark.sql.Dataset).
+
 ### GpuDataset
 
-The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataset. A GpuDataset is an object that is produced by [GpuDataReader](#gpudatareader)s and consumed by [XGBoostClassifier](#xgboostclassifier)s and [XGBoostRegressor](#xgboostregressor)s. No constructors or methods are exposed for this class.
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataset`. A GpuDataset is an object that is produced by [GpuDataReader](#gpudatareader)s and consumed by [XGBoostClassifier](#xgboostclassifier)s and [XGBoostRegressor](#xgboostregressor)s. No constructors or methods are exposed for this class.
 
 ### GpuDataReader
 
-The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader. A GpuDataReader sets options and builds [GpuDataset](#gpudataset) from data sources. The data loading is a lazy operation. It occurs when the data is processed later.
+The full name is `ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader`. A GpuDataReader sets options and builds [GpuDataset](#gpudataset) from data sources. The data loading is a lazy operation. It occurs when the data is processed later.
 
 ##### Constructors
 
@@ -64,7 +82,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader. A GpuDataRe
 
 ### XGBoostClassifier
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier. It is a wrapper around [Scala XGBoostClassifier](scala.md#xgboostclassifier).
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier`. It is a wrapper around [Scala XGBoostClassifier](scala.md#xgboostclassifier).
 
 #####  Constructors
 
@@ -90,7 +108,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier. It is a wrappe
 
 ### XGBoostClassificationModel
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel. It is a wrapper around [Scala XGBoostClassificationModel](scala.md#xgboostclassificationmodel).
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel`. It is a wrapper around [Scala XGBoostClassificationModel](scala.md#xgboostclassificationmodel).
 
 ##### Methods
 
@@ -102,7 +120,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostClassificationModel. It is
 
 ### XGBoostRegressor
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor. It is a wrapper around [Scala XGBoostRegressor](scala.md#xgboostregressor).
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor`. It is a wrapper around [Scala XGBoostRegressor](scala.md#xgboostregressor).
 
 #####  Constructors
 
@@ -128,7 +146,7 @@ The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressor. It is a wrapper
 
 ### XGBoostRegressionModel
 
-The full name is ml.dmlc.xgboost4j.scala.spark.XGBoostRegressionModel. It is a wrapper around [Scala XGBoostRegressionModel](scala.md#xgboostregressionmodel).
+The full name is `ml.dmlc.xgboost4j.scala.spark.XGBoostRegressionModel`. It is a wrapper around [Scala XGBoostRegressionModel](scala.md#xgboostregressionmodel).
 
 ##### Methods
 

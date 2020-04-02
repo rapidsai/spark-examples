@@ -16,8 +16,8 @@ mvn package -Dcuda.classifier=cuda10
 
 The build process generates two jars:
 
-+ *sample_xgboost_apps-0.1.4.jar* : only classes for the examples are included, so it should be submitted to spark together with other dependent jars
-+ *sample_xgboost_apps-0.1.4-jar-with-dependencies.jar*: both classes for the examples and the classes from dependent jars are included
++ *sample_xgboost_apps-0.1.5.jar* : only classes for the examples are included, so it should be submitted to spark together with other dependent jars
++ *sample_xgboost_apps-0.1.5-jar-with-dependencies.jar*: both classes for the examples and the classes from dependent jars are included
 
 ##### Build Options
 

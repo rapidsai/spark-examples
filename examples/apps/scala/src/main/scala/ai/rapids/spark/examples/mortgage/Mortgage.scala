@@ -58,6 +58,7 @@ private[mortgage] trait Mortgage {
     "max_depth" -> 10,
     "max_leaves" -> 256,
     "grow_policy" -> "depthwise",
+    "objective" -> "binary:logistic",
     "min_child_weight" -> 30,
     "lambda" -> 1,
     "scale_pos_weight" -> 2,

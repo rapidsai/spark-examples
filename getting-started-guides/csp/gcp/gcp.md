@@ -38,7 +38,7 @@ Execute the commands below while in the spark-examples folder.  These commands w
 
 ```bash
 export GCS_BUCKET=my-bucket
-export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta5'
 export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
 pushd getting-started-guides/csp/gcp/spark-gpu
 gsutil cp -r internal gs://$GCS_BUCKET/spark-gpu/
@@ -75,7 +75,7 @@ modify `--properties` to include update-to-date jar file released by NVIDIA Spar
 
 ```bash
 export CLUSTER_NAME=my-gpu-cluster
-export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta5'
 export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
 export ZONE=us-central1-b
 export REGION=us-central1
@@ -122,13 +122,13 @@ eval_data = GpuDataReader(spark).schema(schema).option('header', True).csv('gs:/
 ### Step 4. [Optional] Submit Sample Apps 
 #### 4a) Submit Scala Spark App on GPUs
 
-Please build the `sample_xgboost_apps jar` with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the jar file (`sample_xgboost_apps-0.1.4-jar-with-dependencies.jar`) under the `gs://$GCS_BUCKET/spark-gpu` folder. To do this you can either drag and drop files from your local machine into the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) as shown before to do this from a command line.
+Please build the `sample_xgboost_apps jar` with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md) and place the jar file (`sample_xgboost_apps-0.1.5-jar-with-dependencies.jar`) under the `gs://$GCS_BUCKET/spark-gpu` folder. To do this you can either drag and drop files from your local machine into the GCP [storage browser](https://console.cloud.google.com/storage/browser/rapidsai-test-1/?project=nv-ai-infra&organizationId=210881545417), or use the [gsutil cp](https://cloud.google.com/storage/docs/gsutil/commands/cp) as shown before to do this from a command line.
 
 Use the following commands to submit sample Scala app on this GPU cluster. Note that `spark.task.cpus` need to match `spark.executor.cores`.
 
 ```bash
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
-    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
     export DATA_PATH=gs://$GCS_BUCKET
     export TREE_METHOD=gpu_hist
     export SPARK_NUM_EXECUTORS=4
@@ -162,7 +162,7 @@ Use the following commands to submit sample PySpark app on this GPU cluster.
 ```bash
     export DATA_PATH=gs://$GCS_BUCKET
     export LIBS_PATH=gs://$GCS_BUCKET
-    export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta3'
+    export RAPIDS_SPARK_VERSION='2.x-1.0.0-Beta5'
     export RAPIDS_CUDF_VERSION='0.9.2-cuda10'
     export SPARK_DEPLOY_MODE=cluster
     export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
@@ -200,7 +200,7 @@ Submitting a CPU job on this cluster is very similar. Below's an example command
 ```bash
     export GCS_BUCKET=my-bucket
     export MAIN_CLASS=ai.rapids.spark.examples.mortgage.CPUMain
-    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+    export RAPIDS_JARS=gs://$GCS_BUCKET/spark-gpu/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
     export DATA_PATH=gs://$GCS_BUCKET
     export TREE_METHOD=hist
     export SPARK_NUM_EXECUTORS=4

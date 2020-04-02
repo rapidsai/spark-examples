@@ -27,6 +27,8 @@ _examples = [
     'ai.rapids.spark.examples.agaricus.gpu_main',
     'ai.rapids.spark.examples.mortgage.cpu_main',
     'ai.rapids.spark.examples.mortgage.gpu_main',
+    'ai.rapids.spark.examples.mortgage.cpu_cross_validator_main',
+    'ai.rapids.spark.examples.mortgage.gpu_cross_validator_main',
     'ai.rapids.spark.examples.taxi.cpu_main',
     'ai.rapids.spark.examples.taxi.gpu_main',
 ]

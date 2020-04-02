@@ -89,6 +89,7 @@ val commParamMap = Map(
   "max_depth" -> 10,
   "max_leaves" -> 256,
   "grow_policy" -> "depthwise",
+  "objective" -> "binary:logistic",
   "min_child_weight" -> 30,
   "lambda" -> 1,
   "scale_pos_weight" -> 2,
@@ -113,8 +114,8 @@ val commParamMap = Map(
 // MAGIC import org.apache.spark.sql.SparkSession
 // MAGIC val spark = SparkSession.builder().appName("mortgage-GPU").getOrCreate
 // MAGIC %AddJar file:/data/libs/cudf-0.9.2-cuda10.jar
-// MAGIC %AddJar file:/data/libs/xgboost4j_2.x-1.0.0-Beta3_on_Rapids.jar
-// MAGIC %AddJar file:/data/libs/xgboost4j-spark_2.x-1.0.0-Beta3_on_Rapids.jar
+// MAGIC %AddJar file:/data/libs/xgboost4j_2.x-1.0.0-Beta5_on_Rapids.jar
+// MAGIC %AddJar file:/data/libs/xgboost4j-spark_2.x-1.0.0-Beta5_on_Rapids.jar
 // MAGIC // ...
 // MAGIC ```
 

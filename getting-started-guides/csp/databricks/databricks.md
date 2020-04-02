@@ -48,7 +48,7 @@ Add cluster initialization script
 Install the xgboost4j_spark jar in the cluster
 ---------------------------
 1. See [Libraries](https://docs.databricks.com/user-guide/libraries.html) for how to install jars from DBFS
-2. Go to "Libraries" tab under your cluster and install dbfs:/FileStore/jars/xgboost4j-spark_2.x-1.0.0-Beta3.jar in your cluster by selecting the "DBFS" option for installing jars
+2. Go to "Libraries" tab under your cluster and install dbfs:/FileStore/jars/xgboost4j-spark_2.x-1.0.0-Beta5.jar in your cluster by selecting the "DBFS" option for installing jars
 
 These steps will ensure you have a GPU Cluster ready for importing XGBoost notebooks or create your own XGBoost Application for training.
 

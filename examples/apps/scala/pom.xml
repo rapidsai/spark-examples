@@ -8,12 +8,12 @@
 
     <packaging>jar</packaging>
     <description>Sample XGBoost4J-Spark applications</description>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
     <name>sample_xgboost_apps</name>
 
     <properties>
         <encoding>UTF-8</encoding>
-        <xgboost.version>1.0.0-Beta3</xgboost.version>
+        <xgboost.version>1.0.0-Beta5</xgboost.version>
         <cudf.version>0.9.2</cudf.version>
         <spark.version>2.4.0</spark.version>
         <scala.version>2.11.6</scala.version>

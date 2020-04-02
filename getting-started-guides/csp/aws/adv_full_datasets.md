@@ -54,7 +54,7 @@ export CORES_PER_EXECUTOR=6
 export TOTAL_CORES=$((${CORES_PER_EXECUTOR}*${SPARK_NUM_EXECUTORS}))	
 export JAR_PREFIX=hdfs:/tmp/xgboost4j_spark/
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.5-jar-with-dependencies.jar
 
 export DATA_PREFIX=hdfs:/tmp/mortgage
 //export DATA_PREFIX=s3://spark-xgboost-mortgage-dataset/csv for s3 storage
