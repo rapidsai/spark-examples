@@ -136,7 +136,7 @@ $SPARK_HOME/sbin/start-slave.sh <master-spark-URL>
 URLs of jars:
 * xgboost4j:           http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/xgboost4j_3.0/1.0.0-SNAPSHOT/
 * xgboost4j-spark: http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/xgboost4j-spark_3.0/1.0.0-SNAPSHOT/
-* cudf:                    http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/cudf/0.13-SNAPSHOT/
+* cudf:                    http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/cudf/0.14-SNAPSHOT/
 * rapids-plugin:      http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/rapids-4-spark/0.1-preview2-SNAPSHOT/
 * example apps:    http://gpuwa.nvidia.com/artifactory/sw-spark-maven/ai/rapids/sample_xgboost_apps/0.2.2-SNAPSHOT/
 
@@ -146,6 +146,8 @@ Make sure your cudf is fit to your cuda version. You could use following command
 ```
 ls -l /usr/local/cuda
 ```
+
+Copy cudf and rapids-plugin jar to $SPARK_HOME/jars
 
 
 ##### Step 2: Create sample running script
@@ -158,9 +160,9 @@ export SPARK_HOME=/your/path/to/spark-3.0.0-preview2-bin-hadoop3.2
 
 export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
+export TOTAL_CORES=8
 export NUM_EXECUTORS=1
-
-export CORES=6
+export NUM_EXECUTOR_CORES=$((${TOTAL_CORES}/${NUM_EXECUTORS}))
 
 export S3A_CREDS_USR=your_aws_key
 
@@ -168,26 +170,26 @@ export S3A_CREDS_PSW=your_aws_secret
 
 export JAR_PATH=/your/path/to/jars
 
-export JARS=$JAR_PATH/cudf-0.13-cuda10.jar,$JAR_PATH/rapids-4-spark-0.1-preview2.jar,$JAR_PATH/xgboost4j-spark_3.0-1.0.0.jar,$JAR_PATH/xgboost4j_3.0-1.0.0.jar
+export JARS=$JAR_PATH/xgboost4j-spark_3.0-1.0.0.jar,$JAR_PATH/xgboost4j_3.0-1.0.0.jar
 
 spark-submit --master spark://$HOSTNAME:7077 \
         --deploy-mode client \
         --driver-memory 10G \
         --executor-memory 22G \
-        --num-executors $NUM_EXECUTORS \
         --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
         --conf spark.hadoop.fs.s3a.access.key=$S3A_CREDS_USR \
         --conf spark.hadoop.fs.s3a.secret.key=$S3A_CREDS_PSW \
         --conf spark.executor.memoryOverhead=28G \
-        --conf spark.executor.cores=$CORES --conf spark.task.cpus=$CORES \
+        --conf spark.cores.max=$TOTAL_CORES \
+        --conf spark.executor.cores=$NUM_EXECUTOR_CORES \
+        --conf spark.task.cpus=$NUM_EXECUTOR_CORES \
         --conf spark.sql.files.maxPartitionBytes=4294967296 \
         --conf spark.yarn.maxAppAttempts=1 \
-        --conf spark.sql.extensions=ai.rapids.spark.Plugin \
+        --conf spark.sql.extensions=ai.rapids.spark.SQLExecPlugin \
+        --conf spark.plugins=ai.rapids.spark.SQLPlugin \
         --conf spark.rapids.memory.gpu.pooling.enabled=false \
         --conf spark.executor.resource.gpu.amount=1 \
         --conf spark.task.resource.gpu.amount=1 \
-        --conf spark.executor.resource.gpu.discoveryScript=/your/path/to/getGpusResources.sh \
-        --files /your/path/to/getGpusResources.sh \
         --jars $JARS \
         --class ai.rapids.spark.examples.mortgage.GPUMain \
         $JAR_PATH/sample_xgboost_apps-0.2.2.jar \
@@ -195,7 +197,7 @@ spark-submit --master spark://$HOSTNAME:7077 \
         -format=csv \
         -dataPath="train::s3a://spark-xgboost-mortgage-dataset/csv/train/2000Q1" \
         -dataPath="trans::s3a://spark-xgboost-mortgage-dataset/csv/eval/2000Q1" \
-        -numRound=1000 -max_depth=20 -nthread=$CORES -showFeatures=0 \
+        -numRound=100 -max_depth=8 -nthread=$NUM_EXECUTOR_CORES -showFeatures=0 \
         -tree_method=gpu_hist
 ```
 ##### Step 4: Submit Sample job
