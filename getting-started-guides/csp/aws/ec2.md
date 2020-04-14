@@ -111,6 +111,11 @@ ADDRS=`nvidia-smi --query-gpu=index --format=csv,noheader | sed -e ':a' -e 'N' -
 echo {\"name\": \"gpu\", \"addresses\":[\"$ADDRS\"]}
 ```
 
+Then add executable permission to this file.
+```
+chmod +x getGpusResources.sh
+```
+
 ###### Step 4.2: Edit spark-defualt.conf
 cd $SPARK_HOME/conf and edit spark-defaults.conf
 
