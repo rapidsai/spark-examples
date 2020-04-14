@@ -8,11 +8,11 @@ It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are
 
 1. Make sure you have [Jupyter notebook installed](https://jupyter.org/install.html). If you install it with conda, please makes sure your Python version is consistent.
 
-2. Make sure you have `SPARK_JARS` and `SPARK_PY_FILES` set properly. Please note, here *cudf-0.9.2-cuda10.jar* is used as an example. Please choose other *cudf-0.9.2* jars based on your environment. You may need to update these env variables because the working directory will be changed:
+2. Make sure you have `SPARK_JARS` and `SPARK_PY_FILES` set properly. Please note, here *cudf-0.13-cuda10.jar* is used as an example. Please choose other *cudf-0.13* jars based on your environment. You may need to update these env variables because the working directory will be changed:
   ```
   export LIBS_PATH=[full path to xgboost4j_spark/libs]
-  export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar
-  export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/samples.zip
+  export SPARK_JARS=${LIBS_PATH}/cudf-0.13-cuda10.jar,${LIBS_PATH}/xgboost4j_3.0-1.0.0-Beta.jar,${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar,${LIBS_PATH}/rapids-4-spark-1.0-preview2.jar
+  export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar,${LIBS_PATH}/samples.zip
   ```
 
 3. Go to the project root directory and launch the notebook:
@@ -22,7 +22,13 @@ It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are
   pyspark                             \
   --master ${SPARK_MASTER}            \
   --jars ${SPARK_JARS}                \
-  --py-files ${SPARK_PY_FILES}
+  --py-files ${SPARK_PY_FILES}           \
+  --conf spark.sql.extensions=ai.rapids.spark.Plugin \
+  --conf spark.rapids.memory.gpu.pooling.enabled=false \
+  --conf spark.executor.resource.gpu.amount=1 \
+  --conf spark.task.resource.gpu.amount=1 \
+  --conf spark.executor.resource.gpu.discoveryScript=./getGpusResources.sh \
+  --files $SPARK_HOME/examples/src/main/scripts/getGpusResources.sh
   ```
 
 Then you start your notebook and open [`mortgage-gpu.ipynb`](/examples/notebooks/python/mortgage-gpu.ipynb) to explore.

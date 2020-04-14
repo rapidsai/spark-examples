@@ -1,16 +1,16 @@
 Get Started with XGBoost4J-Spark on Apache Hadoop YARN
 ======================================================
-This is a getting started guide to XGBoost4J-Spark on Apache Hadoop YARN. At the end of this guide, the reader will be able to run a sample Apache Spark Python application that runs on NVIDIA GPUs.
+This is a getting started guide to XGBoost4J-Spark on Apache Hadoop YARN supporting GPU scheduling. At the end of this guide, the reader will be able to run a sample Apache Spark Python application that runs on NVIDIA GPUs.
 
 Prerequisites
 -------------
-* Apache Spark 2.3+ running on YARN.
+* Apache Spark 3.0+ running on YARN supporting GPU scheduling. (e.g.: Spark 3.0-preview2, Hadoop-Yarn 3.1.0)
 * Hardware Requirements
   * NVIDIA Pascal™ GPU architecture or better
   * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
-  * Ubuntu 16.04/CentOS
-  * CUDA V10.1/10.0/9.2
+  * Ubuntu 16.04/CentOS7
+  * CUDA V10.1/10.0  （CUDA 9.2 is no longer supported）
   * NVIDIA driver compatible with your CUDA
   * NCCL 2.4.7
   * Python 2.7/3.4/3.5/3.6/3.7
@@ -28,18 +28,19 @@ Prerequisites
   ```
 
   Sets `EXCLUSIVE_PROCESS` for GPU _0_.
-* The number of GPUs per NodeManager dictates the number of Spark executors that can run in that NodeManager. Additionally, cores per Spark executor and cores per Spark task must match, such that each executor can run 1 task at any given time. For example: if each NodeManager has 4 GPUs, there should be 4 executors running on each NodeManager, and each executor should run 1 task (for a total of 4 tasks running on 4 GPUs). In order to achieve this, you may need to adjust `spark.task.cpus` and `spark.executor.cores` to match (both set to 1 by default). Additionally, we recommend adjusting `executor-memory` to divide host memory evenly amongst the number of GPUs in each NodeManager, such that Spark will schedule as many executors as there are GPUs in each NodeManager.
+* The number of GPUs per NodeManager dictates the number of Spark executors that can run in that NodeManager. Additionally, cores per Spark executor and cores per Spark task must match, such that each executor can run 1 task at any given time. For example: if each NodeManager has 4 GPUs, there should be 4 or less executors running on each NodeManager, and each executor should run 1 task (e.g.: A total of 4 tasks running on 4 GPUs). In order to achieve this, you may need to adjust `spark.task.cpus` and `spark.executor.cores` to match (both set to 1 by default). Additionally, we recommend adjusting `executor-memory` to divide host memory evenly amongst the number of GPUs in each NodeManager, such that Spark will schedule as many executors as there are GPUs in each NodeManager.
 * The `SPARK_HOME` environment variable is assumed to point to the cluster's Apache Spark installation.
+* Enable GPU scheduling and isolation in Hadoop Yarn on each host. Please refe to [here](https://hadoop.apache.org/docs/r3.1.0/hadoop-yarn/hadoop-yarn-site/UsingGpus.html) for more details.
 
-Get Application Jar and Dataset
+Get Application Files, Jar and Dataset
 -------------------------------
-1. *samples.zip* and *main.py*: Please build the files as specified in the [guide](/getting-started-guides/building-sample-apps/python.md)
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for these jars now, since they have not been released yet.
+1. *samples.zip* and *main.py*: Please build the files by following the [guide](/getting-started-guides/building-sample-apps/python.md)
 2. Jars: Please download the following jars:
-    * [*cudf-0.9.2-cuda10.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2-cuda10.jar) (Here take CUDA 10.0 as an example)
-        * For CUDA 9.2, please download [*cudf-0.9.2.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2.jar) instead, and replace *cudf-0.9.2-cuda10.jar* with *cudf-0.9.2.jar* throughout this whole guide
-        * For CUDA 10.1, please download [*cudf-0.9.2-cuda10-1.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/cudf/0.9.2/cudf-0.9.2-cuda10-1.jar) instead, and replace *cudf-0.9.2-cuda10.jar* with *cudf-0.9.2-cuda10-1.jar* throughout this whole guide
-    * [*xgboost4j_2.x-1.0.0-Beta3.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j_2.x/1.0.0-Beta3/xgboost4j_2.x-1.0.0-Beta3.jar)
-    * [*xgboost4j-spark_2.x-1.0.0-Beta3.jar*](https://search.maven.org/remotecontent?filepath=ai/rapids/xgboost4j-spark_2.x/1.0.0-Beta3/xgboost4j-spark_2.x-1.0.0-Beta3.jar)
+    * [*cudf-0.13-cuda10.jar*](TBD) for CUDA 10.0 (Here take CUDA 10.0 as an example) or [*cudf-0.13-cuda10-1.jar*](TBD) for CUDA 10.1
+    * [*xgboost4j_3.0-1.0.0-Beta.jar*](TBD)
+    * [*xgboost4j-spark_3.0-1.0.0-Beta.jar*](TBD)
+    * [*rapids-4-spark-1.0-preview2.jar*](TBD)
 3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place dataset and other files in a local directory. In this example the dataset was unzipped in the `xgboost4j_spark_python/data` directory, and all other files in the `xgboost4j_spark_python/libs` directory.
@@ -48,11 +49,12 @@ Place dataset and other files in a local directory. In this example the dataset 
 [xgboost4j_spark_python]$ find . -type f | sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./libs/cudf-0.9.2-cuda10.jar
+./libs/cudf-0.13-cuda10.jar
 ./libs/main.py
+./libs/rapids-4-spark-1.0-preview2.jar
 ./libs/samples.zip
-./libs/xgboost4j_2.x-1.0.0-Beta3.jar
-./libs/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+./libs/xgboost4j_3.0-1.0.0-Beta.jar
+./libs/xgboost4j-spark_3.0-1.0.0-Beta.jar
 ```
 
 Create a directory in HDFS, and copy:
@@ -68,11 +70,12 @@ Verify that the jar and dataset are in HDFS:
 [xgboost4j_spark_python]$ hadoop fs -find /tmp/xgboost4j_spark_python | grep "\." | sort
 /tmp/xgboost4j_spark_python/data/mortgage/csv/test/mortgage_eval_merged.csv
 /tmp/xgboost4j_spark_python/data/mortgage/csv/train/mortgage_train_merged.csv
-/tmp/xgboost4j_spark_python/libs/cudf-0.9.2-cuda10.jar
+/tmp/xgboost4j_spark_python/libs/cudf-0.13-cuda10.jar
 /tmp/xgboost4j_spark_python/libs/main.py
+/tmp/xgboost4j_spark_python/libs/rapids-4-spark-1.0-preview2.jar
 /tmp/xgboost4j_spark_python/libs/samples.zip
-/tmp/xgboost4j_spark_python/libs/xgboost4j_2.x-1.0.0-Beta3.jar
-/tmp/xgboost4j_spark_python/libs/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+/tmp/xgboost4j_spark_python/libs/xgboost4j_3.0-1.0.0-Beta.jar
+/tmp/xgboost4j_spark_python/libs/xgboost4j-spark_3.0-1.0.0-Beta.jar
 ```
 
 Launch GPU Mortgage Example
@@ -106,10 +109,13 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.gpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.13-cuda10.jar,${LIBS_PATH}/xgboost4j_3.0-1.0.0-Beta.jar,${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar
+
+# Rapids plugin jar, working as the sql plugin on Spark3.0
+export JAR_RAPIDS=${JARS_PATH}/rapids-4-spark-1.0-preview2.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -119,17 +125,23 @@ Run spark-submit:
 
 ```
 ${SPARK_HOME}/bin/spark-submit                                                  \
+ --conf spark.sql.extensions=ai.rapids.spark.Plugin                       \
+ --conf spark.rapids.memory.gpu.pooling.enabled=false                     \
+ --conf spark.executor.resource.gpu.amount=1                           \
+ --conf spark.task.resource.gpu.amount=1                              \
+ --conf spark.executor.resource.gpu.discoveryScript=./getGpusResources.sh        \
+ --files ${SPARK_HOME}/examples/src/main/scripts/getGpusResources.sh            \
  --master yarn                                                                  \
  --deploy-mode ${SPARK_DEPLOY_MODE}                                             \
  --num-executors ${SPARK_NUM_EXECUTORS}                                         \
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
- --jars ${SPARK_JARS}                                                           \
+ --jars ${SPARK_JARS},${JAR_RAPIDS}                                                      \
  --py-files ${SPARK_PY_FILES}                                                   \
  ${SPARK_PYTHON_ENTRYPOINT}                                                     \
  --mainClass=${EXAMPLE_CLASS}                                                   \
- --trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv      \
- --evalDataPath=${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv         \
+ --dataPath=train::${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv      \
+ --dataPath=trans::${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv         \
  --format=csv                                                                   \
  --numWorkers=${SPARK_NUM_EXECUTORS}                                            \
  --treeMethod=${TREE_METHOD}                                                    \
@@ -137,7 +149,7 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --maxDepth=8
 ```
 
-In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and the RMSE accuracy metric:
+In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and the accuracy metric:
 
 ```
 ----------------------------------------------------------------------------------------------------
@@ -191,10 +203,10 @@ export SPARK_PYTHON_ENTRYPOINT=${LIBS_PATH}/main.py
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.cpu_main
 
 # additional jars for XGBoost4J example
-export SPARK_JARS=${LIBS_PATH}/cudf-0.9.2-cuda10.jar,${LIBS_PATH}/xgboost4j_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar
+export SPARK_JARS=${LIBS_PATH}/cudf-0.13-cuda10.jar,${LIBS_PATH}/xgboost4j_3.0-1.0.0-Beta.jar,${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar
 
 # additional Python files for XGBoost4J example
-export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_2.x-1.0.0-Beta3.jar,${LIBS_PATH}/samples.zip
+export SPARK_PY_FILES=${LIBS_PATH}/xgboost4j-spark_3.0-1.0.0-Beta.jar,${LIBS_PATH}/samples.zip
 
 # tree construction algorithm
 export TREE_METHOD=hist
@@ -213,8 +225,8 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --py-files ${SPARK_PY_FILES}                                                   \
  ${SPARK_PYTHON_ENTRYPOINT}                                                     \
  --mainClass=${EXAMPLE_CLASS}                                                   \
- --trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv      \
- --evalDataPath=${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv         \
+ --dataPath=train::${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv      \
+ --dataPath=trans::${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv         \
  --format=csv                                                                   \
  --numWorkers=${SPARK_NUM_EXECUTORS}                                            \
  --treeMethod=${TREE_METHOD}                                                    \
@@ -222,7 +234,7 @@ ${SPARK_HOME}/bin/spark-submit                                                  
  --maxDepth=8
 ```
 
-In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and the RMSE accuracy metric:
+In the `stdout` driver log, you should see timings<sup>*</sup> (in seconds), and the accuracy metric:
 
 ```
 ----------------------------------------------------------------------------------------------------

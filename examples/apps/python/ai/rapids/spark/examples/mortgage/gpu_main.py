@@ -14,10 +14,9 @@
 # limitations under the License.
 #
 from ai.rapids.spark.examples.mortgage.consts import *
-from ai.rapids.spark.examples.utility.args import parse_arguments
+from ai.rapids.spark.examples.mortgage.etl import etl
 from ai.rapids.spark.examples.utility.utils import *
 from ml.dmlc.xgboost4j.scala.spark import *
-from ml.dmlc.xgboost4j.scala.spark.rapids import GpuDataReader
 from pyspark.sql import SparkSession
 
 def main(args, xgboost_args):
@@ -26,25 +25,19 @@ def main(args, xgboost_args):
         .appName(args.mainClass)
         .getOrCreate())
 
-    def prepare_data(path):
-        reader = (GpuDataReader(spark)
-            .format(args.format)
-            .option('asFloats', args.asFloats)
-            .option('maxRowsPerChunk', args.maxRowsPerChunk))
-        if args.format == 'csv':
-            reader.schema(schema).option('header', args.hasHeader)
-        return reader.load(path)
+    train_data, eval_data, trans_data = valid_input_data(spark, args, '', schema)
+    features = [x.name for x in schema if x.name != label]
 
     if args.mode in [ 'all', 'train' ]:
         classifier = (XGBoostClassifier(**merge_dicts(default_params, xgboost_args))
             .setLabelCol(label)
             .setFeaturesCols(features))
-
-        if args.trainEvalDataPath:
-            train_eval_data = prepare_data(args.trainEvalDataPath)
-            classifier.setEvalSets({ 'test': train_eval_data })
-
-        train_data = prepare_data(args.trainDataPath)
+        if eval_data:
+            classifier.setEvalSets({ 'test': eval_data })
+        if not train_data:
+            print('-' * 80)
+            print('Usage: training data path required when mode is all or train')
+            exit(1)
         model = with_benchmark('Training', lambda: classifier.fit(train_data))
 
         if args.modelPath:
@@ -54,13 +47,14 @@ def main(args, xgboost_args):
         model = XGBoostClassificationModel().load(args.modelPath)
 
     if args.mode in [ 'all', 'transform' ]:
-        eval_data = prepare_data(args.evalDataPath)
-
         def transform():
-            result = model.transform(eval_data).cache()
+            result = model.transform(trans_data).cache()
             result.foreachPartition(lambda _: None)
             return result
-
+        if not trans_data:
+            print('-' * 80)
+            print('Usage: trans data path required when mode is all or transform')
+            exit(1)
         result = with_benchmark('Transformation', transform)
         show_sample(args, result, label)
         with_benchmark('Evaluation', lambda: check_classification_accuracy(result, label))

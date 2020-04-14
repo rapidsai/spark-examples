@@ -1,13 +1,13 @@
-/* 
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved. 
+/*
+ * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software 
+ *
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -15,13 +15,12 @@
  */
 package ai.rapids.spark.examples.taxi
 
-import ai.rapids.spark.examples.utility.{Benchmark, Vectorize, XGBoostArgs}
+import ai.rapids.spark.examples.utility.{Benchmark, XGBoostArgs}
 import ml.dmlc.xgboost4j.scala.spark.{XGBoostRegressionModel, XGBoostRegressor}
-import ml.dmlc.xgboost4j.scala.spark.rapids.GpuDataReader
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.sql.SparkSession
 
-// Only 3 differences between CPU and GPU. Please refer to '=== diff ==='
+// Only 2 differences between CPU and GPU. Please refer to '=== diff ==='
 object GPUMain extends Taxi {
 
   def main(args: Array[String]): Unit = {
@@ -35,23 +34,27 @@ object GPUMain extends Taxi {
       .getOrCreate()
 
     val benchmark = Benchmark(appInfo(0), appInfo(1), appInfo(2))
-    // === diff ===
-    // build data reader
-    val dataReader = new GpuDataReader(spark)
-      .option("asFloats", xgboostArgs.asFloats).option("maxRowsPerChunk", xgboostArgs.maxRowsPerChunk)
 
-    // load datasets, the order is (train, train-eval, eval)
-    var datasets = xgboostArgs.dataPaths.map(_.map{
-      path =>
+    // build data reader
+    val dataReader = spark.read
+
+    val (pathsArray, dataReadSchema, needEtl) = getDataPaths(xgboostArgs.dataPaths, xgboostArgs.isToTrain, xgboostArgs.isToTransform)
+
+    // 0: train 1: eval 2:transform
+    var datasets = pathsArray.map { paths =>
+      if (paths.nonEmpty) {
         xgboostArgs.format match {
-          case "csv" => dataReader.option("header", xgboostArgs.hasHeader).schema(schema).csv(path)
-          case "parquet" => dataReader.parquet(path)
-          case "orc" => dataReader.orc(path)
+          case "csv" => Some(dataReader.option("header", xgboostArgs.hasHeader).schema(dataReadSchema).csv(paths: _*))
+          case "orc" => Some(dataReader.orc(paths: _*))
+          case "parquet" => Some(dataReader.parquet(paths: _*))
           case _ => throw new IllegalArgumentException("Unsupported data file format!")
         }
-    })
+      } else {
+        None
+      }
+    }
 
-    val featureNames = schema.filter(_.name != labelColName).map(_.name)
+    if (needEtl) datasets = datasets.map(_.map(preProcess(_)))
 
     // === diff ===
     // No need to vectorize data since GPU support multiple feature columns via API 'setFeaturesCols'
@@ -84,7 +87,7 @@ object GPUMain extends Taxi {
       println("\n------ Transforming ------")
       var (prediction, _) = benchmark.time("transform") {
         val ret = xgbRegressionModel.transform(datasets(2).get).cache()
-        ret.foreachPartition(_ => ())
+        ret.foreachPartition((_: Iterator[_]) => ())
         ret
       }
       prediction = if (xgboostArgs.isShowFeatures) {

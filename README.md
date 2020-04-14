@@ -15,7 +15,7 @@ You can get a small size datasets for each example in the [datasets](/datasets) 
 - Building applications
     - [Scala](/getting-started-guides/building-sample-apps/scala.md)
     - [Python](/getting-started-guides/building-sample-apps/python.md)
-- Getting started on on-prem clusters
+- Getting started on on-premises clusters
     - [Standalone cluster for Scala](/getting-started-guides/on-prem-cluster/standalone-scala.md)
     - [Standalone cluster for Python](/getting-started-guides/on-prem-cluster/standalone-python.md)
     - [YARN for Scala](/getting-started-guides/on-prem-cluster/yarn-scala.md)

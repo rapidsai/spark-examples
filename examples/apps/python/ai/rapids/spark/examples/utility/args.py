@@ -15,10 +15,14 @@
 #
 from argparse import ArgumentParser
 from distutils.util import strtobool
+from re import match
 from sys import exit
 
 def _to_bool(literal):
     return bool(strtobool(literal))
+
+def _to_ratio_pair(literal):        # e.g., '80:20'
+    return match(r'^\d+:\d+$', literal) and [int(x) for x in literal.split(':')]
 
 MAX_CHUNK_SIZE = 2 ** 31 - 1
 
@@ -29,6 +33,8 @@ _examples = [
     'ai.rapids.spark.examples.mortgage.gpu_main',
     'ai.rapids.spark.examples.taxi.cpu_main',
     'ai.rapids.spark.examples.taxi.gpu_main',
+    'ai.rapids.spark.examples.mortgage.etl_main',
+    'ai.rapids.spark.examples.taxi.etl_main'
 ]
 
 _xgboost_simple_args = [
@@ -94,18 +100,26 @@ _xgboost_array_args = [
 
 def _validate_args(args):
     usage = ''
-    if args.mode in [ 'all', 'train' ] and not args.trainDataPath:
-        usage += '  --trainDataPath is required for training\n'
-    if args.mode in [ 'all', 'transform' ] and not args.evalDataPath:
-        usage += '  --evalDataPath is required for transformation\n'
-    if args.mode == 'transform' and not args.modelPath:
-        usage += '  --modelPath is required for transformation\n'
+    if not args.dataPaths:
+        usage += '  --dataPaths is required.\n'
+    if not (args.dataRatios
+            and 0 <= args.dataRatios[0] <= 100
+            and 0 <= args.dataRatios[1] <= 100
+            and args.dataRatios[0] + args.dataRatios[1] <= 100):
+        usage += '  --dataRatios should be in format \'Int:Int\', these two ints should be' \
+                 ' in range [0, 100] and the sum should be less than or equal to 100.\n'
     if not (1 <= args.maxRowsPerChunk <= MAX_CHUNK_SIZE):
-        usage += '  --maxRowsPerChunk should be in range [1, {}]\n'.format(MAX_CHUNK_SIZE)
+        usage += '  --maxRowsPerChunk should be in range [1, {}].\n'.format(MAX_CHUNK_SIZE)
     if usage:
         print('-' * 80)
         print('Usage:\n' + usage)
         exit(1)
+
+def _attach_derived_args(args):
+    args.trainRatio = args.dataRatios[0]
+    args.evalRatio = args.dataRatios[1]
+    args.trainEvalRatio = 100 - args.trainRatio - args.evalRatio
+    args.splitRatios = [args.trainRatio, args.trainEvalRatio, args.evalRatio]
 
 def parse_arguments():
     parser = ArgumentParser()
@@ -119,11 +133,10 @@ def parse_arguments():
     parser.add_argument('--maxRowsPerChunk', type=int, default=MAX_CHUNK_SIZE)
     parser.add_argument('--modelPath')
     parser.add_argument('--overwrite', type=_to_bool, default=False)
-    parser.add_argument('--trainDataPath')
-    parser.add_argument('--trainEvalDataPath')
-    parser.add_argument('--evalDataPath')
+    parser.add_argument('--dataPath', dest='dataPaths', action='append')
+    parser.add_argument('--dataRatios', type=_to_ratio_pair, default=[80, 20])
     parser.add_argument('--numRows', type=int, default=5)
-    parser.add_argument('--showFeatures', type=bool, default=True)
+    parser.add_argument('--showFeatures', type=_to_bool, default=True)
 
     # xgboost simple args
     for arg, arg_type in _xgboost_simple_args:
@@ -135,6 +148,7 @@ def parse_arguments():
 
     parsed_all = parser.parse_args()
     _validate_args(parsed_all)
+    _attach_derived_args(parsed_all)
 
     xgboost_args = [ arg for (arg, _) in _xgboost_simple_args + _xgboost_array_args ]
     parsed_xgboost = {

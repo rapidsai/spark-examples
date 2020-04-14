@@ -6,25 +6,35 @@ Before you begin, please ensure that you have setup a [Spark Standalone Cluster]
 
 It is assumed that the `SPARK_MASTER` and `SPARK_HOME` environment variables are defined and point to the master spark URL (e.g. `spark://localhost:7077`), and the home directory for Apache Spark respectively.
 
-1. Make sure you have jupyter notebook installed:
-  Install Toree:
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for the toree package now.
+1. Make sure you have jupyter notebook installed first.
+2. Download the 'toree' built against scala2.12 from [here](TBD) to local, and install it.
   ```
-  pip install toree
+  # Install Toree
+  pip install <local_path_toree>/toree-pip-0.5-SNAPSHOT.tar.gz
   ```
 
-2. Install kernel configured for our example:
+3. Install a new kernel configured for our example and with gpu enabled:
   ```
   export SPARK_EXAMPLES=[full path to spark-examples repo]
-  export SPARK_JARS=${SPARK_EXAMPLES}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+  export RAPIDS_JAR=[full path to rapids plugin jar]
+  export SPARK_JARS=${SPARK_EXAMPLES}/sample_xgboost_apps-0.2.2-jar-with-dependencies.jar,${RAPIDS_JAR}
 
-  jupyter toree install                                                             \
-  --spark_home=${SPARK_HOME}                                                        \
-  --user                                                                            \
-  --kernel_name="XGBoost4j-Spark"                                                   \
-  --spark_opts='--master ${SPARK_MASTER} --jars ${SPARK_JARS}'  
+  jupyter toree install                                \
+  --spark_home=${SPARK_HOME}                             \
+  --user                                          \
+  --toree_opts='--nosparkcontext'                         \
+  --kernel_name="XGBoost4j-Spark"                         \
+  --spark_opts='--master ${SPARK_MASTER} --jars ${SPARK_JARS}       \
+    --conf spark.sql.extensions=ai.rapids.spark.Plugin \
+    --conf spark.rapids.memory.gpu.pooling.enabled=false \
+    --conf spark.executor.resource.gpu.amount=1 \
+    --conf spark.task.resource.gpu.amount=1 \
+    --conf spark.executor.resource.gpu.discoveryScript=./getGpusResources.sh \
+    --files $SPARK_HOME/examples/src/main/scripts/getGpusResources.sh'
   ```
 
-2. Launch the notebook:
+4. Launch the notebook:
   ```
   jupyter notebook
   ```

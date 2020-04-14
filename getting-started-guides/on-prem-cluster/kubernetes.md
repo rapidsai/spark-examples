@@ -4,14 +4,13 @@ This is a getting started guide to deploy XGBoost4J-Spark package on a Kubernete
 
 Prerequisites
 -------------
-* Apache Spark 2.3+
-    * Apache Spark 2.4+ if running spark-submit in [client mode](https://spark.apache.org/docs/latest/running-on-kubernetes.html#client-mode) or utilizing [Kubernetes volumes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#using-kubernetes-volumes)
+* Apache Spark 3.0+  (e.g.: Spark 3.0-preview2)
 * Hardware Requirements
     * NVIDIA Pascal™ GPU architecture or better
     * Multi-node clusters with homogenous GPU configuration
 * Software Requirements
-    * Ubuntu 16.04/CentOS
-    * CUDA V10.1/10.0/9.2
+    * Ubuntu 16.04/CentOS7
+    * CUDA V10.1/10.0  （CUDA 9.2 is no longer supported）
     * NVIDIA driver compatible with your CUDA
     * NCCL 2.4.7
 * [Kubernetes 1.6+ cluster with NVIDIA GPUs](https://docs.nvidia.com/datacenter/kubernetes/index.html)
@@ -48,10 +47,12 @@ popd
 ```
 
 
-Get Application Jar and Dataset
+Get Jars and Dataset
 -------------------------------
-1. Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md)
-2. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
+#### Please contact [contributors](https://github.com/rapidsai/spark-examples/graphs/contributors) for these jars now, since they have not been released yet.
+1. Application Jar: Please build the sample_xgboost_apps jar with dependencies as specified in the [guide](/getting-started-guides/building-sample-apps/scala.md)
+2. Rapids Plugin Jar: You can download it from [here](TBD)
+3. Dataset: https://rapidsai-data.s3.us-east-2.amazonaws.com/spark/mortgage.zip
 
 Place the required jar and dataset in a local directory. In this example the jar is in the `xgboost4j_spark/jars` directory, and the `mortgage.zip` dataset was unzipped in the `xgboost4j_spark/data` directory. 
 
@@ -59,7 +60,8 @@ Place the required jar and dataset in a local directory. In this example the jar
 [xgboost4j_spark]$ find . -type f -print|sort
 ./data/mortgage/csv/test/mortgage_eval_merged.csv
 ./data/mortgage/csv/train/mortgage_train_merged.csv
-./jars/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+./jars/rapids-4-spark-1.0-preview2.jar
+./jars/sample_xgboost_apps-0.2.2-jar-with-dependencies.jar
 ```
 
 Make sure that data and jars are accessible by each node of the Kubernetes cluster via [Kubernetes volumes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#using-kubernetes-volumes), on cluster filesystems like HDFS, or in [object stores like S3 and GCS](https://spark.apache.org/docs/2.3.0/cloud-integration.html). Note that using [application dependencies](https://spark.apache.org/docs/latest/running-on-kubernetes.html#dependency-management) from the submission client’s local file system is currently not yet supported.
@@ -127,7 +129,10 @@ export SPARK_EXECUTOR_MEMORY=8g
 export EXAMPLE_CLASS=ai.rapids.spark.examples.mortgage.GPUMain
 
 # XGBoost4J example jar
-export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.1.4-jar-with-dependencies.jar
+export JAR_EXAMPLE=${JARS_PATH}/sample_xgboost_apps-0.2.2-jar-with-dependencies.jar
+
+# Rapids plugin jar, working as the sql plugin on Spark3.0
+export JAR_RAPIDS=${JARS_PATH}/rapids-4-spark-1.0-preview2.jar
 
 # tree construction algorithm
 export TREE_METHOD=gpu_hist
@@ -138,6 +143,13 @@ Run spark-submit:
 
 ```
 ${SPARK_HOME}/bin/spark-submit                                                          \
+  --conf spark.sql.extensions=ai.rapids.spark.Plugin \
+  --conf spark.rapids.memory.gpu.pooling.enabled=false \
+  --conf spark.executor.resource.gpu.amount=1 \
+  --conf spark.task.resource.gpu.amount=1 \
+  --conf spark.executor.resource.gpu.discoveryScript=./getGpusResources.sh \
+  --files $SPARK_HOME/examples/src/main/scripts/getGpusResources.sh \
+  --jars ${JAR_RAPIDS}                               \
   --master ${SPARK_MASTER}                                                              \
   --deploy-mode ${SPARK_DEPLOY_MODE}                                                    \
   --class ${EXAMPLE_CLASS}                                                              \
@@ -148,14 +160,13 @@ ${SPARK_HOME}/bin/spark-submit                                                  
   --conf spark.kubernetes.executor.podTemplateFile=${TEMPLATE_PATH}                     \
   --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark                  \
   ${JAR_EXAMPLE}                                                                        \
-  -trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv              \
-  -evalDataPath=${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv                 \
+  -dataPath=train::${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv              \
+  -dataPath=trans::${DATA_PATH}/mortgage/csv/test/mortgage_eval_merged.csv                 \
   -format=csv                                                                           \
   -numWorkers=${SPARK_NUM_EXECUTORS}                                                    \
   -treeMethod=${TREE_METHOD}                                                            \
   -numRound=100                                                                         \
   -maxDepth=8                                                                   
-
 ```
 
 Retrieve the logs using the driver's pod name that is printed to `stdout` by spark-submit 
@@ -164,18 +175,19 @@ export POD_NAME=<kubernetes pod name>
 kubectl logs -f ${POD_NAME}
 ```
 
-In the driver log, you should see timings* (in seconds), and the RMSE accuracy metric:
+In the driver log, you should see timings* (in seconds), and the accuracy metric:
 ```
 --------------
-==> Benchmark: Elapsed time for [train]: 29.642s
+==> Benchmark: Elapsed time for [Mortgage GPU train csv stub Unknown Unknown Unknown]: 30.132s
 --------------
 
 --------------
-==> Benchmark: Elapsed time for [transform]: 21.272s
+==> Benchmark: Elapsed time for [Mortgage GPU transform csv stub Unknown Unknown Unknown]: 22.352s
 --------------
 
-------Accuracy of Evaluation------
-0.9874184013493451
+--------------
+==> Benchmark: Accuracy for [Mortgage GPU Accuracy csv stub Unknown Unknown Unknown]: 0.9869451418401349
+--------------
 ```
 
 \* Kubernetes logs may not be nicely formatted since `stdout` and `stderr` are not kept separately
