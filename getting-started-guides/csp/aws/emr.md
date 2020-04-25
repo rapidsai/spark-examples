@@ -118,7 +118,7 @@ export DATA_PATH=hdfs:/tmp/xgboost4j_spark/data
 # location for the required jar
 export JARS_PATH=hdfs:/tmp/xgboost4j_spark
 # spark deploy mode (see Apache Spark documentation for more information)
-export SPARK_DEPLOY_MODE=cluster
+export SPARK_DEPLOY_MODE=client
 # run a single executor for this example to limit the number of spark tasks and
 # partitions to 1 as currently this number must match the number of input files
 export SPARK_NUM_EXECUTORS=2
@@ -140,6 +140,7 @@ spark-submit                                                                    
  --num-executors ${SPARK_NUM_EXECUTORS}                                         \
  --driver-memory ${SPARK_DRIVER_MEMORY}                                         \
  --executor-memory ${SPARK_EXECUTOR_MEMORY}                                     \
+ --conf spark.executor.cores=8 --conf spark.task.cpus=8                         \
  --class ${EXAMPLE_CLASS}                                                       \
  ${JAR_EXAMPLE}                                                                 \
  -trainDataPath=${DATA_PATH}/mortgage/csv/train/mortgage_train_merged.csv       \
