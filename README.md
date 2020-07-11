@@ -1,3 +1,5 @@
+# Please note that this repo has been moved to the new repo [spark-xgboost-examples](https://github.com/NVIDIA/spark-xgboost-examples).
+
 This repo provides docs and example applications that demonstrate the RAPIDS.ai GPU-accelerated XGBoost-Spark project.
 
 ### Examples
