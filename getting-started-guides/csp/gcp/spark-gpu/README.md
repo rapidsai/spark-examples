@@ -93,11 +93,11 @@ described in the
 documentation. 
 
 See
-[the Mortgage example](https://github.com/rapidsai/spark-examples/tree/master/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/mortgage)
+[the Mortgage example](https://github.com/rapidsai/spark-examples/tree/main/examples/apps/scala/src/main/scala/ai/rapids/spark/examples/mortgage)
 that demonstrates end to end XGBoost4j in spark including data pre-processing and model
 training with RAPIDS Spark GPU APIs. Additional examples
-[are available](https://github.com/rapidsai/spark-examples/tree/master/examples). See the
-[RAPIDS Spark GPU API documentation](https://github.com/rapidsai/spark-examples/tree/master/api-docs) for API details.
+[are available](https://github.com/rapidsai/spark-examples/tree/main/examples). See the
+[RAPIDS Spark GPU API documentation](https://github.com/rapidsai/spark-examples/tree/main/api-docs) for API details.
 
 To submit such a job run:
 

@@ -38,7 +38,7 @@ export SPARK_DOCKER_IMAGE=<gpu spark docker image repo and name>
 export SPARK_DOCKER_TAG=<spark docker image tag>
 
 pushd ${SPARK_HOME}
-wget https://github.com/rapidsai/spark-examples/raw/master/Dockerfile
+wget https://github.com/rapidsai/spark-examples/raw/main/Dockerfile
 
 # Optionally install additional jars into ${SPARK_HOME}/jars/
 
